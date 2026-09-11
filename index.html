@@ -1751,12 +1751,15 @@ function render(){
 
   const mixTarget = R.existingPlan.map((e,m)=> e / R.planRev[m]);
   const mixActual = DATA.existingActualRev.map((e,m)=> (e!=null && DATA.actualRevenue[m]) ? e / DATA.actualRevenue[m] : null);
+  // existing-share can nudge just above 100% in some months (split computed independently),
+  // so lift the ceiling above the real max — otherwise those points clip at the axis and the line looks broken
+  const mixMax = Math.max(1.05, ...mixActual.filter(v=>v!=null), ...mixTarget.filter(v=>v!=null)) + 0.03;
   mkChart('ch-mix', { type:'line', data:{ labels:M, datasets:[
     { label:'Existing share — actual', data: mixActual.concat(Array(12-mixActual.length).fill(null)), borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0 },
     { label:'Existing share — plan', data: mixTarget, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.3 }
   ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
     plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fPct(c.parsed.y,1))}}, legend:{position:'bottom'} },
-    scales:{ x:baseScalesMoney.x, y:{min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+    scales:{ x:baseScalesMoney.x, y:{min:0.3, max:mixMax, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
 
   let tc2 = '<table><tr><th class="txt">Month</th><th>Returning (2025)</th><th>New ROAS (cum.)</th><th>Total active</th><th>Returning %</th></tr>';
   for (let m=0; m<=li; m++){
