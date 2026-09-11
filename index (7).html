@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moontech · Unit Economics 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --sidebar-bg:#1E2530; --sidebar-text:#9AA4B2; --sidebar-active:#FFFFFF;
+  --bg:#F5F6F8; --card:#FFFFFF; --border:#E4E7EC; --border-soft:#EEF0F3;
+  --text:#1A202C; --text-2:#5B6472; --text-3:#8A93A2;
+  --accent:#5B5BD6; --accent-soft:#EDEDFB; --accent-tint:#B9B9EC;
+  --good:#188653; --good-bg:#E8F6EE; --bad:#C93B3B; --bad-bg:#FBEDED;
+  --warn:#B77816; --warn-bg:#FCF3E3; --neutral-chip:#EEF0F3;
+  --grid:#ECEEF2; --radius:13px;
+  --shadow:0 1px 2px rgba(16,24,40,.04);
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text);
+  font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased}
+.num, td.num, .kpi-value, .lever input, table{font-variant-numeric:tabular-nums}
+.layout{display:flex; min-height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{width:198px; min-width:198px; background:var(--sidebar-bg); color:var(--sidebar-text);
+  position:sticky; top:0; height:100vh; display:flex; flex-direction:column; padding:22px 0 16px}
+.brand{padding:0 20px 20px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:14px}
+.brand .word{font-weight:800; letter-spacing:.14em; color:#fff; font-size:15px}
+.brand .sub{font-size:10.5px; color:var(--sidebar-text); margin-top:3px; letter-spacing:.04em}
+.nav{flex:1; overflow-y:auto}
+.nav a{display:block; padding:9px 20px; color:var(--sidebar-text); text-decoration:none; font-size:13px;
+  font-weight:500; border-left:3px solid transparent; cursor:pointer}
+.nav a:hover{color:#D7DCE3}
+.nav a.active{color:var(--sidebar-active); border-left-color:var(--accent); background:rgba(91,91,214,.12); font-weight:600}
+.nav .group{padding:16px 20px 6px; font-size:10px; letter-spacing:.12em; color:#6B7583; text-transform:uppercase; font-weight:600}
+.side-foot{padding:14px 20px 0; font-size:10.5px; color:#6B7583; border-top:1px solid rgba(255,255,255,.08)}
+
+/* ---------- content ---------- */
+.content{flex:1; padding:26px 30px 60px; max-width:1280px}
+.page{display:none}
+.page.active{display:block}
+h1{font-size:20px; font-weight:700; letter-spacing:-.01em}
+.page-sub{color:var(--text-2); font-size:13px; margin-top:4px; max-width:860px}
+.page-head{margin-bottom:18px}
+h2{font-size:15px; font-weight:600; margin-bottom:2px}
+.card-sub{color:var(--text-3); font-size:12px; margin-bottom:12px}
+.grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px}
+.card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; box-shadow:var(--shadow)}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}
+.span-4{grid-column:span 4}.span-3{grid-column:span 3}
+@media(max-width:1000px){.span-8,.span-6,.span-4,.span-3{grid-column:span 12}}
+
+/* KPI tiles */
+.kpi-label{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-3)}
+.kpi-value{font-size:23px; font-weight:700; margin-top:5px; letter-spacing:-.01em}
+.kpi-note{font-size:11.5px; color:var(--text-2); margin-top:3px}
+.kpi-spark{height:34px; margin-top:8px}
+.delta-good{color:var(--good)} .delta-bad{color:var(--bad)}
+.tag{display:inline-block; font-size:10px; font-weight:600; color:var(--text-3); background:var(--neutral-chip);
+  border-radius:5px; padding:1px 6px; margin-left:6px; letter-spacing:.02em; vertical-align:2px}
+
+/* chips */
+.chip{display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap}
+.chip-good{background:var(--good-bg); color:var(--good)}
+.chip-bad{background:var(--bad-bg); color:var(--bad)}
+.chip-warn{background:var(--warn-bg); color:var(--warn)}
+.chip-neutral{background:var(--neutral-chip); color:var(--text-2)}
+.chip-accent{background:var(--accent-soft); color:var(--accent)}
+
+/* tables */
+table{width:100%; border-collapse:collapse; font-size:12.5px}
+th{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); font-weight:600;
+  text-align:right; padding:7px 8px; border-bottom:1px solid var(--border)}
+th.txt, td.txt{text-align:left}
+td{padding:7px 8px; border-bottom:1px solid var(--border-soft); text-align:right; color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr.total td{font-weight:700; border-top:2px solid var(--border)}
+.muted{color:var(--text-3)}
+.table-wrap{overflow-x:auto}
+.heat{font-size:11.5px; border-radius:4px; padding:2px 5px; display:inline-block; min-width:44px}
+
+/* levers */
+.lever{margin-bottom:14px}
+.lever label{display:block; font-size:12px; font-weight:600; margin-bottom:4px}
+.lever .hint{font-size:11px; color:var(--text-3); font-weight:400; margin-left:4px}
+.lever input{width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-size:14px;
+  font-weight:600; font-family:inherit; color:var(--text); background:#fff}
+.lever input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.locked{background:var(--bg); border:1px dashed var(--border); border-radius:8px; padding:8px 10px;
+  font-size:12.5px; color:var(--text-2); display:flex; justify-content:space-between; margin-bottom:10px}
+.locked b{color:var(--text)}
+.live-heading{font-size:14.5px; font-weight:600; background:var(--accent-soft); border:1px solid var(--accent-tint);
+  color:#3B3B8F; border-radius:10px; padding:12px 16px; margin-bottom:16px; line-height:1.55}
+.live-heading .v{color:var(--accent)}
+
+/* scenarios */
+.scen-banner{font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:10px; margin-bottom:14px}
+.scen-banner.ok{background:var(--good-bg); color:var(--good)}
+.scen-banner.warn{background:var(--warn-bg); color:var(--warn)}
+.scen-card{border:1px solid var(--border); border-radius:11px; padding:14px 15px; position:relative}
+.scen-card.hit{border-color:#9BD4B4; background:linear-gradient(180deg,#FBFEFC, #fff)}
+.scen-card h3{font-size:13.5px; font-weight:700; margin-bottom:2px}
+.scen-card .assum{font-size:11.5px; color:var(--text-2); margin:6px 0 10px; line-height:1.5}
+.scen-out{font-size:12.5px; display:flex; justify-content:space-between; padding:3px 0}
+.scen-out b{font-weight:700}
+.apply-btn{margin-top:10px; width:100%; padding:7px; border:1px solid var(--border); background:#fff; border-radius:8px;
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer}
+.apply-btn:hover{border-color:var(--accent); color:var(--accent)}
+.scen-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px}
+
+/* misc */
+.chart-box{position:relative; width:100%}
+.legend-note{font-size:11px; color:var(--text-3); margin-top:8px}
+.callout{border-left:3px solid var(--accent); background:var(--accent-soft); padding:10px 14px; border-radius:0 9px 9px 0;
+  font-size:12.5px; color:#3B3B8F; margin:10px 0}
+.callout.warn{border-left-color:var(--warn); background:var(--warn-bg); color:#7A5310}
+.method p{font-size:13px; color:var(--text-2); margin-bottom:10px; max-width:820px}
+.method h2{margin-top:20px}
+.method ul{margin:0 0 10px 18px; font-size:13px; color:var(--text-2)}
+.method li{margin-bottom:5px}
+.footer-note{margin-top:26px; font-size:11px; color:var(--text-3)}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="word">MOONTECH</div>
+      <div class="sub">Unit Economics · 2026</div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="group">Report</div>
+      <a data-page="cockpit" class="active">Cockpit</a>
+      <a data-page="targets">Targets vs Actuals</a>
+      <a data-page="topclients">Top Clients</a>
+      <a data-page="cac">CAC</a>
+      <div class="group">Model</div>
+      <a data-page="levers">Levers</a>
+      <a data-page="scenarios">Path to $8.2M</a>
+      <a data-page="roas">ROAS Clients</a>
+      <div class="group">About</div>
+      <a data-page="method">Method</a>
+    </nav>
+    <div class="side-foot">Actuals through <b style="color:#C6CBD3">Jul 2026</b><br>Updated monthly</div>
+  </aside>
+  <main class="content" id="content"><!--PAGES--></main>
+</div>
+<script>
+// ===== DATA BLOCK — monthly update: replace this object and commit =====
+// Source: Unit_Economics_Model (1).xlsx — actuals through July 2026
+const DATA = {
+ "meta": {
+  "currency": "USD",
+  "year": 2026,
+  "latestClosedIdx": 6,
+  "asOf": "July 2026"
+ },
+ "months": [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+ ],
+ "targetARR": 8200000.0,
+ "prior2025": [
+  200173.0,
+  190007.0,
+  421639.0,
+  193977.0,
+  227060.0,
+  255660.0,
+  247516.0,
+  252478.0,
+  279526.0,
+  313266.0,
+  743727.0,
+  270011.0
+ ],
+ "seasonality": [
+  0.062,
+  0.068,
+  0.103,
+  0.0618,
+  0.0631,
+  0.0763,
+  0.0736,
+  0.0742,
+  0.0778,
+  0.0917,
+  0.1609,
+  0.0877
+ ],
+ "distribution": [
+  0.01,
+  0.02,
+  0.03,
+  0.04,
+  0.06,
+  0.08,
+  0.1,
+  0.12,
+  0.13,
+  0.13,
+  0.14,
+  0.14
+ ],
+ "actualRevenue": [
+  310383.5782137073,
+  325672.64729876927,
+  527429.1600377264,
+  289132.6885170347,
+  329872.83291794424,
+  212985.12187913546,
+  207893.0
+ ],
+ "existingActualRev": [
+  309633.1495819851,
+  324328.9482242791,
+  519444.2643398094,
+  285215.3669942451,
+  322035.4756340776,
+  207115.69305864535
+ ],
+ "actualNewClients": [
+  0,
+  3,
+  2,
+  2,
+  4,
+  3,
+  8
+ ],
+ "returningClients": [
+  46.0,
+  47.0,
+  46.0,
+  48.0,
+  47.0,
+  44.0,
+  44
+ ],
+ "adjustments": [
+  -109837.16814159292,
+  -93672.15793056501,
+  -76705.24166099388,
+  -68717.76718856365,
+  -55912.049012933974
+ ],
+ "influActive": [
+  449.0,
+  392.0,
+  395.0,
+  423.0,
+  382.0,
+  326.0,
+  257.0
+ ],
+ "influNew": [
+  18.0,
+  36.0,
+  23.0,
+  25.0,
+  16.0,
+  10.0,
+  11.0
+ ],
+ "ads": [
+  1809.0,
+  1854.0,
+  2908.0,
+  1943.0,
+  1035.0,
+  782.0,
+  924.0
+ ],
+ "cac": {
+  "merchant": {
+   "cost": [
+    4585.0,
+    9046.0,
+    8746.0,
+    8779.0,
+    11078.0,
+    11053.0,
+    10938.0
+   ],
+   "count": [
+    3.0,
+    3.0,
+    2.0,
+    3.0,
+    6.0,
+    3.0,
+    6.0
+   ],
+   "target": 3500.0
+  },
+  "creator": {
+   "cost": [
+    19093.0,
+    18360.0,
+    17335.0,
+    16408.0,
+    16773.0,
+    16764.0,
+    16241.0
+   ],
+   "count": [
+    18.0,
+    36.0,
+    23.0,
+    25.0,
+    16.0,
+    10.0,
+    11.0
+   ],
+   "target": 1000.0
+  }
+ },
+ "topClients": [
+  {
+   "name": "Ounass",
+   "monthly": [
+    171596.6589516678,
+    145038.94077603813,
+    265955.7277059224,
+    156299.14091218516,
+    77043.56432947583,
+    82145.68822328115,
+    82377.12729748129
+   ]
+  },
+  {
+   "name": "Sephora",
+   "monthly": [
+    46427.75170755616,
+    117011.19945541184,
+    83304.21238938053,
+    62152.702518720216,
+    74636.47651463581,
+    52734.32266848196,
+    66395.37100068074
+   ]
+  },
+  {
+   "name": "Level shoes",
+   "monthly": [
+    20973.424342511913,
+    9465.247106875424,
+    50820.49557522124,
+    22473.22342276379,
+    28077.802586793736,
+    34980.46938352621,
+    22552.75697753574
+   ]
+  },
+  {
+   "name": "Bloomingdales",
+   "monthly": [
+    10552.063377780805,
+    9638.562287270253,
+    27249.95892827774,
+    9701.90525933288,
+    67647.19092988427,
+    11401.473674309054,
+    0.0
+   ]
+  },
+  {
+   "name": "Charlotte Tilbury",
+   "monthly": [
+    859.8114363512594,
+    1223.5371000680734,
+    35428.34288631722,
+    10401.500953029272,
+    34042.480769230766,
+    5432.217835262083,
+    3821.647379169503
+   ]
+  }
+ ],
+ "roasMonths": [
+  "Nov 25",
+  "Dec 25",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul"
+ ],
+ "roasClients": [
+  {
+   "name": "Touche Prive",
+   "start": "2025-11",
+   "moActive": 9,
+   "level": 1,
+   "moAtLevel": 8,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Anfasik",
+   "start": "2025-12",
+   "moActive": 8,
+   "level": 2,
+   "moAtLevel": 7,
+   "l12": 0,
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 2000,
+   "arpa": 2000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    null,
+    2000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Right Bite",
+   "start": "2025-12",
+   "moActive": 8,
+   "level": 5,
+   "moAtLevel": 1,
+   "l12": 2,
+   "l23": 2,
+   "l34": 2,
+   "totalSpend": 18500,
+   "arpa": 90000,
+   "status": "\u2713 Active",
+   "spend": [
+    null,
+    1000.0,
+    null,
+    2000.0,
+    null,
+    3000.0,
+    null,
+    5000.0,
+    7500.0
+   ]
+  },
+  {
+   "name": "Golden Scent",
+   "start": "2025-12",
+   "moActive": 8,
+   "level": 5,
+   "moAtLevel": 4,
+   "l12": 1,
+   "l23": 1,
+   "l34": 1,
+   "totalSpend": 16000,
+   "arpa": 60000,
+   "status": "\u2713 Active",
+   "spend": [
+    null,
+    1000.0,
+    2000.0,
+    3000.0,
+    5000.0,
+    5000.0,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Sahseh",
+   "start": "2026-02",
+   "moActive": 6,
+   "level": 1,
+   "moAtLevel": 5,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Bookmypet",
+   "start": "2026-02",
+   "moActive": 6,
+   "level": 1,
+   "moAtLevel": 5,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Lawni",
+   "start": "2026-02",
+   "moActive": 6,
+   "level": 1,
+   "moAtLevel": 5,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Studio Earth",
+   "start": "2026-03",
+   "moActive": 5,
+   "level": 1,
+   "moAtLevel": 4,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Smarteletec",
+   "start": "2026-03",
+   "moActive": 5,
+   "level": 1,
+   "moAtLevel": 4,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Fons and Splendor",
+   "start": "2026-04",
+   "moActive": 4,
+   "level": 1,
+   "moAtLevel": 3,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Oneshot",
+   "start": "2026-04",
+   "moActive": 4,
+   "level": 1,
+   "moAtLevel": 3,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "DKNY",
+   "start": "2026-05",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Allbirds",
+   "start": "2026-05",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Kizik",
+   "start": "2026-05",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Izil",
+   "start": "2026-05",
+   "moActive": 3,
+   "level": 1.0,
+   "moAtLevel": 2,
+   "l12": 0,
+   "l23": 0,
+   "l34": 0,
+   "totalSpend": 8168.822328,
+   "arpa": 8168.822328,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    8168.822328,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Aiza",
+   "start": "2026-05",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Jetour",
+   "start": "2026-06",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Maison safqa",
+   "start": "2026-06",
+   "moActive": 2,
+   "level": 3.0,
+   "moAtLevel": 0,
+   "l12": 1,
+   "l23": 0,
+   "l34": 0,
+   "totalSpend": 6000,
+   "arpa": 36000.0,
+   "status": "\u2191 Scaling",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    5000.0
+   ]
+  },
+  {
+   "name": "Arte madrid",
+   "start": "2026-06",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Reefi",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Avantcha",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Alma home",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Nysaa Beauty",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Joli",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Just Hype",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Under 500",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Ejalo Beauty",
+   "start": "2026-07",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  }
+ ],
+ "roasARPA": 8080.326753,
+ "defaults": {
+  "growth": 0.2,
+  "newClients": 205.0,
+  "arpa": 24000,
+  "dropout": 0.25,
+  "cac": 3500,
+  "churn": 0.35,
+  "gm": 0.5,
+  "influPerClient": 2.0,
+  "adsPerInflu": 4.7
+ }
+};
+
+/* ============================================================
+   MOONTECH UNIT ECONOMICS DASHBOARD
+   One engine. Levers in, everything out.
+   ============================================================ */
+"use strict";
+
+/* ---------- palette (mirrors CSS custom properties) ---------- */
+function cssv(name, fallback){
+  try{
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }catch(e){ return fallback; }
+}
+const C = {
+  accent: cssv('--accent', '#5B5BD6'),
+  accentTint: cssv('--accent-tint', '#B9B9EC'),
+  dark: cssv('--text', '#1A202C'),
+  good: cssv('--good', '#188653'),
+  bad: cssv('--bad', '#C93B3B'),
+  warn: cssv('--warn', '#B77816'),
+  grey: '#9AA3B0',
+  grid: cssv('--grid', '#ECEEF2'),
+  muted: cssv('--text-3', '#8A93A2')
+};
+
+/* ---------- formatters ---------- */
+const fmtMoney = v => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+const fK = v => {
+  const a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (a >= 1e6) return s + '$' + (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
+  if (a >= 1e3) return s + '$' + Math.round(a/1e3) + 'K';
+  return s + '$' + Math.round(a);
+};
+const fMshort = v => (v<0?'-':'') + '$' + (Math.abs(v)/1e6).toFixed(2) + 'M';
+const fPct = (v, dp=0) => (v*100).toFixed(dp) + '%';
+const fNum = v => Math.round(v).toLocaleString('en-US');
+const f1 = v => v.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
+
+/* Sign-aware delta span. goodPos=false flips semantics (e.g. cost overruns). */
+function deltaSpan(v, opts){
+  const o = Object.assign({goodPos:true, fmt:fNum, prefix:''}, opts||{});
+  if (v === 0 || v === null || v === undefined || isNaN(v)) return '<span class="muted num">—</span>';
+  const good = o.goodPos ? v > 0 : v < 0;
+  const arrow = v > 0 ? '▲' : '▼';
+  return '<span class="' + (good?'delta-good':'delta-bad') + ' num" data-v="' + v + '" data-goodpos="' + o.goodPos + '">' +
+    arrow + ' ' + o.prefix + o.fmt(Math.abs(v)) + '</span>';
+}
+
+/* ============================================================
+   ENGINE — replicates the Excel model exactly.
+   Levers in, full result out. Every projected number displayed
+   anywhere comes from here; actuals come from DATA.
+   ============================================================ */
+function engine(L){
+  const seas = DATA.seasonality, prior = DATA.prior2025, dist = DATA.distribution;
+  const li = DATA.meta.latestClosedIdx;               // last closed month (0-based)
+  const priorTotal = prior.reduce((a,b)=>a+b,0);
+
+  const seasARPA = seas.map(s => L.arpa * s);          // monthly ARPA at plan seasonality
+  const existingPlan = prior.map(p => p * (1 + L.growth));
+
+  // new-client build (plan)
+  const signedPlan = dist.map(d => Math.round(d * L.newClients));
+  const cumPlan = []; signedPlan.reduce((a,b,i)=> (cumPlan[i]=a+b, cumPlan[i]), 0);
+  const newRevOf = (signed, cum) => signed.map((_, m) => {
+    const mature = m >= 3 ? cum[m-3] : 0;              // cohorts past their first 3 months
+    const ramp = signed[m] + (signed[m-1]||0) + (signed[m-2]||0); // newest 3 cohorts
+    return mature * seasARPA[m] + ramp * seasARPA[m] * (1 - L.dropout);
+  });
+  const newRevPlan = newRevOf(signedPlan, cumPlan);
+  const planRev = existingPlan.map((e,m) => e + newRevPlan[m]);
+
+  // blended: actuals for closed months, plan forward
+  const rev = planRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
+
+  // "signings stop" baseline: actual signings to date, zero new from next month
+  const signedStop = signedPlan.map((s,m) => m <= li ? DATA.actualNewClients[m] : 0);
+  const cumStop = []; signedStop.reduce((a,b,i)=> (cumStop[i]=a+b, cumStop[i]), 0);
+  const stopRev = existingPlan.map((e,m) => e + newRevOf(signedStop, cumStop)[m]);
+  const stopBlend = stopRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
+
+  // ARR: 3-month rolling average of de-seasonalised revenue (window truncated at start)
+  const arrOf = series => series.map((_,m) => {
+    const w = [];
+    for (let k = Math.max(0, m-2); k <= m; k++) w.push(series[k] / seas[k]);
+    return w.reduce((a,b)=>a+b,0) / w.length;
+  });
+  const arr = arrOf(rev);
+  const arrStop = arrOf(stopBlend);
+
+  // customer-equivalents
+  const custEqTarget = cumPlan.map(c => Math.round(priorTotal / L.arpa + c));
+  const custEqActual = DATA.actualRevenue.map((r,m) => Math.round(r / seasARPA[m]));
+  const custEqFY = Math.round(L.targetARR / L.arpa);
+
+  // unit economics
+  const ltv = L.arpa * (1 - L.dropout) / L.churn;
+  const ltvcac = ltv / L.cac;
+  const payback = L.cac / (L.arpa * L.gm / 12);
+  const nrr = existingPlan.reduce((a,b)=>a+b,0) / priorTotal;
+
+  // shortfall adjustment → additional clients needed (Excel Cockpit!B13)
+  const adjSum = DATA.adjustments.reduce((a,b)=>a+b,0);
+  const remaining = 12 - (li + 1);
+  const addlClients = adjSum < 0 ? Math.ceil(Math.abs(adjSum) / remaining / (L.arpa/12)) : 0;
+
+  // influencer capacity forecast (future months from target cust-eq)
+  const influForecast = custEqTarget.map((c,m) => m <= li ? DATA.influActive[m] : Math.round(c * L.influPerClient));
+  const adsForecast = influForecast.map((f,m) => m <= li ? DATA.ads[m] : Math.round(f * L.adsPerInflu));
+
+  const ytdActual = DATA.actualRevenue.reduce((a,b)=>a+b,0);
+  const ytdPlan = planRev.slice(0, li+1).reduce((a,b)=>a+b,0);
+  const cumRev = []; rev.reduce((a,b,i)=> (cumRev[i]=a+b, cumRev[i]), 0);
+
+  return { seasARPA, existingPlan, signedPlan, cumPlan, newRevPlan, planRev, rev, stopBlend,
+    arr, arrStop, custEqTarget, custEqActual, custEqFY,
+    ltv, ltvcac, payback, nrr, addlClients, adjSum,
+    influForecast, adsForecast, ytdActual, ytdPlan, cumRev,
+    yeARR: arr[11], latestARR: arr[li], fyPlanRevenue: planRev.reduce((a,b)=>a+b,0) };
+}
+
+/* ---------- state ---------- */
+const state = { levers: Object.assign({ targetARR: DATA.targetARR }, DATA.defaults) };
+window.__state = state;                 // exposed for tests / console debugging
+window.__engine = engine;
+
+/* ---------- scenario presets ---------- */
+const SCENARIOS = [
+  { name: 'Plan of record', desc: 'The model as agreed: 20% existing growth, 205 new clients, 25% early dropout.', set: {} },
+  { name: 'Signings slip 25%', desc: 'Same growth and dropout, but only 154 new clients land.', set: { newClients: 154 } },
+  { name: 'Dropout worsens', desc: '205 signings but 40% quit inside 3 months.', set: { dropout: 0.40 } },
+  { name: 'Existing book flat', desc: 'No growth from returning clients; new-client plan holds.', set: { growth: 0 } },
+  { name: 'Stretch', desc: '240 new clients and dropout improved to 20%.', set: { newClients: 240, dropout: 0.20 } }
+];
+
+/* ============================================================
+   PAGE SKELETONS
+   ============================================================ */
+function buildPages(){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <!-- ================= COCKPIT ================= -->
+  <section class="page active" id="page-cockpit">
+    <div class="page-head"><h1>Cockpit</h1>
+    <div class="page-sub">Moontech platform revenue, annualised run-rate and the path to the year-end target. Actuals closed through July 2026; August onward is the model at current lever settings.</div></div>
+    <div class="grid">
+      <div class="card span-3"><div class="kpi-label">ARR — Latest month <span class="tag">Jul, run-rate</span></div>
+        <div class="kpi-value num" id="k-latest-arr"></div><div class="kpi-note" id="k-latest-note"></div>
+        <div class="kpi-spark"><canvas id="spark-arr"></canvas></div></div>
+      <div class="card span-3"><div class="kpi-label">Projected year-end ARR</div>
+        <div class="kpi-value num" id="k-ye-arr"></div><div class="kpi-note" id="k-ye-note"></div>
+        <div class="kpi-spark"><canvas id="spark-ye"></canvas></div></div>
+      <div class="card span-3"><div class="kpi-label">Revenue YTD <span class="tag">Jan–Jul actual</span></div>
+        <div class="kpi-value num" id="k-ytd"></div><div class="kpi-note" id="k-ytd-note"></div>
+        <div class="kpi-spark"><canvas id="spark-rev"></canvas></div></div>
+      <div class="card span-3"><div class="kpi-label">New clients YTD <span class="tag">signed</span></div>
+        <div class="kpi-value num" id="k-newc"></div><div class="kpi-note" id="k-newc-note"></div>
+        <div class="kpi-spark"><canvas id="spark-newc"></canvas></div></div>
+
+      <div class="card span-12"><h2>ARR path to year-end</h2>
+        <div class="card-sub">Annualised run-rate: 3-month rolling average of de-seasonalised monthly revenue. Solid dark = actuals · accent = model projection · dashed grey = if signings stop after July · dotted = target.</div>
+        <div class="chart-box" style="height:300px"><canvas id="ch-arr"></canvas></div></div>
+
+      <div class="card span-8"><h2>Monthly platform revenue <span class="tag">operational, all clients</span></h2>
+        <div class="card-sub">Dark bars = actuals · light bars = model projection · accent line = full-year plan · dashed grey = if signings stop.</div>
+        <div class="chart-box" style="height:280px"><canvas id="ch-rev"></canvas></div></div>
+
+      <div class="card span-4"><h2>Model health</h2><div class="card-sub">Unit economics at current levers.</div>
+        <div id="health-tiles"></div></div>
+
+      <div class="card span-12"><h2>Month by month — actual vs plan</h2>
+        <div class="card-sub">Plan = the model at current lever settings. Variance is actual minus plan for closed months.</div>
+        <div class="table-wrap" id="tbl-cockpit"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= TARGETS ================= -->
+  <section class="page" id="page-targets">
+    <div class="page-head"><h1>Targets vs Actuals</h1>
+    <div class="page-sub">Where 2026 is landing against the plan, measured the way the model measures it: customer-equivalents at plan ARPA, signings, and the revenue mix between the existing book and new ROAS clients.</div></div>
+    <div class="grid">
+      <div class="card span-6"><h2>Customer-equivalents <span class="tag">revenue ÷ seasonal ARPA</span></h2>
+        <div class="card-sub" id="sub-custeq"></div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-custeq"></canvas></div></div>
+      <div class="card span-6"><h2>New clients signed — cumulative</h2>
+        <div class="card-sub">Actual signings vs the plan's signing schedule.</div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-signed"></canvas></div></div>
+      <div class="card span-6"><h2>Revenue mix — existing vs new <span class="tag">share of monthly revenue</span></h2>
+        <div class="card-sub">The plan expects new ROAS clients to carry a rising share. Actual existing-book share shown Jan–Jun (July split not yet in the workbook).</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-mix"></canvas></div></div>
+      <div class="card span-6"><h2>Client counts</h2>
+        <div class="card-sub">Returning clients (from 2025) plus cumulative new ROAS clients — actuals.</div>
+        <div class="table-wrap" id="tbl-counts"></div></div>
+      <div class="card span-12"><h2>Detail</h2><div class="table-wrap" id="tbl-targets"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= TOP CLIENTS ================= -->
+  <section class="page" id="page-topclients">
+    <div class="page-head"><h1>Top Clients</h1>
+    <div class="page-sub">Concentration in the existing book, Jan–Jul 2026 actuals.</div></div>
+    <div class="grid">
+      <div class="card span-4"><div class="kpi-label">Top client share <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-top1"></div><div class="kpi-note" id="k-top1-note"></div></div>
+      <div class="card span-4"><div class="kpi-label">Top 5 share <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-top5"></div><div class="kpi-note">of all platform revenue</div></div>
+      <div class="card span-4"><div class="kpi-label">Everyone else <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-rest"></div><div class="kpi-note" id="k-rest-note"></div></div>
+      <div class="card span-12"><h2>Share of monthly revenue</h2>
+        <div class="card-sub">Stacked share of each month's actual platform revenue.</div>
+        <div class="chart-box" style="height:280px"><canvas id="ch-top"></canvas></div></div>
+      <div class="card span-12"><h2>Monthly revenue by client <span class="tag">$ actual</span></h2>
+        <div class="table-wrap" id="tbl-top"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= CAC ================= -->
+  <section class="page" id="page-cac">
+    <div class="page-head"><h1>CAC</h1>
+    <div class="page-sub">Acquisition cost on both sides of the marketplace: merchants (ROAS clients) and creators. Jan–Jul 2026 actuals from the acquisition-cost section of the model workbook.</div></div>
+    <div class="grid">
+      <div class="card span-3"><div class="kpi-label">Merchant CAC <span class="tag">blended YTD</span></div>
+        <div class="kpi-value num" id="k-mcac"></div><div class="kpi-note" id="k-mcac-note"></div></div>
+      <div class="card span-3"><div class="kpi-label">Merchants acquired <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-mcount"></div><div class="kpi-note" id="k-mspend"></div></div>
+      <div class="card span-3"><div class="kpi-label">Creator CAC <span class="tag">blended YTD</span></div>
+        <div class="kpi-value num" id="k-ccac"></div><div class="kpi-note" id="k-ccac-note"></div></div>
+      <div class="card span-3"><div class="kpi-label">Creators acquired <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-ccount"></div><div class="kpi-note" id="k-cspend"></div></div>
+
+      <div class="card span-6"><h2>Merchant CAC by month</h2>
+        <div class="card-sub">Cost per acquired merchant vs the target used in the LTV:CAC model. Bars turn red when a month runs over target.</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-mcac"></canvas></div></div>
+      <div class="card span-6"><h2>Creator CAC by month</h2>
+        <div class="card-sub">Cost per newly activated creator vs target.</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-ccac"></canvas></div></div>
+
+      <div class="card span-6"><h2>Merchant CAC — detail</h2><div class="table-wrap" id="tbl-mcac"></div></div>
+      <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
+
+      <div class="card span-12"><h2>Cost breakdown by channel</h2>
+        <div class="card-sub">Detailed acquisition-cost breakdown (channel / line-item level).</div>
+        <div class="callout warn">The published Google Sheet for the detailed CAC breakdown wasn't reachable when this dashboard was built (the link returned a 401). This section is scaffolded and will populate once the source is shared — the summary above uses the acquisition-cost totals already in the model workbook.</div></div>
+    </div>
+  </section>
+
+  <!-- ================= LEVERS ================= -->
+  <section class="page" id="page-levers">
+    <div class="page-head"><h1>Levers</h1>
+    <div class="page-sub">Every projected number on this dashboard is computed from the levers below — change one and everything downstream moves. Closed months (Jan–Jul) are actuals and never move.</div></div>
+    <div class="live-heading" id="live-heading"></div>
+    <div class="grid">
+      <div class="card span-4"><h2>Growth levers</h2><div class="card-sub">The demand side of the plan.</div>
+        <div class="lever"><label>Existing-client growth vs 2025 <span class="hint">%</span></label>
+          <input type="number" step="1" id="lv-growth"></div>
+        <div class="lever"><label>New clients signed in 2026 <span class="hint">count, full year</span></label>
+          <input type="number" step="1" id="lv-newClients"></div>
+        <div class="lever"><label>ARPA — new clients <span class="hint">$ / year</span></label>
+          <input type="number" step="500" id="lv-arpa"></div>
+        <div class="lever"><label>3-month dropout <span class="hint">% of new clients quitting early</span></label>
+          <input type="number" step="1" id="lv-dropout"></div>
+      </div>
+      <div class="card span-4"><h2>Unit-economics levers</h2><div class="card-sub">Feed LTV, LTV:CAC and payback.</div>
+        <div class="lever"><label>Annual churn <span class="hint">%</span></label>
+          <input type="number" step="1" id="lv-churn"></div>
+        <div class="lever"><label>Merchant CAC <span class="hint">$ per new client (plan)</span></label>
+          <input type="number" step="100" id="lv-cac"></div>
+        <div class="lever"><label>Gross margin <span class="hint">% blended</span></label>
+          <input type="number" step="1" id="lv-gm"></div>
+        <div class="lever"><label>Target ARR <span class="hint">$ — the goal line</span></label>
+          <input type="number" step="100000" id="lv-targetARR"></div>
+      </div>
+      <div class="card span-4"><h2>Fixed references</h2><div class="card-sub">Facts, not levers — shown locked.</div>
+        <div class="locked"><span>2025 platform revenue</span><b class="num" id="lk-2025"></b></div>
+        <div class="locked"><span>Seasonality shape</span><b>2025 monthly mix</b></div>
+        <div class="locked"><span>Signing schedule</span><b>1%→14% ramp over 12&nbsp;mo</b></div>
+        <div class="locked"><span>Influencers / client-equivalent</span><b class="num" id="lk-influ"></b></div>
+        <div class="locked"><span>Ads / influencer / month</span><b class="num" id="lk-ads"></b></div>
+        <div class="callout" id="adj-callout"></div>
+      </div>
+
+      <div class="card span-12"><h2>Output — unit economics</h2><div id="lever-outputs" class="grid" style="grid-template-columns:repeat(6,1fr); gap:12px"></div></div>
+
+      <div class="card span-12"><h2>Revenue build — how the year stacks up</h2>
+        <div class="card-sub">Each month = existing book (growing vs 2025) + new clients still in their first 3 months (discounted for dropout) + new clients past month 3 (paying full seasonal ARPA). This is where the back-loaded shape comes from: cohorts signed in H1 only mature in H2, and November carries the seasonal peak.</div>
+        <div class="chart-box" style="height:290px"><canvas id="ch-build"></canvas></div>
+        <div class="table-wrap" style="margin-top:14px" id="tbl-build"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= SCENARIOS ================= -->
+  <section class="page" id="page-scenarios">
+    <div class="page-head"><h1>Path to $8.2M</h1>
+    <div class="page-sub">Five lever sets, each priced through the same engine. History (Jan–Jul) is shared by every scenario; lines only diverge from August.</div></div>
+    <div class="scen-banner" id="scen-banner"></div>
+    <div class="scen-grid" id="scen-cards"></div>
+    <div class="card" style="margin-top:14px"><h2>ARR by scenario</h2>
+      <div class="card-sub">One shared history, branching forward. Scenarios that miss the target are dashed. Dotted horizontal line = target ARR.</div>
+      <div class="chart-box" style="height:300px"><canvas id="ch-scen"></canvas></div></div>
+  </section>
+
+  <!-- ================= ROAS CLIENTS ================= -->
+  <section class="page" id="page-roas">
+    <div class="page-head"><h1>ROAS Clients</h1>
+    <div class="page-sub">Every new ROAS client and where they sit on the spend ladder. Clients start at Level 1 ($1K/month test budget) and are meant to climb: L2 ≈ $2K, L3 ≈ $3K, L4 ≈ $5K, L5 ≈ $7.5K. Level is set by the highest monthly spend reached.</div></div>
+    <div class="grid">
+      <div class="card span-8"><h2>Book health</h2><div class="card-sub">Status of all signed ROAS clients as of July.</div>
+        <div id="roas-chips" style="display:flex; flex-wrap:wrap; gap:8px"></div>
+        <div class="callout warn" id="roas-arpa-callout" style="margin-top:14px"></div></div>
+      <div class="card span-4"><div class="kpi-label">Current ROAS book ARPA</div>
+        <div class="kpi-value num" id="k-roas-arpa"></div>
+        <div class="kpi-note">Average across all signed ROAS clients. Level 3+ = latest spend annualised; below L3 = spend to date.</div></div>
+      <div class="card span-12"><h2>Client ladder <span class="tag">spend by month, $</span></h2>
+        <div class="table-wrap" id="tbl-roas"></div>
+        <div class="legend-note">Level transitions (L1→L2 etc.) show months taken to step up; “–” = hasn't stepped. Spend cells shade with size.</div></div>
+    </div>
+  </section>
+
+  <!-- ================= METHOD ================= -->
+  <section class="page" id="page-method">
+    <div class="page-head"><h1>Method</h1>
+    <div class="page-sub">How every number on this dashboard is produced — in plain language, with every assumption stated.</div></div>
+    <div class="card method" id="method-body"></div>
+  </section>`;
+}
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+const charts = {};
+function mkChart(id, cfg){
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) { charts[id].destroy(); }
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+function setChartDefaults(){
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = C.muted;
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.boxHeight = 10;
+}
+const darkTooltip = {
+  backgroundColor: '#1E2530', titleColor: '#fff', bodyColor: '#D7DCE3',
+  padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4,
+  callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fK(ctx.parsed.y)) }
+};
+const baseScalesMoney = {
+  x: { grid: { display:false }, ticks: { color: C.muted } },
+  y: { beginAtZero:true, grid: { color: C.grid }, border:{display:false}, ticks: { color: C.muted, callback: v => fK(v) } }
+};
+function sparkline(id, values, color, fill){
+  mkChart(id, { type:'line',
+    data:{ labels: values.map((_,i)=>i), datasets:[{ data: values, borderColor: color, borderWidth:1.6,
+      pointRadius:0, fill:true, backgroundColor: fill, tension:.35 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{ x:{display:false}, y:{display:false} }, animation:false } });
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  const L = state.levers;
+  const R = engine(L);
+  state.result = R;
+  const li = DATA.meta.latestClosedIdx;
+  const M = DATA.months;
+
+  /* ---------- COCKPIT ---------- */
+  document.getElementById('k-latest-arr').textContent = fMshort(R.latestARR);
+  const latestDelta = R.arr[li] - R.arr[li-1];
+  document.getElementById('k-latest-note').innerHTML = deltaSpan(latestDelta, {fmt:fK}) + ' vs June';
+  document.getElementById('k-ye-arr').textContent = fMshort(R.yeARR);
+  const yeGap = R.yeARR - L.targetARR;
+  document.getElementById('k-ye-note').innerHTML = (yeGap >= 0
+    ? '<span class="chip chip-good">hits target</span>' : '<span class="chip chip-bad">misses target</span>')
+    + ' ' + deltaSpan(yeGap, {fmt:fK}) + ' vs ' + fK(L.targetARR);
+  document.getElementById('k-ytd').textContent = fK(R.ytdActual);
+  document.getElementById('k-ytd-note').innerHTML = deltaSpan(R.ytdActual - R.ytdPlan, {fmt:fK}) + ' vs plan YTD (' + fK(R.ytdPlan) + ')';
+  const newcYTD = DATA.actualNewClients.reduce((a,b)=>a+b,0);
+  const newcTgt = R.signedPlan.slice(0, li+1).reduce((a,b)=>a+b,0);
+  document.getElementById('k-newc').textContent = newcYTD;
+  document.getElementById('k-newc-note').innerHTML = deltaSpan(newcYTD - newcTgt) + ' vs plan of ' + newcTgt;
+
+  const sparkFill = (c) => c + '22';
+  sparkline('spark-arr', R.arr.slice(0, li+1), latestDelta>=0?C.good:C.bad, sparkFill(latestDelta>=0?C.good:C.bad));
+  const yeCol = yeGap>=0?C.good:C.warn;
+  sparkline('spark-ye', R.arr.slice(li), yeCol, sparkFill(yeCol));
+  const revDelta = DATA.actualRevenue[li] - DATA.actualRevenue[li-1];
+  sparkline('spark-rev', DATA.actualRevenue, revDelta>=0?C.good:C.bad, sparkFill(revDelta>=0?C.good:C.bad));
+  const ncDelta = DATA.actualNewClients[li] - DATA.actualNewClients[li-1];
+  sparkline('spark-newc', DATA.actualNewClients, ncDelta>=0?C.good:C.bad, sparkFill(ncDelta>=0?C.good:C.bad));
+
+  // ARR hero chart
+  mkChart('ch-arr', { type:'line', data:{ labels: M, datasets:[
+    { label:'Actual ARR', data: R.arr.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'Projected (levers)', data: R.arr.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'If signings stop', data: R.arrStop.map((v,m)=> m>=li ? v : null), borderColor:C.grey, borderWidth:1.6, pointRadius:0, borderDash:[5,4], tension:.3 },
+    { label:'Target ARR', data: M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  // monthly revenue chart
+  mkChart('ch-rev', { type:'bar', data:{ labels: M, datasets:[
+    { label:'Actual', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Projected (levers)', data: R.planRev.map((v,m)=> m>li ? v : null), backgroundColor:C.accentTint, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Full-year plan', data: R.planRev, type:'line', borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.3, order:1 },
+    { label:'If signings stop', data: R.stopBlend.map((v,m)=> m>=li ? v : null), type:'line', borderColor:C.grey, borderWidth:1.4, borderDash:[5,4], pointRadius:0, tension:.3, order:2 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  // health tiles — color classes strictly follow the pass/fail sign
+  const health = [
+    { l:'LTV : CAC', v: R.ltvcac.toFixed(1) + 'x', ok: R.ltvcac >= 3, note: 'LTV ' + fK(R.ltv) + ' vs CAC ' + fK(L.cac) },
+    { l:'Payback', v: f1(R.payback) + ' mo', ok: R.payback <= 12, note: 'CAC ÷ monthly gross profit per client' },
+    { l:'NRR — existing book', v: fPct(R.nrr), ok: R.nrr >= 1, note: 'planned growth of the 2025 base' },
+    { l:'ROAS book ARPA today', v: fK(DATA.roasARPA), warn: DATA.roasARPA < L.arpa, note: 'vs ' + fK(L.arpa) + ' assumed for new clients' }
+  ];
+  document.getElementById('health-tiles').innerHTML = health.map(h => {
+    let cls = '', style = '';
+    if (h.ok === true) cls = 'delta-good';
+    else if (h.ok === false) cls = 'delta-bad';
+    else if (h.warn) style = 'style="color:var(--warn)"';
+    return '<div class="locked" style="border-style:solid"><span>' + h.l + '<br><span class="muted" style="font-size:10.5px">' + h.note + '</span></span>' +
+      '<b class="num ' + cls + '" ' + style + ' data-static="1">' + h.v + '</b></div>';
+  }).join('');
+
+  // cockpit table
+  let ct = '<table><tr><th class="txt">Month</th><th>Actual</th><th>Plan</th><th>Variance</th><th>ARR</th><th>Cumulative revenue</th></tr>';
+  for (let m=0; m<12; m++){
+    const closed = m <= li;
+    ct += '<tr><td class="txt">' + M[m] + (closed?'':' <span class="tag">proj</span>') + '</td>' +
+      '<td class="num">' + (closed ? fmtMoney(DATA.actualRevenue[m]) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num muted">' + fmtMoney(R.planRev[m]) + '</td>' +
+      '<td class="num">' + (closed ? deltaSpan(DATA.actualRevenue[m]-R.planRev[m], {fmt:fK}) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num">' + fK(R.arr[m]) + '</td><td class="num">' + fmtMoney(R.cumRev[m]) + '</td></tr>';
+  }
+  const ytdVar = R.ytdActual - R.ytdPlan;
+  ct += '<tr class="total"><td class="txt">Full year</td><td class="num">' + fmtMoney(R.ytdActual) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fmtMoney(R.fyPlanRevenue) + '</td><td class="num">' + deltaSpan(ytdVar,{fmt:fK}) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fK(R.yeARR) + ' <span class="tag">YE</span></td><td class="num">' + fmtMoney(R.cumRev[11]) + '</td></tr></table>';
+  document.getElementById('tbl-cockpit').innerHTML = ct;
+
+  /* ---------- TARGETS ---------- */
+  document.getElementById('sub-custeq').textContent =
+    'One customer-equivalent = ' + fK(L.arpa) + ' of annual revenue. Full-year target: ' + R.custEqFY + ' equivalents for ' + fK(L.targetARR) + ' ARR.';
+  mkChart('ch-custeq', { type:'bar', data:{ labels:M, datasets:[
+    { label:'Actual', data: R.custEqActual.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.6 },
+    { label:'Target', data: R.custEqTarget, type:'line', borderColor:C.accent, borderWidth:1.8, pointRadius:2, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
+
+  const cumActualSigned = []; DATA.actualNewClients.reduce((a,b,i)=>(cumActualSigned[i]=a+b, cumActualSigned[i]),0);
+  mkChart('ch-signed', { type:'line', data:{ labels:M, datasets:[
+    { label:'Actual cumulative', data: cumActualSigned.concat(Array(12-(li+1)).fill(null)), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.2, pointRadius:2.5, tension:.25 },
+    { label:'Plan cumulative', data: R.cumPlan, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
+
+  const mixTarget = R.existingPlan.map((e,m)=> e / R.planRev[m]);
+  const mixActual = DATA.existingActualRev.map((e,m)=> e / DATA.actualRevenue[m]);
+  mkChart('ch-mix', { type:'line', data:{ labels:M, datasets:[
+    { label:'Existing share — actual', data: mixActual.concat(Array(12-mixActual.length).fill(null)), borderColor:C.dark, borderWidth:2.2, pointRadius:2.5, tension:.25 },
+    { label:'Existing share — plan', data: mixTarget, borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fPct(c.parsed.y,1))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+
+  let tc2 = '<table><tr><th class="txt">Month</th><th>Returning (2025)</th><th>New ROAS (cum.)</th><th>Total active</th><th>Returning %</th></tr>';
+  for (let m=0; m<=li; m++){
+    const tot = DATA.returningClients[m] + cumActualSigned[m];
+    tc2 += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+DATA.returningClients[m]+'</td><td class="num">'+cumActualSigned[m]+'</td>' +
+      '<td class="num">'+tot+'</td><td class="num">'+fPct(DATA.returningClients[m]/tot)+'</td></tr>';
+  }
+  tc2 += '</table>';
+  document.getElementById('tbl-counts').innerHTML = tc2;
+
+  const rowT = (label, arr2, fmt, fy) => '<tr><td class="txt">'+label+'</td>' +
+    arr2.map(v => '<td class="num">' + (v==null?'<span class="muted">—</span>':fmt(v)) + '</td>').join('') +
+    '<td class="num"><b>' + (fy==null?'—':fmt(fy)) + '</b></td></tr>';
+  const padA = a => a.concat(Array(12-a.length).fill(null));
+  let tt = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
+  tt += rowT('Target customer-equivalents', R.custEqTarget, fNum, R.custEqFY);
+  tt += rowT('Actual customer-equivalents', padA(R.custEqActual), fNum, null);
+  tt += rowT('Target new clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
+  tt += rowT('Actual new clients signed', padA(DATA.actualNewClients), fNum, newcYTD);
+  tt += rowT('Plan revenue', R.planRev, fK, R.fyPlanRevenue);
+  tt += rowT('Actual revenue', padA(DATA.actualRevenue), fK, R.ytdActual);
+  tt += '</table>';
+  document.getElementById('tbl-targets').innerHTML = tt;
+
+  /* ---------- TOP CLIENTS ---------- */
+  const ytdByClient = DATA.topClients.map(c => ({ name:c.name, ytd: c.monthly.reduce((a,b)=>a+(b||0),0), monthly:c.monthly }));
+  const top1 = ytdByClient[0];
+  const top5ytd = ytdByClient.reduce((a,c)=>a+c.ytd,0);
+  document.getElementById('k-top1').textContent = fPct(top1.ytd / R.ytdActual, 1);
+  document.getElementById('k-top1-note').textContent = top1.name + ' · ' + fK(top1.ytd) + ' YTD';
+  document.getElementById('k-top5').textContent = fPct(top5ytd / R.ytdActual, 1);
+  document.getElementById('k-rest').textContent = fPct(1 - top5ytd / R.ytdActual, 1);
+  document.getElementById('k-rest-note').textContent = fK(R.ytdActual - top5ytd) + ' across the rest of the book';
+
+  const topColors = [C.accent, '#8B8BE3', C.accentTint, '#D3D3F4', '#E9E9FA'];
+  mkChart('ch-top', { type:'bar', data:{ labels:M.slice(0,li+1), datasets:
+    ytdByClient.map((c,i)=>({ label:c.name, data:c.monthly.map((v,m)=> (v||0)/DATA.actualRevenue[m]), backgroundColor: topColors[i], stack:'s', borderRadius:2, barPercentage:.62 }))
+    .concat([{ label:'Rest of book', data: M.slice(0,li+1).map((_,m)=> Math.max(0, 1 - ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0)/DATA.actualRevenue[m])), backgroundColor:'#E4E7EC', stack:'s', borderRadius:2, barPercentage:.62 }])
+  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+fPct(c.parsed.y,1)}}, legend:{position:'bottom'} },
+    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{stacked:true, min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+
+  let tp = '<table><tr><th class="txt">Client</th>' + M.slice(0,li+1).map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
+  ytdByClient.forEach(c => {
+    tp += '<tr><td class="txt">'+c.name+'</td>' + c.monthly.map(v=>'<td class="num">'+(v?fK(v):'<span class="muted">—</span>')+'</td>').join('') +
+      '<td class="num"><b>'+fK(c.ytd)+'</b></td><td class="num">'+fPct(c.ytd/R.ytdActual,1)+'</td></tr>';
+  });
+  tp += '<tr class="total"><td class="txt">Top 5</td>' + M.slice(0,li+1).map((_,m)=>'<td class="num">'+fK(ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0))+'</td>').join('') +
+    '<td class="num">'+fK(top5ytd)+'</td><td class="num">'+fPct(top5ytd/R.ytdActual,1)+'</td></tr></table>';
+  document.getElementById('tbl-top').innerHTML = tp;
+
+  /* ---------- CAC ---------- */
+  const mc = DATA.cac.merchant, cc = DATA.cac.creator;
+  const mCost = mc.cost.reduce((a,b)=>a+b,0), mN = mc.count.reduce((a,b)=>a+b,0);
+  const cCost = cc.cost.reduce((a,b)=>a+b,0), cN = cc.count.reduce((a,b)=>a+b,0);
+  const mBlend = mCost/mN, cBlend = cCost/cN;
+  document.getElementById('k-mcac').textContent = fmtMoney(mBlend);
+  document.getElementById('k-mcac-note').innerHTML = deltaSpan(mc.target - mBlend, {fmt:fmtMoney}) + ' vs ' + fmtMoney(mc.target) + ' target';
+  document.getElementById('k-mcount').textContent = mN;
+  document.getElementById('k-mspend').textContent = fmtMoney(mCost) + ' total acquisition cost';
+  document.getElementById('k-ccac').textContent = fmtMoney(cBlend);
+  document.getElementById('k-ccac-note').innerHTML = deltaSpan(cc.target - cBlend, {fmt:fmtMoney}) + ' vs ' + fmtMoney(cc.target) + ' target';
+  document.getElementById('k-ccount').textContent = cN;
+  document.getElementById('k-cspend').textContent = fmtMoney(cCost) + ' total acquisition cost';
+
+  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:M.slice(0,li+1), datasets:[
+    { label:'Actual CAC', data: src.cost.map((c,m)=> c/src.count[m]), backgroundColor: src.cost.map((c,m)=> c/src.count[m] <= src.target ? C.dark : '#C98A8A'), borderRadius:4, barPercentage:.6 },
+    { label:'Target', data: M.slice(0,li+1).map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.4, borderDash:[3,3], pointRadius:0 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+fmtMoney(c.parsed.y)}}, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+  cacChart('ch-mcac', mc); cacChart('ch-ccac', cc);
+
+  const cacTable = (src, unit) => {
+    let t = '<table><tr><th class="txt">Month</th><th>Acq. cost</th><th>'+unit+'</th><th>CAC</th><th>vs target</th></tr>';
+    for (let m=0; m<=li; m++){
+      const cacV = src.cost[m]/src.count[m];
+      t += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+fmtMoney(src.cost[m])+'</td><td class="num">'+src.count[m]+'</td>' +
+        '<td class="num">'+fmtMoney(cacV)+'</td><td class="num">'+deltaSpan(src.target-cacV,{fmt:fmtMoney})+'</td></tr>';
+    }
+    const tot = src.cost.reduce((a,b)=>a+b,0), n = src.count.reduce((a,b)=>a+b,0);
+    t += '<tr class="total"><td class="txt">YTD blended</td><td class="num">'+fmtMoney(tot)+'</td><td class="num">'+n+'</td>' +
+      '<td class="num">'+fmtMoney(tot/n)+'</td><td class="num">'+deltaSpan(src.target-tot/n,{fmt:fmtMoney})+'</td></tr></table>';
+    return t;
+  };
+  document.getElementById('tbl-mcac').innerHTML = cacTable(mc, 'Merchants');
+  document.getElementById('tbl-ccac').innerHTML = cacTable(cc, 'Creators');
+
+  /* ---------- LEVERS ---------- */
+  document.getElementById('live-heading').innerHTML =
+    'At <span class="v">' + fPct(L.growth) + '</span> existing-book growth, <span class="v">' + L.newClients +
+    '</span> new clients at <span class="v">' + fK(L.arpa) + '</span> ARPA with <span class="v">' + fPct(L.dropout) +
+    '</span> early dropout → year-end ARR <span class="v num">' + fMshort(R.yeARR) + '</span> against a <span class="v num">' +
+    fK(L.targetARR) + '</span> target — ' + (yeGap>=0
+      ? '<span class="delta-good" data-v="'+yeGap+'" data-goodpos="true">on target, ▲ ' + fK(yeGap) + ' of headroom</span>'
+      : '<span class="delta-bad" data-v="'+yeGap+'" data-goodpos="true">▼ short by ' + fK(Math.abs(yeGap)) + '</span>') + '.';
+
+  document.getElementById('lk-2025').textContent = fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0));
+  document.getElementById('lk-influ').textContent = L.influPerClient;
+  document.getElementById('lk-ads').textContent = L.adsPerInflu;
+  document.getElementById('adj-callout').innerHTML = '<b>Shortfall check:</b> the workbook models ' + fK(Math.abs(R.adjSum)) +
+    ' of revenue at risk over Aug–Dec; covering it at ' + fK(L.arpa) + ' ARPA would take <b>' + R.addlClients +
+    ' additional clients</b> on top of the plan.';
+
+  const outs = [
+    { l:'Year-end ARR', v:fMshort(R.yeARR), n:(yeGap>=0?'▲ ':'▼ ') + fK(Math.abs(yeGap)) + ' vs target', ok: yeGap>=0 },
+    { l:'FY plan revenue', v:fK(R.fyPlanRevenue), n:'existing ' + fK(R.existingPlan.reduce((a,b)=>a+b,0)) + ' + new ' + fK(R.newRevPlan.reduce((a,b)=>a+b,0)) },
+    { l:'LTV (new clients)', v:fK(R.ltv), n:'ARPA × (1−dropout) ÷ churn' },
+    { l:'LTV : CAC', v:R.ltvcac.toFixed(1)+'x', n: R.ltvcac>=3 ? 'above the 3x rule of thumb' : 'below the 3x rule of thumb', ok:R.ltvcac>=3 },
+    { l:'Payback', v:f1(R.payback)+' mo', n:'months of gross profit to repay CAC', ok:R.payback<=12 },
+    { l:'NRR (existing)', v:fPct(R.nrr), n:'net revenue retention of 2025 base', ok:R.nrr>=1 }
+  ];
+  document.getElementById('lever-outputs').innerHTML = outs.map(o =>
+    '<div><div class="kpi-label">'+o.l+'</div><div class="kpi-value num" style="font-size:19px">'+o.v+'</div>' +
+    '<div class="kpi-note' + (o.ok===true?' delta-good':(o.ok===false?' delta-bad':'')) + '" data-static="1">'+o.n+'</div></div>').join('');
+
+  // revenue build stacked chart
+  const rampRev = R.signedPlan.map((_,m)=>{
+    const ramp = R.signedPlan[m] + (R.signedPlan[m-1]||0) + (R.signedPlan[m-2]||0);
+    return ramp * R.seasARPA[m] * (1 - L.dropout);
+  });
+  const matureRev = R.newRevPlan.map((v,m)=> v - rampRev[m]);
+  mkChart('ch-build', { type:'bar', data:{ labels:M, datasets:[
+    { label:'Existing book', data:R.existingPlan, backgroundColor:'#2A3342', stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'New — first 3 months (ramping)', data:rampRev, backgroundColor:C.accentTint, stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'New — matured (month 4+)', data:matureRev, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'Actual revenue', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), type:'line', borderColor:C.dark, borderWidth:2, pointRadius:2.5, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} },
+    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{...baseScalesMoney.y, stacked:true} }}});
+
+  let tb = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
+  tb += rowT('New clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('Cumulative signed', R.cumPlan, fNum, R.cumPlan[11]);
+  tb += rowT('Existing revenue', R.existingPlan, fK, R.existingPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('New-client revenue', R.newRevPlan, fK, R.newRevPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('Total plan', R.planRev, fK, R.fyPlanRevenue);
+  tb += '</table>';
+  document.getElementById('tbl-build').innerHTML = tb;
+
+  /* ---------- SCENARIOS ---------- */
+  const scenResults = SCENARIOS.map(s => {
+    const lv = Object.assign({}, state.levers, s.set);
+    return { s, lv, r: engine(lv) };
+  });
+  const hits = scenResults.filter(x => x.r.yeARR >= L.targetARR).length;
+  const banner = document.getElementById('scen-banner');
+  banner.className = 'scen-banner ' + (hits >= 1 ? 'ok' : 'warn');
+  banner.textContent = hits + ' of ' + SCENARIOS.length + ' scenarios reach the ' + fK(L.targetARR) + ' year-end ARR target.';
+  document.getElementById('scen-cards').innerHTML = scenResults.map((x,i) => {
+    const hit = x.r.yeARR >= L.targetARR;
+    return '<div class="scen-card' + (hit?' hit':'') + '"><h3>' + x.s.name + '</h3>' +
+      '<span class="chip ' + (hit?'chip-good':'chip-bad') + '">' + (hit ? 'hits ' : 'misses ') + fK(L.targetARR) + '</span>' +
+      '<div class="assum">' + x.s.desc + '</div>' +
+      '<div class="scen-out"><span>Year-end ARR</span><b class="num">' + fMshort(x.r.yeARR) + '</b></div>' +
+      '<div class="scen-out"><span>Gap to target</span>' + deltaSpan(x.r.yeARR - L.targetARR, {fmt:fK}) + '</div>' +
+      '<div class="scen-out"><span>FY plan revenue</span><b class="num">' + fK(x.r.fyPlanRevenue) + '</b></div>' +
+      '<div class="scen-out"><span>LTV : CAC</span><b class="num">' + x.r.ltvcac.toFixed(1) + 'x</b></div>' +
+      '<button class="apply-btn" data-scen="' + i + '">Apply to levers</button></div>';
+  }).join('');
+  document.querySelectorAll('#scen-cards .apply-btn').forEach(btn => btn.addEventListener('click', () => {
+    const s = SCENARIOS[+btn.dataset.scen];
+    state.levers = Object.assign({}, state.levers, s.set);
+    syncInputs(); render(); showPage('levers');
+  }));
+
+  const scenColors = [C.accent, '#D08770', '#B48EAD', '#8FA1B3', C.good];
+  mkChart('ch-scen', { type:'line', data:{ labels:M, datasets:
+    [{ label:'Actual', data: (function(){ const base = engine(state.levers); return base.arr.map((v,m)=> m<=li ? v : null); })(), borderColor:C.dark, borderWidth:2.6, pointRadius:2.5, tension:.3 }]
+    .concat(scenResults.map((x,i)=>({ label:x.s.name, data: x.r.arr.map((v,m)=> m>=li ? v : null),
+      borderColor: scenColors[i], borderWidth:1.8, pointRadius:0, tension:.3, borderDash: x.r.yeARR>=L.targetARR?[0]:[6,4] })))
+    .concat([{ label:'Target', data:M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, borderDash:[2,3], pointRadius:0 }])
+  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  /* ---------- ROAS ---------- */
+  const statusMap = {
+    '✓ Active': 'chip-good', '↑ Scaling': 'chip-accent', '~ Low spend': 'chip-warn',
+    '→ Watch': 'chip-warn', '— Too early': 'chip-neutral', '✗ At risk': 'chip-bad', '⬛ Inactive': 'chip-neutral'
+  };
+  const norm = s => s === 'Inactive' ? '⬛ Inactive' : s;
+  const counts = {};
+  DATA.roasClients.forEach(c => { const k = norm(c.status); counts[k] = (counts[k]||0)+1; });
+  const order = ['✓ Active','↑ Scaling','~ Low spend','→ Watch','— Too early','✗ At risk','⬛ Inactive'];
+  document.getElementById('roas-chips').innerHTML = order.filter(k=>counts[k]).map(k =>
+    '<span class="chip ' + statusMap[k] + '" style="font-size:12px; padding:5px 12px">' + k + ' · ' + counts[k] + '</span>').join('') +
+    '<span class="chip chip-neutral" style="font-size:12px; padding:5px 12px">Total · ' + DATA.roasClients.length + '</span>';
+  document.getElementById('k-roas-arpa').textContent = fK(DATA.roasARPA);
+  document.getElementById('roas-arpa-callout').innerHTML =
+    '<b>Watch this gap:</b> the growth plan assumes new clients are worth <b>' + fK(L.arpa) + '</b> a year, but the current ROAS book averages <b>' +
+    fK(DATA.roasARPA) + '</b> — most clients are still sitting at the $1K test level. The plan only works if clients climb the ladder the way Right Bite and Golden Scent did.';
+
+  const maxSpend = 7500;
+  let tr2 = '<table><tr><th class="txt">Client</th><th>Start</th><th>Mo.</th><th>Level</th><th>L1→L2</th><th>L2→L3</th><th>L3→L4</th>' +
+    DATA.roasMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>Total spend</th><th>ARPA</th><th class="txt">Status</th></tr>';
+  DATA.roasClients.forEach(c => {
+    tr2 += '<tr><td class="txt"><b>' + c.name + '</b></td><td class="num muted">' + c.start + '</td><td class="num">' + c.moActive + '</td>' +
+      '<td class="num">L' + Math.round(c.level) + '</td>' +
+      [c.l12,c.l23,c.l34].map(v => '<td class="num muted">' + (v==='-'||v==null?'–':v) + '</td>').join('') +
+      c.spend.map(v => {
+        if (v == null) return '<td class="num muted">·</td>';
+        const alpha = Math.min(1, v/maxSpend);
+        return '<td><span class="heat num" style="background:rgba(91,91,214,' + (0.08 + alpha*0.5).toFixed(2) + ');color:' + (alpha>0.55?'#fff':'#3B3B8F') + '">' + fNum(v) + '</span></td>';
+      }).join('') +
+      '<td class="num">' + fmtMoney(c.totalSpend) + '</td><td class="num">' + fmtMoney(c.arpa) + '</td>' +
+      '<td class="txt"><span class="chip ' + (statusMap[norm(c.status)]||'chip-neutral') + '">' + norm(c.status) + '</span></td></tr>';
+  });
+  tr2 += '</table>';
+  document.getElementById('tbl-roas').innerHTML = tr2;
+
+  /* ---------- METHOD ---------- */
+  document.getElementById('method-body').innerHTML = `
+    <h2>What this dashboard is</h2>
+    <p>A live version of the Moontech 2026 unit-economics model. Actuals are closed through <b>July 2026</b>; everything after that is computed by one engine from the levers on the Levers page. When a lever changes, every projected number on every page changes with it — there are no separately typed targets.</p>
+    <h2>How revenue is built</h2>
+    <ul>
+      <li><b>Existing book:</b> each month of 2025 actual revenue, grown by the existing-client growth lever (currently ${fPct(L.growth)}). Full-year 2025 was ${fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0))}.</li>
+      <li><b>New clients:</b> the full-year signing count (currently ${L.newClients}) is spread across the year on a fixed ramp — 1% of signings in January rising to 14% in November and December. A client's revenue in any month is the plan ARPA shaped by that month's seasonality weight.</li>
+      <li><b>Early dropout:</b> clients in their first three months are discounted by the dropout lever (currently ${fPct(L.dropout)}), reflecting ROAS clients that quit after the test phase. From month four a cohort pays full seasonal ARPA.</li>
+      <li><b>Seasonality:</b> the 2025 monthly revenue shape (November peaks at ~16% of the year). Seasonality is treated as a fact, not a lever.</li>
+    </ul>
+    <h2>How ARR is measured</h2>
+    <p>Monthly revenue is de-seasonalised (divided by that month's seasonality weight) and averaged over a rolling three months, giving an annualised run-rate that isn't distorted by strong or weak seasonal months. July's ARR of ${fMshort(R.latestARR)} is the May–July average run-rate. Moving forward, actuals roll out of the window as projections enter it.</p>
+    <h2>Unit economics</h2>
+    <ul>
+      <li><b>LTV</b> = ARPA × (1 − 3-month dropout) ÷ annual churn.</li>
+      <li><b>Payback</b> = CAC ÷ (ARPA × gross margin ÷ 12) — months of gross profit to recover acquisition cost.</li>
+      <li><b>Customer-equivalent</b> = ${fK(L.arpa)} of annual revenue, so one large client can count as several equivalents.</li>
+    </ul>
+    <h2>Basis and scope of the numbers</h2>
+    <ul>
+      <li>Revenue is Moontech platform revenue on an operational basis, in USD, as recorded in the model workbook.</li>
+      <li><b>Merchant CAC</b> and <b>Creator CAC</b> are total acquisition cost ÷ acquisitions, blended over Jan–Jul. Note two differences vs the source workbook: its summary cells for total cost and acquisitions sum <b>Jan–Jun only</b> (July is outside the summed range — $53,287/20 merchants vs the true YTD $64,225/26), and its headline CAC averages the seven monthly CACs ($2,742) rather than blending ($2,470). This dashboard uses full Jan–Jul blended figures throughout.</li>
+      <li>The <b>“if signings stop”</b> line keeps the existing book growing at the growth lever and lets already-signed clients play out, but adds zero new signings from August.</li>
+      <li>July's existing-vs-new revenue split isn't in the source workbook yet, so the revenue-mix chart shows actuals through June only.</li>
+    </ul>
+    <h2>Known data notes</h2>
+    <ul>
+      <li>Three clients are marked plain “Inactive” in the workbook and fall outside its status summary counts; here they are counted in the Inactive bucket, so totals reconcile to ${DATA.roasClients.length} clients.</li>
+      <li>Izil shows $8,169 spend in May but is recorded at Level 1 in the workbook — worth confirming at source.</li>
+      <li>The detailed CAC channel breakdown (Google Sheet) wasn't reachable at build time; the CAC page uses the workbook's summary section.</li>
+    </ul>
+    <div class="footer-note">Built from Unit_Economics_Model (1).xlsx · actuals through July 2026 · monthly update = replace the DATA block at the top of this file and commit.</div>`;
+}
+
+/* ---------- lever inputs ---------- */
+const PCT_LEVERS = ['growth','dropout','churn','gm'];
+function syncInputs(){
+  Object.keys(state.levers).forEach(k => {
+    const el = document.getElementById('lv-' + k);
+    if (!el) return;
+    el.value = PCT_LEVERS.includes(k) ? Math.round(state.levers[k]*1000)/10 : state.levers[k];
+  });
+}
+function bindInputs(){
+  ['growth','newClients','arpa','dropout','churn','cac','gm','targetARR'].forEach(k => {
+    const el = document.getElementById('lv-' + k);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const raw = parseFloat(el.value);
+      if (isNaN(raw)) return;
+      state.levers[k] = PCT_LEVERS.includes(k) ? raw/100 : raw;
+      render();
+    });
+  });
+}
+
+/* ---------- navigation ---------- */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.page === name));
+}
+function bindNav(){
+  document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => showPage(a.dataset.page)));
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  setChartDefaults();
+  buildPages();
+  bindNav();
+  syncInputs();
+  bindInputs();
+  render();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+
+</script>
+</body>
+</html>
