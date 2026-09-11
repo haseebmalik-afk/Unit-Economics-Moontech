@@ -121,7 +121,11 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 .ladder td{padding:0 8px; height:46px; border-bottom:1px solid var(--hairline); vertical-align:middle}
 .ladder tbody tr{transition:background .12s}
 .ladder tbody tr:hover{background:var(--indigo-wash)}
-.ladder .cname{font-weight:600; color:var(--ink); font-size:13px}
+.ladder .cwrap{display:flex; align-items:center; gap:11px}
+.avatar{width:30px; height:30px; border-radius:8px; flex-shrink:0; color:#fff; font-size:11px; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center; letter-spacing:.01em;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), 0 1px 2px rgba(20,24,33,.15)}
+.ladder .cname{font-weight:600; color:var(--ink); font-size:13px; line-height:1.2}
 .ladder .cstart{font-size:10.5px; color:var(--text-4); font-variant-numeric:tabular-nums}
 /* level badge */
 .lvl{display:inline-flex; align-items:center; justify-content:center; width:30px; height:24px; border-radius:7px;
@@ -135,13 +139,15 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 /* step arrows */
 .step{font-size:11px; color:var(--text-3); font-variant-numeric:tabular-nums}
 .step.none{color:var(--text-4)}
-/* spend track cell */
-.spend-cell{padding:0 3px !important}
-.spend{position:relative; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:600; font-variant-numeric:tabular-nums; overflow:hidden}
-.spend .fill{position:absolute; inset:0; border-radius:6px; opacity:.16}
-.spend .lbl{position:relative; z-index:1}
-.spend.empty{color:var(--text-4); font-weight:400}
+/* uniform spend chip — same size, color = tier; empty months stay blank so the grid reads calm */
+.spend-cell{padding:5px 4px !important; text-align:center}
+.schip{display:inline-block; min-width:52px; padding:4px 0; border-radius:6px; font-size:11px; font-weight:600;
+  font-variant-numeric:tabular-nums; text-align:center; line-height:1.2}
+.schip.t1{background:#EEEFFB; color:#7B75D0}
+.schip.t2{background:#E0DEF8; color:#5F57DA}
+.schip.t3{background:#CBC7F3; color:#493FCB}
+.schip.t4{background:#8E86ED; color:#fff}
+.schip.t5{background:linear-gradient(135deg,#5B52E8,#4338CA); color:#fff; box-shadow:0 1px 4px -1px rgba(79,70,229,.5)}
 /* total spend emphasis */
 .ladder .tot{font-weight:700; color:var(--ink)}
 .ladder .arpa-big{font-weight:700; color:var(--indigo-600)}
@@ -1834,8 +1840,16 @@ function render(){
   };
   const stLabel = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
     '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
-  const maxSpend = 7500;
-  // sort: climbers first (by level desc, then total spend desc), so the ladder reads top-down
+  // deterministic monogram color from the client name (self-contained, no external logos)
+  const AV_COLORS = ['#4F46E5','#0E9F6E','#C77A0F','#2563EB','#DB2777','#7C3AED','#0891B2','#CA8A04','#DC2626','#059669','#7C74EC','#B45309'];
+  const avatar = name => {
+    let h = 0; for (let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
+    const col = AV_COLORS[h % AV_COLORS.length];
+    const initials = name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+    return '<span class="avatar" style="background:'+col+'">'+initials+'</span>';
+  };
+  // spend tier → chip class (uniform size, color carries magnitude; aligned to the L1–L5 ladder)
+  const tierOf = v => v>=4500?5 : v>=3600?4 : v>=2700?3 : v>=1800?2 : 1;
   const sorted = DATA.roasClients.map((c,i)=>({c,i}))
     .sort((a,b)=> (b.c.level - a.c.level) || (b.c.totalSpend - a.c.totalSpend));
   let tr2 = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th>' +
@@ -1845,18 +1859,13 @@ function render(){
     const lvl = Math.round(c.level);
     const step = v => (v==='-'||v==null) ? '<span class="step none">–</span>' : '<span class="step">'+v+'mo</span>';
     tr2 += '<tr>' +
-      '<td class="txt"><div class="cname">'+c.name+'</div><div class="cstart">since '+c.start+'</div></td>' +
+      '<td class="txt"><div class="cwrap">'+avatar(c.name)+'<div><div class="cname">'+c.name+'</div><div class="cstart">since '+c.start+'</div></div></div></td>' +
       '<td class="num">'+c.moActive+'</td>' +
       '<td><span class="lvl lvl'+lvl+'">L'+lvl+'</span></td>' +
       '<td>'+step(c.l12)+'</td><td>'+step(c.l23)+'</td><td>'+step(c.l34)+'</td>' +
       c.spend.map(v => {
-        if (v == null) return '<td class="spend-cell"><div class="spend empty">·</div></td>';
-        const t = Math.min(1, v/maxSpend);
-        // fill width grows with spend; color deepens with level tier
-        const bg = t >= 0.6 ? 'var(--indigo)' : t >= 0.34 ? '#7C74EC' : t >= 0.2 ? '#9E97F0' : '#B9B4F4';
-        return '<td class="spend-cell"><div class="spend"><span class="fill" style="background:'+bg+
-          '; width:'+(28+t*72).toFixed(0)+'%; opacity:'+(0.16+t*0.4).toFixed(2)+'"></span>' +
-          '<span class="lbl">'+fNum(v)+'</span></div></td>';
+        if (v == null) return '<td class="spend-cell"></td>';
+        return '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(v)+'</span></td>';
       }).join('') +
       '<td class="num tot">'+fmtMoney(c.totalSpend)+'</td>' +
       '<td class="num arpa-big">'+fmtMoney(c.arpa)+'</td>' +
