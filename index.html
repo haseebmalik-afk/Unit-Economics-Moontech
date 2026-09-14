@@ -2,877 +2,2121 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CPX Unit Economics 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moontech · Unit Economics 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#F5F6F8; --card:#FFFFFF; --ink:#1A2230; --muted:#6A7382; --faint:#A6AEBC;
-  --line:#E6E9EF; --line2:#EEF0F4;
-  --cpx:#FA5523; --cpx-mid:#F5915F; --cpx-lt:#FBC4AF; --cpx-wash:#FFF1EC;
-  --green:#12805A; --green-lt:#E4F6ED; --red:#C43B1E; --red-lt:#FDE7E0;
+  /* base */
+  --bg:#EFF1F5; --bg-2:#E8EBF1; --card:#FFFFFF;
+  --border:#E2E6EE; --border-soft:#EDF0F5; --hairline:#EAEDF3;
+  --ink:#141821; --text:#20262F; --text-2:#586173; --text-3:#8B94A6; --text-4:#AEB6C4;
+  /* signature */
+  --indigo:#4F46E5; --indigo-600:#4338CA; --indigo-700:#3730A3;
+  --indigo-soft:#ECEBFE; --indigo-tint:#C7C3F5; --indigo-wash:#F4F3FF;
+  /* semantic — sign only */
+  --good:#0E9F6E; --good-deep:#057A55; --good-bg:#E3F6EE;
+  --bad:#DC2F44; --bad-deep:#B91C33; --bad-bg:#FCE9EC;
+  --warn:#C77A0F; --warn-bg:#FCF1DE;
+  --neutral-chip:#EDF0F5;
+  /* sidebar */
+  --side-1:#171B26; --side-2:#12151E; --side-text:#8892A4; --side-dim:#5C6474;
+  --grid:#EEF1F6; --radius:14px; --radius-sm:9px;
+  /* layered depth */
+  --shadow-sm:0 1px 1px rgba(20,24,33,.04), 0 1px 2px rgba(20,24,33,.05);
+  --shadow-md:0 1px 2px rgba(20,24,33,.04), 0 4px 12px -2px rgba(20,24,33,.06);
+  --shadow-lg:0 2px 4px rgba(20,24,33,.05), 0 12px 28px -6px rgba(20,24,33,.10);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);
-  display:flex;min-height:100vh;-webkit-font-smoothing:antialiased}
-.tnum{font-variant-numeric:tabular-nums}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+.num,td.num,.kpi-value,.lever input,table,.stat{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"cv01" 1}
+.layout{display:flex; min-height:100vh}
 
-/* rail */
-nav{width:198px;min-width:198px;background:#1E2530;border-right:1px solid #2A3240;
-  display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-nav .brand{display:flex;align-items:center;gap:11px;padding:18px 18px 15px;border-bottom:1px solid #2A3240}
-nav .logo{width:34px;height:34px;background:var(--cpx);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-nav .logo svg{width:19px;height:19px}
-nav .brand b{font-size:1rem;font-weight:700;letter-spacing:-.01em;line-height:1;color:#fff}
-nav .brand span{font-size:.68rem;color:#8A93A3}
-nav .grp{font-size:.6rem;letter-spacing:.1em;color:#6A7383;padding:15px 18px 5px;text-transform:uppercase;font-weight:600}
-nav a{display:flex;align-items:center;gap:9px;padding:8px 18px;margin:1px 8px;border-radius:8px;color:#B8C0CC;
-  text-decoration:none;font-size:.85rem;font-weight:500;cursor:pointer}
-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
-nav a.active{background:var(--cpx);color:#fff;font-weight:600}
-nav .foot{margin-top:auto;padding:14px 18px;font-size:.66rem;color:#6A7383;line-height:1.6;border-top:1px solid #2A3240}
-nav .foot b{color:#4ADE9C}
+/* ---------- sidebar ---------- */
+.sidebar{width:210px; min-width:210px; background:linear-gradient(180deg,var(--side-1),var(--side-2));
+  color:var(--side-text); position:sticky; top:0; height:100vh; display:flex; flex-direction:column;
+  padding:22px 0 16px; box-shadow:inset -1px 0 0 rgba(255,255,255,.04), 6px 0 24px -14px rgba(20,24,33,.5); z-index:5}
+.brand{display:flex; align-items:center; gap:11px; padding:0 20px 20px; margin-bottom:12px;
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.brand .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(140deg,#6D63FF,#4F46E5);
+  display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px -2px rgba(79,70,229,.55), inset 0 1px 0 rgba(255,255,255,.25); flex-shrink:0}
+.brand .mark svg{width:19px; height:19px; display:block}
+.brand .word{font-weight:700; letter-spacing:.02em; color:#fff; font-size:15px; line-height:1.1}
+.brand .sub{font-size:11px; color:var(--side-text); margin-top:2px; letter-spacing:.01em}
+.nav{flex:1; overflow-y:auto; padding-top:4px}
+.nav a{display:flex; align-items:center; gap:10px; padding:9px 20px; color:var(--side-text); text-decoration:none;
+  font-size:13.5px; font-weight:500; border-left:2.5px solid transparent; cursor:pointer; transition:color .15s, background .15s}
+.nav a:hover{color:#D9DEE7; background:rgba(255,255,255,.03)}
+.nav a.active{color:#fff; border-left-color:var(--indigo); background:linear-gradient(90deg,rgba(79,70,229,.20),rgba(79,70,229,.02)); font-weight:600}
+.nav a::before{content:""; width:5px; height:5px; border-radius:50%; background:currentColor; opacity:.35; flex-shrink:0}
+.nav a.active::before{opacity:1; background:var(--indigo-tint)}
+.nav .group{padding:18px 20px 7px; font-size:10.5px; letter-spacing:.14em; color:#586173; text-transform:uppercase; font-weight:600}
+.side-foot{padding:14px 20px 0; font-size:11px; color:#5B6474; border-top:1px solid rgba(255,255,255,.07); line-height:1.6}
+.side-foot b{color:#B9C0CC; font-weight:600}
 
-main{flex:1;padding:22px 30px 70px;max-width:1300px;width:100%}
-.head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:14px;flex-wrap:wrap}
-h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
-.head .sub{color:var(--muted);font-size:.83rem;margin-top:3px;max-width:66ch;line-height:1.5}
+/* ---------- content: readable-fluid ---------- */
+.content{flex:1; padding:30px clamp(24px,3.2vw,56px) 72px; width:100%; max-width:1720px; margin:0 auto}
+.page{display:none}
+.page.active{display:block; animation:fade .32s ease}
+@keyframes fade{from{opacity:0} to{opacity:1}}
+h1{font-size:23px; font-weight:700; letter-spacing:-.02em; color:var(--ink)}
+.page-sub{color:var(--text-2); font-size:13.5px; margin-top:6px; max-width:74ch; line-height:1.6}
+.page-head{margin-bottom:22px}
+h2{font-size:15.5px; font-weight:650; letter-spacing:-.01em; margin-bottom:2px; color:var(--ink)}
+.card-sub{color:var(--text-3); font-size:12px; margin-bottom:14px; line-height:1.55; max-width:80ch}
 
-/* scenario toggle */
-.scnToggle{display:inline-flex;background:var(--line2);border-radius:9px;padding:3px;gap:2px}
-.scnToggle button{border:none;background:transparent;padding:7px 15px;border-radius:7px;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer}
-.scnToggle button.on{background:var(--ink);color:#fff}
-.scnToggle button.on.astgt{background:var(--cpx)}
+/* fluid grid — columns grow, not stretch to infinity */
+.grid{display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:16px}
+.card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 20px; box-shadow:var(--shadow-sm); transition:box-shadow .2s}
+.card:hover{box-shadow:var(--shadow-md)}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}
+.span-4{grid-column:span 4}.span-3{grid-column:span 3}
+@media(max-width:1180px){.span-8{grid-column:span 12}.span-4{grid-column:span 6}.span-3{grid-column:span 6}}
+@media(max-width:820px){.span-6,.span-4,.span-3{grid-column:span 12}}
 
-.page{display:none}.page.active{display:block;animation:fade .25s ease}
-@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+/* KPI tiles — hairline accent + display number */
+.kpi{position:relative; overflow:hidden}
+.kpi::before{content:""; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--indigo),var(--indigo-tint)); opacity:.9}
+.kpi.kpi-plain::before{background:linear-gradient(90deg,var(--text-3),var(--border))}
+.kpi-label{font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--text-3);
+  display:flex; align-items:center; gap:7px}
+.kpi-value{font-family:'Fraunces',Georgia,serif; font-size:30px; font-weight:600; margin-top:7px;
+  letter-spacing:-.015em; color:var(--ink); line-height:1.05}
+.kpi-note{font-size:11.5px; color:var(--text-2); margin-top:5px}
+.kpi-spark{height:36px; margin-top:10px; margin-left:-2px; margin-right:-2px}
+.delta-good{color:var(--good-deep)} .delta-bad{color:var(--bad-deep)}
 
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:18px 20px}
-.card.p0{padding:0;overflow:hidden}
-.eyebrow{font-size:.72rem;color:var(--muted);font-weight:600;margin-bottom:2px}
-.card h3{font-size:1.05rem;font-weight:600;letter-spacing:-.01em}
-.card .csub{font-size:.75rem;color:var(--muted);margin-top:1px}
-.col12{grid-column:span 12}.col8{grid-column:span 8}.col7{grid-column:span 7}.col6{grid-column:span 6}
-.col5{grid-column:span 5}.col4{grid-column:span 4}.col3{grid-column:span 3}
-@media(max-width:1080px){.col8,.col7,.col6,.col5,.col4,.col3{grid-column:span 12}}
+.tag{display:inline-block; font-size:10px; font-weight:600; color:var(--text-3); background:var(--neutral-chip);
+  border-radius:5px; padding:2px 6px; letter-spacing:.02em; vertical-align:1px}
 
-.big{font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1.05;margin-top:6px}
-.big.sm{font-size:1.45rem}
-.big small{font-size:.8rem;font-weight:500;color:var(--muted)}
-.klab{font-size:.72rem;color:var(--muted);line-height:1.3}
-.ksub{font-size:.72rem;color:var(--muted);margin-top:4px}
-.pos{color:var(--green)}.neg{color:var(--red)}.risk{color:var(--red)}.brand{color:var(--cpx)}.mut{color:var(--muted)}
-.spark{margin-top:8px;height:30px}
-
-.delta{display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:600;padding:1px 8px;border-radius:11px}
-.delta.up{background:var(--green-lt);color:var(--green)}
-.delta.dn{background:var(--red-lt);color:var(--red)}
-
-.verdict .r{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line2)}
-.verdict .r:last-child{border:none}
-.verdict .k{font-size:.78rem;color:var(--muted)}
-.verdict .v{font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums}
-.verdict .hero{text-align:center;padding:4px 0 10px}
-.verdict .hero .n{font-size:2.7rem;font-weight:700;letter-spacing:-.02em;line-height:1}
-.verdict .hero .c{font-size:.74rem;color:var(--muted);margin-top:3px}
-.scnbox .sr{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line2);font-size:.84rem}
-.scnbox .sr:last-child{border-bottom:none}
-.scnbox .sr span{color:var(--muted)}
-.scnbox .sr b{font-weight:700;font-variant-numeric:tabular-nums;font-size:.98rem}
-.scnbox .sr.sub{padding:6px 0}
-.scnbox .sr.sub span,.scnbox .sr.sub b{font-size:.76rem;color:var(--muted)}
-.scnbox .sr.big-r{padding:12px 0}
-.scnbox .sr.big-r span{font-weight:600;color:var(--ink)}
-table.cmp th{text-align:right;font-size:.72rem}
-table.cmp th:first-child{text-align:left}
-table.cmp .th-sub{font-weight:400;color:var(--faint);font-size:.64rem}
-table.cmp td{padding:9px 12px;font-size:.86rem}
-table.cmp td:first-child{font-weight:500}
-table.cmp .c-asis{color:var(--muted)}
-table.cmp .c-tgt{color:var(--cpx)}
-table.cmp tbody tr:hover td,table.cmp tbody tr:hover td:first-child{background:var(--cpx-wash)}
-
-.ch{position:relative;width:100%}
-.legend{display:flex;gap:15px;font-size:.72rem;color:var(--muted);flex-wrap:wrap}
-.legend i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:0}
+/* chips */
+.chip{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; line-height:1.3}
+.chip-good{background:var(--good-bg); color:var(--good-deep)}
+.chip-bad{background:var(--bad-bg); color:var(--bad-deep)}
+.chip-warn{background:var(--warn-bg); color:var(--warn)}
+.chip-neutral{background:var(--neutral-chip); color:var(--text-2)}
+.chip-accent{background:var(--indigo-soft); color:var(--indigo-600)}
 
 /* tables */
-.twrap{overflow-x:auto;border-radius:11px;border:1px solid var(--line)}
-table{border-collapse:collapse;width:100%;font-size:.79rem;background:var(--card)}
-th,td{padding:7px 11px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-th{background:#FAFBFC;color:var(--muted);font-weight:600;font-size:.71rem;border-bottom:1px solid var(--line);position:sticky;top:0}
-th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card)}
-th:first-child{background:#FAFBFC}
-tbody tr:hover td,tbody tr:hover td:first-child{background:var(--cpx-wash)}
-td{border-bottom:1px solid var(--line2)}
-tr.band td,tr.band td:first-child{background:var(--ink)!important;color:#fff;font-weight:600}
-tr.sub-r td{color:var(--muted)}
-.c-asis{color:var(--muted)}
-.c-tgt{color:var(--cpx);font-weight:500}
-.c-act{color:var(--ink);font-weight:600}
-.c-proj{color:var(--cpx-mid)}
-.c-dash{color:var(--faint);text-align:center}
-.c-ask{color:var(--cpx);background:var(--cpx-wash)!important;font-weight:500}
+table{width:100%; border-collapse:collapse; font-size:12.5px}
+th{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-3); font-weight:600;
+  text-align:right; padding:8px 9px; border-bottom:1.5px solid var(--border)}
+th.txt,td.txt{text-align:left}
+td{padding:8px 9px; border-bottom:1px solid var(--border-soft); text-align:right; color:var(--text)}
+tbody tr:last-child td{border-bottom:none}
+tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink)}
+.muted{color:var(--text-4)}
+.table-wrap{overflow-x:auto; border-radius:var(--radius-sm)}
 
-.chip{display:inline-block;padding:1px 9px;border-radius:11px;font-size:.69rem;font-weight:600}
-.chip.up{background:var(--green-lt);color:var(--green)}
-.chip.dn{background:var(--red-lt);color:var(--red)}
-.chip.fl{background:var(--line2);color:var(--muted)}
-.chip.nw{background:var(--cpx-wash);color:var(--cpx)}
+/* ---------- CLIENT LADDER — the showpiece ---------- */
+.ladder{width:100%; border-collapse:separate; border-spacing:0; font-size:12.5px}
+.ladder th{position:sticky; top:0; background:var(--card); z-index:1; padding:9px 8px; white-space:nowrap}
+.ladder td{padding:0 8px; height:46px; border-bottom:1px solid var(--hairline); vertical-align:middle}
+.ladder tbody tr{transition:background .12s}
+.ladder tbody tr:hover{background:var(--indigo-wash)}
+.ladder .cwrap{display:flex; align-items:center; gap:11px}
+.avatar{width:30px; height:30px; border-radius:8px; flex-shrink:0; color:#fff; font-size:11px; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center; letter-spacing:.01em;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), 0 1px 2px rgba(20,24,33,.15)}
+.ladder .cname{font-weight:600; color:var(--ink); font-size:13px; line-height:1.2}
+.ladder .cstart{font-size:10.5px; color:var(--text-4); font-variant-numeric:tabular-nums}
+/* level badge */
+.lvl{display:inline-flex; align-items:center; justify-content:center; width:30px; height:24px; border-radius:7px;
+  font-weight:700; font-size:11.5px; letter-spacing:.01em; box-shadow:inset 0 0 0 1px rgba(20,24,33,.04)}
+.lvl0{background:#F1F3F7; color:#A9B1BF}
+.lvl1{background:#EDEEFB; color:#8983D6}
+.lvl2{background:#DEDDF9; color:#6C63E0}
+.lvl3{background:#C9C5F4; color:#514AD0}
+.lvl4{background:#8B83EC; color:#fff}
+.lvl5{background:linear-gradient(135deg,#5B52E8,#4338CA); color:#fff; box-shadow:0 2px 6px -1px rgba(79,70,229,.5)}
+/* step arrows */
+.step{font-size:11px; color:var(--text-3); font-variant-numeric:tabular-nums}
+.step.none{color:var(--text-4)}
+/* uniform spend chip — same size, color = tier; empty months stay blank so the grid reads calm */
+.spend-cell{padding:5px 4px !important; text-align:center}
+.schip{display:inline-block; min-width:52px; padding:4px 0; border-radius:6px; font-size:11px; font-weight:600;
+  font-variant-numeric:tabular-nums; text-align:center; line-height:1.2}
+.schip.t1{background:#EEEFFB; color:#7B75D0}
+.schip.t2{background:#E0DEF8; color:#5F57DA}
+.schip.t3{background:#CBC7F3; color:#493FCB}
+.schip.t4{background:#8E86ED; color:#fff}
+.schip.t5{background:linear-gradient(135deg,#5B52E8,#4338CA); color:#fff; box-shadow:0 1px 4px -1px rgba(79,70,229,.5)}
+/* total spend emphasis */
+.ladder .tot{font-weight:700; color:var(--ink)}
+.ladder .arpa-big{font-weight:700; color:var(--indigo-600)}
+
+/* status pill with dot */
+.st{display:inline-flex; align-items:center; gap:6px; padding:3px 9px 3px 8px; border-radius:16px; font-size:11px; font-weight:600; white-space:nowrap}
+.st .dot{width:6px; height:6px; border-radius:50%; flex-shrink:0}
+.st-active{background:var(--good-bg); color:var(--good-deep)} .st-active .dot{background:var(--good)}
+.st-scaling{background:var(--indigo-soft); color:var(--indigo-600)} .st-scaling .dot{background:var(--indigo)}
+.st-low{background:var(--warn-bg); color:var(--warn)} .st-low .dot{background:var(--warn)}
+.st-watch{background:var(--warn-bg); color:var(--warn)} .st-watch .dot{background:#E0A030}
+.st-early{background:var(--neutral-chip); color:var(--text-2)} .st-early .dot{background:var(--text-3)}
+.st-risk{background:var(--bad-bg); color:var(--bad-deep)} .st-risk .dot{background:var(--bad)}
+.st-inactive{background:#EEF0F4; color:#8A94A6} .st-inactive .dot{background:#B2BAC7}
 
 /* levers */
-.lev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.lev{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
-.lev label{font-size:.8rem;font-weight:600;display:block;margin-bottom:3px}
-.lev .hint{font-size:.7rem;color:var(--muted);line-height:1.4;margin-bottom:9px;min-height:2.6em}
-.lev input,.lev select{width:100%;padding:8px 10px;font:inherit;font-size:1rem;font-variant-numeric:tabular-nums;
-  border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}
-.lev input:focus,.lev select:focus{outline:none;border-color:var(--cpx);box-shadow:0 0 0 3px var(--cpx-wash)}
-.lev .plan{font-size:.68rem;color:var(--faint);margin-top:5px}
-.lev .live{font-size:.72rem;color:var(--cpx);margin-top:5px;font-weight:600;min-height:1.2em}
-.lev.hero-lev{border-color:var(--cpx);border-width:1.5px;background:var(--cpx-wash)}
-.btnrow{margin:15px 0;display:flex;gap:9px;flex-wrap:wrap}
-button.act{font:inherit;font-size:.82rem;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--ink);background:#fff;color:var(--ink)}
-button.act:hover{background:var(--ink);color:#fff}
-button.act.primary{background:var(--cpx);border-color:var(--cpx);color:#fff}
-button.act.primary:hover{background:#E0431A}
-.impact{background:var(--ink);color:#fff;border-radius:13px;padding:22px 26px}
-.impact .n{font-size:3rem;font-weight:700;letter-spacing:-.02em;line-height:1}
-.impact .lab{font-size:.72rem;color:#9AA3B2}
-.impact .row{display:flex;gap:32px;flex-wrap:wrap;margin-top:16px}
-.impact .k{font-size:.7rem;color:#9AA3B2}
-.impact .v{font-size:1.25rem;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
-.impact .pos{color:#4ADE9C}.impact .neg{color:#FF8A6B}.impact .brand{color:var(--cpx-lt)}
+.lever{margin-bottom:15px}
+.lever label{display:block; font-size:12.5px; font-weight:600; margin-bottom:5px; color:var(--text)}
+.lever .hint{font-size:11px; color:var(--text-3); font-weight:400; margin-left:4px}
+.lever input{width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:var(--radius-sm);
+  font-size:14px; font-weight:600; font-family:inherit; color:var(--ink); background:#fff; transition:border .15s, box-shadow .15s}
+.lever input:focus{outline:none; border-color:var(--indigo); box-shadow:0 0 0 3px var(--indigo-soft)}
+.locked{background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 12px;
+  font-size:12.5px; color:var(--text-2); display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px}
+.locked b{color:var(--ink)}
+.live-heading{font-size:15px; font-weight:550; background:linear-gradient(120deg,var(--indigo-wash),var(--indigo-soft));
+  border:1px solid var(--indigo-tint); color:var(--indigo-700); border-radius:var(--radius);
+  padding:15px 18px; margin-bottom:20px; line-height:1.65; box-shadow:var(--shadow-sm)}
+.live-heading .v{color:var(--indigo-600); font-weight:700}
 
 /* scenarios */
-.scen{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:13px}
-.scard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:17px 18px}
-.scard.cur{border-color:var(--cpx);border-width:1.5px}
-.scard.win{border-color:var(--green);border-width:1.5px;background:linear-gradient(180deg,var(--green-lt) 0%,#fff 60%)}
-.scard .tag{font-size:1rem;font-weight:700}
-.scard .lbl{font-size:.73rem;color:var(--muted);margin:2px 0 10px;line-height:1.4}
-.scard .ne{font-size:1.8rem;font-weight:700;letter-spacing:-.02em}
-.scard .assume{list-style:none;margin:11px 0 0;padding:11px 0 0;border-top:1px solid var(--line2)}
-.scard .assume li{font-size:.72rem;color:var(--muted);padding:2px 0;display:flex;justify-content:space-between;gap:8px}
-.scard .assume li b{color:var(--ink);font-weight:600}
-.scard .meta{font-size:.72rem;color:var(--muted);margin-top:9px}
-.scard button.act{margin-top:12px;width:100%;font-size:.74rem;padding:7px}
+.scen-banner{font-size:14px; font-weight:600; padding:13px 18px; border-radius:var(--radius); margin-bottom:16px; box-shadow:var(--shadow-sm)}
+.scen-banner.ok{background:var(--good-bg); color:var(--good-deep)}
+.scen-banner.warn{background:var(--warn-bg); color:var(--warn)}
+.scen-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:14px}
+.scen-card{border:1px solid var(--border); border-radius:var(--radius); padding:16px 17px; position:relative;
+  background:var(--card); box-shadow:var(--shadow-sm); transition:box-shadow .2s, transform .2s}
+.scen-card:hover{box-shadow:var(--shadow-md); transform:translateY(-2px)}
+.scen-card.hit{border-color:#A6E0C3; background:linear-gradient(180deg,#F6FCF9,#fff)}
+.scen-card h3{font-size:14px; font-weight:700; margin-bottom:8px; color:var(--ink)}
+.scen-card .assum{font-size:11.5px; color:var(--text-2); margin:10px 0; line-height:1.55}
+.scen-out{font-size:12.5px; display:flex; justify-content:space-between; align-items:center; padding:4px 0}
+.scen-out b{font-weight:700; color:var(--ink)}
+.apply-btn{margin-top:12px; width:100%; padding:8px; border:1px solid var(--border); background:#fff; border-radius:var(--radius-sm);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--text-2); cursor:pointer; transition:all .15s}
+.apply-btn:hover{border-color:var(--indigo); color:var(--indigo-600); background:var(--indigo-wash)}
 
-.method h2{font-size:1.12rem;font-weight:600;margin:22px 0 8px;letter-spacing:-.01em}
-.method p{font-size:.86rem;color:#414A59;line-height:1.65;max-width:76ch;margin-bottom:6px}
-.method .box{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--cpx);border-radius:10px;padding:13px 16px;margin:10px 0;font-size:.83rem;line-height:1.6;max-width:76ch}
-.method b{color:var(--ink)}
-
-@media(max-width:900px){
-  body{flex-direction:column}
-  nav{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center}
-  nav .grp,nav .foot{display:none}
-  nav .brand{border:none}
-  nav a{margin:4px}
-  main{padding:16px 13px 50px}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* misc */
+.chart-box{position:relative; width:100%}
+.legend-note{font-size:11px; color:var(--text-3); margin-top:10px; line-height:1.5}
+.callout{border-left:3px solid var(--indigo); background:var(--indigo-wash); padding:11px 15px; border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:12.5px; color:var(--indigo-700); margin:10px 0; line-height:1.55}
+.callout.warn{border-left-color:var(--warn); background:var(--warn-bg); color:#7A5310}
+.method p{font-size:13.5px; color:var(--text-2); margin-bottom:11px; max-width:76ch; line-height:1.65}
+.method h2{margin-top:22px}
+.method ul{margin:0 0 12px 20px; font-size:13.5px; color:var(--text-2)}
+.method li{margin-bottom:6px; line-height:1.6}
+.footer-note{margin-top:28px; font-size:11px; color:var(--text-3)}
+.health-tile{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+  padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; background:var(--card)}
+.health-tile .h-l{font-size:12.5px; font-weight:600; color:var(--text)}
+.health-tile .h-n{font-size:10.5px; color:var(--text-3); margin-top:2px}
+.health-tile .h-v{font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
 </style>
 </head>
 <body>
-<nav>
-  <div class="brand">
-    <div class="logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAGr0lEQVR4nN2ba4hVVRTHfzPOODkWqYVkWJZG+KFMSC0KzB5GRJQiQaRFBBEIZRFBjw896ENRgYIFReGH7IEfsiwtDY3eU4EYRYUWGColVlrWTHrvzO3DWou97vG87njPnXtmwWZfzjlr7/1fe6211157Xxhd1KkFYDawBRgA3gV6gQ4to5LGuN8rgL+AGlDVeoW+62rxuAqnDgKos4H3EcA1YBCoaL1FvxkTbaDM1Ol+3wT8jgCvAEPUa8BnMTylJpv1HmA1Ydar7rcXxqsRvlKTgTgX6CMAt1m3MoQIoAZcojylNoEOAoDrgT8Is1yLKUe1fkR5Sg2+k7CEPUiyykfBv6A8pQZvg+8G1hA8/CDp4N9w/KVd/w38KcA2jvXySeDfUl6vOQ1TpzbSpbUVi7iKlqo5u+nAd6Tbuwf/tvJ2MMxlr5GQ0RyTCalZQjHws4G9FAQ+a7CzgKnAOOCIDuAfJMw8qKU/hs80ZEhLo9SFOLdLgXeAiYi9JzmyCuIfNgBL9NuO4fRtMz8R2EiytGsI8L3Al8Ba4H7gcsRWPZnZ5CWb+SuBw6R7+qaqvQ0W4HmCylUjJcnzWjkAbAKWA9Nc234NTyIDfxUiYPP2LQFvgwTYro2nSX5IB1dFBGWbDv/NYWAdMptGSX7CwM8nH3jzB00D7wfxtDb+H8nLTZpgTCj++QfAZa6vMTG/ZwGHRgo8BB8wAfg60mFcrJ1XGB7Mi4iPMeA28MnAbrJt3sBvRhxf08B7IQCcCDxJiLf9ALL8QFzxgtgJXKT9dAMnAx/lAO+3tpbhKWR76210CnA38Cn1wM3+GxWEzeAAsFj7mOPaTNIy6+sHwkpT6N4+zmufDzwO/BgzuEbMw8AMAou07UUEoUbbMsEcAGbo9y3b3FjKyWtFDzJ77xEPLE8xUP3AXG33nph2zI9UgQX63YglNTpjOp+HBEKm2jbgRjRhJ+J4QTy7f2ft3qXv2yKjY+bhbXA28DqNm4UBXKntTAP+pj6bs07ftQX4KNmO0Wg+8DH1qp61VA4ie42Z2obFIVUk3J5Efc6/LSkqiDuRzVIeIdhMr1LecwjR4C36rC1nP468acwEvidbCPZuDzBeeT9BosKxlPREp1vrM4D9pKewvBAWIGCfogWHGUXaVAWZvT3Aw9pXLeV727vP1e92AN/qs8Jmv2inUkEG/xrwGzKTaUKA4Ah/Af6kYNUvWgA17aMfSZyAqHocGdApWh8ETiWsFIVQK5YVc2C7c34/TutDSEqsx7XTdGrVupql9p6qWleAC4FliAZ0J3IcB7VCAAZ+as7vDmptwc8zwAVIhqqLJo+5aAFYZnYsYcOT1eduradrPQE5EFlCCK+jm7O2JVu/ryE7GLLNz80IODv/O+K+WUsQDLS5IGzD1IGsAGnbZds0DRAyyVsdj+0XaohzfAxZIYyabhrNIIvdHyA7V2AgP1SesxBheOFE29gHPITkEo1sPzLiWmGqP498CVUDtlT5HqV+kxTVFv98P/AscF7MGEbkSNwOTScCP5NvIzQE/ISs+eOBX6lX+ySz8RpRQQ5kllJvHjamlpC/sbWJbNX3s7xM+ey+z9EMviSNMK14BXG+Ri0RggUrq0hW4TjV3+YGuZJ64eRNwfvcoX/+OXCxa78wMvD3kQ+8DfhfJAHis9A3IOlvL6hGMs9RYQwgUWVh5wgG/lYC+KzBmorfprwG3gbYC9wL7Irw2bFbXoFYHLE+0k/TyMAvJkg+L/jVyhtNd/lB9iKXIDcQzg3jTKmSUGw5NTNrqgAM/LUIqLSTnajT20h9sBSluIOZ04EbEcH1EW6G5tGChXFtHk/AYLc4FiKz06OdpdlYVfn6CHcAUL4kMrs12/Y0CdlknYkIZzKy/PZqP0NIIuZN4BttK62v3GQqu5CgYnkzv9t14NC4Q/L3kRqdvKY5PwN/NcMDb0FKMwZk2mFCSSpNA282fx3Bu+YF/wVh5kt5a9ODP0p2qOq9/VbgJOVvu11bHhoOeJv59YS8XinBm83nBe9j85cJzqrU4G2dzwLv44AnlLcVV2oLIQN/BeLts8BXXX2H8rZFcmI4ZF56DuG2Zp5ra/sJdwJLc5obJbPVGUgUlQbe23sfIWFZWvAWWJyAHE561Y6zd/v9kvJASdd4I5u55dSv40kq349chDAqpaf3ZLO3mfh7gP7ZDiTJYHyldHZRMhBfcaz6+wzPc8iOC0ps73FkGrCR8LdTv/ztI9zu9N+PGrLZvJ1jNWAtcJq+HzUqH0d2GXINIoBdhAMLGGUq/z+0vvyW6CT9YAAAAABJRU5ErkJggg==" alt="CPX" style="width:20px;height:20px;object-fit:contain"></div>
-    <div><b>CPX</b><span>Unit Economics</span></div>
-  </div>
-  <div class="grp">Overview</div>
-  <a data-page="cockpit" class="active">Cockpit</a>
-  <a data-page="targets">Targets vs Actuals</a>
-  <a data-page="path">Path to Profit</a>
-  <div class="grp">Model</div>
-  <a data-page="levers">Levers</a>
-  <a data-page="pnl">P&amp;L</a>
-  <a data-page="cohorts">Brand Build</a>
-  <div class="grp">Pipeline</div>
-  <a data-page="brands">Brands</a>
-  <a data-page="affiliates">Affiliates</a>
-  <div class="grp">Strategy</div>
-  <a data-page="scale">Where to Scale</a>
-  <div class="grp">Reference</div>
-  <a data-page="method">Method</a>
-  <div class="foot">Through <b id="footMonth"></b><br>Reconciled to P&amp;L · diff 0<br><span id="footStamp"></span></div>
-</nav>
-<main>
-
-<section class="page active" id="page-cockpit">
-  <div class="head">
-    <div><h1>Cockpit</h1><div class="sub" id="cockHeading"></div></div>
-  </div>
-  <div class="grid">
-    <div class="card col8 p0"><div style="padding:16px 18px 4px"><div class="eyebrow">Net commission — actual vs <span id="rw-mode">projected</span> revenue &nbsp;<span style="color:var(--faint);font-weight:400">· CPX only</span></div></div>
-      <div class="ch" style="padding:0 12px 10px"><canvas id="cRunway" height="248"></canvas></div>
-      <div class="legend" style="padding:0 18px 15px" id="runwayLegend"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 13.2A8 8 0 1 1 10.8 4a6.2 6.2 0 0 0 9.2 9.2Z" fill="#fff"/>
+        </svg>
+      </div>
+      <div><div class="word">Moontech</div><div class="sub">Unit Economics · 2026</div></div>
     </div>
-    <div class="card col4 verdict" id="verdict"></div>
-
-    <div class="card col12"><div class="eyebrow" style="margin-bottom:4px">As-Is vs Target — full-year outcome</div>
-      <div class="csub" style="margin-bottom:10px">As-Is freezes today's business; Target applies your levers. Uplift is what the plan adds.</div>
-      <div class="twrap" id="cmpTable" style="border-radius:10px"></div>
-    </div>
-
-    <div class="card col3" id="ask0"></div>
-    <div class="card col3" id="ask1"></div>
-    <div class="card col3" id="ask2"></div>
-    <div class="card col3 p0"><div style="padding:16px 18px 0"><div class="eyebrow">Client concentration · <span class="mLatest"></span></div></div>
-      <div class="ch" style="padding:6px 14px 15px"><canvas id="cConc" height="146"></canvas></div>
-    </div>
-
-    <div class="card col12 p0" id="scnTablePanel"><div style="padding:16px 18px 0"><div class="eyebrow" id="scnTableTitle">Scenario detail — monthly</div></div>
-      <div class="twrap" id="scnTable" style="border:none;border-radius:13px;margin-top:8px"></div>
-    </div>
-
-    <div class="card col12"><div class="eyebrow" style="margin-bottom:12px">Health signals — latest month vs prior</div>
-      <div class="grid" id="healthRow"></div>
-    </div>
-  </div>
-</section>
-
-<section class="page" id="page-targets">
-  <div class="head"><div><h1>Targets vs Actuals <span style="font-size:.5em;color:var(--faint);font-weight:500;vertical-align:middle">· CPX only</span></h1><div class="sub">Every metric on three lines: <b>As-Is</b> (frozen business), <b>Target</b> (levers applied — existing book plus brand build), and <b>Actual</b> (booked). Brands shown both at 20K-unit output and at nominal run-rate. Hover charts for exact figures.</div></div></div>
-  <div id="targetBlocks"></div>
-</section>
-
-<section class="page" id="page-path">
-  <div class="head"><div><h1>Path to Profit</h1><div class="sub">Five scenarios, each computed live by the same engine. The new-brand build starts the month after the latest actuals. Each card lists its assumptions and its full-year outcome; the banner says how many paths reach profit. Apply any scenario to load it into the levers.</div></div></div>
-  <div class="scen" id="scenCards"></div>
-</section>
-
-<section class="page" id="page-levers">
-  <div class="head"><div><h1>Levers</h1><div class="sub">Set the revenue target directly — profit falls out below. Every other lever shapes how that revenue is produced. Nothing is saved; reload restores the committed plan.</div></div></div>
-  <div class="lev-grid" id="leverGrid"></div>
-  <div class="btnrow"><button class="act primary" id="btnApply">Recalculate</button><button class="act" id="btnReset">Reset to committed plan</button></div>
-  <div class="impact" id="leverImpact"></div>
-</section>
-
-<section class="page" id="page-pnl">
-  <div class="head"><div><h1>P&amp;L — CPX + MARS combined SBU</h1><div class="sub">Jan–<span class="mLatest"></span> are booked actuals, tied to the live P&amp;L to the dirham. Later months project at current levers. CPX = the direct CPX line; MARS = all other channels, variances included.</div></div></div>
-  <div class="grid">
-    <div class="card col12 p0"><div style="padding:15px 18px 0"><div class="eyebrow">Cumulative net earnings — Target vs As-Is</div></div><div class="ch" style="padding:6px 12px 4px"><canvas id="cCum" height="150"></canvas></div><div class="legend" style="padding:0 18px 14px" id="cumLegend"></div></div>
-    <div class="card col6" id="pnlBoxTarget"></div>
-    <div class="card col6" id="pnlBoxAsis"></div>
-    <div class="card col12 p0"><div class="twrap" id="pnlTable" style="border:none;border-radius:13px"></div></div>
-  </div>
-  <p style="font-size:.8rem;color:var(--muted);line-height:1.6;margin-top:10px;max-width:80ch" id="pnlNote"></p>
-</section>
-
-<section class="page" id="page-brands">
-  <div class="head"><div><h1>Brand Pipeline <span style="font-size:.5em;color:var(--faint);font-weight:500;vertical-align:middle">· CPX only</span></h1><div class="sub">Per-brand net commission from the operational export. Recognized revenue reconciles through the adjustment line.</div></div></div>
-  <div class="grid">
-    <div class="card col7" id="brandFigs" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px"></div>
-    <div class="card col5 p0"><div style="padding:16px 18px 0"><div class="eyebrow">Top brands · share of <span class="mLatest"></span> commission</div></div><div class="ch" style="padding:6px 14px 15px"><canvas id="cBrandConc" height="178"></canvas></div></div>
-    <div class="card col12 p0"><div class="twrap" id="brandTable" style="border:none;border-radius:13px"></div></div>
-  </div>
-</section>
-
-<section class="page" id="page-affiliates">
-  <div class="head"><div><h1>Affiliate Pipeline <span style="font-size:.5em;color:var(--faint);font-weight:500;vertical-align:middle">· CPX only</span></h1><div class="sub">Top 50 affiliates by order volume — monthly orders, payout to date, tier and trend.</div></div></div>
-  <div class="grid">
-    <div class="card col12" id="affFigs" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px"></div>
-    <div class="card col12 p0"><div class="twrap" id="affTable" style="border:none;border-radius:13px"></div></div>
-  </div>
-</section>
-
-<section class="page" id="page-cohorts">
-  <div class="head"><div><h1>Brand Build <span style="font-size:.5em;color:var(--faint);font-weight:500;vertical-align:middle">· CPX only</span></h1><div class="sub">How new-brand revenue stacks up as each monthly cohort ramps. <span id="coh-count"></span> cohorts sign <span id="coh-per"></span> brands each from <span id="coh-start"></span>–Dec; every cohort climbs its own ramp curve and churns <span id="coh-churn"></span>/month. <span id="coh-signed"></span> Recomputes with the levers.</div></div></div>
-  <div class="grid">
-    <div class="card col12 p0"><div style="padding:15px 18px 0"><div class="eyebrow">New-brand revenue by cohort — the stack</div></div>
-      <div class="ch" style="padding:6px 12px 12px"><canvas id="cCohort" height="150"></canvas></div>
-    </div>
-    <div class="card col12 p0"><div class="twrap" id="cohortTable" style="border:none;border-radius:13px"></div></div>
-    <div class="card col12" id="cohortNote" style="font-size:.82rem;color:var(--muted);line-height:1.6"></div>
-  </div>
-</section>
-
-<section class="page" id="page-scale">
-  <div class="head"><div><h1>Where to Scale <span style="font-size:.5em;color:var(--faint);font-weight:500;vertical-align:middle">· CPX only</span></h1><div class="sub">The moves that actually move the year, drawn from the live data. Every suggestion carries a number. Sephora is a fixed budget — excluded from scale targets.</div></div></div>
-  <div class="grid">
-    <div class="card col12" id="scaleReframe"></div>
-    <div class="card col12 p0"><div style="padding:15px 18px 0"><div class="eyebrow">Concentration — where commission comes from · <span class="mLatest"></span></div></div><div class="ch" style="padding:6px 12px 12px"><canvas id="cScaleConc" height="120"></canvas></div></div>
-    <div class="card col6" id="scaleDefend"></div>
-    <div class="card col6" id="scaleGrow"></div>
-    <div class="card col6" id="scaleAffiliates"></div>
-    <div class="card col6" id="scaleReactivate"></div>
-    <div class="card col12" id="scaleMoves"></div>
-  </div>
-</section>
-
-<section class="page method" id="page-method">
-  <div class="head"><div><h1>Method</h1><div class="sub">How the model works.</div></div></div>
-  <div id="methodBody"></div>
-</section>
-
-</main>
+    <nav class="nav" id="nav">
+      <div class="group">Report</div>
+      <a data-page="cockpit" class="active">Cockpit</a>
+      <a data-page="targets">Targets vs Actuals</a>
+      <a data-page="topclients">Top Clients</a>
+      <a data-page="cac">CAC</a>
+      <div class="group">Model</div>
+      <a data-page="levers">Levers</a>
+      <a data-page="scenarios">Path to $8.2M</a>
+      <a data-page="roas">ROAS Clients</a>
+      <div class="group">About</div>
+      <a data-page="method">Method</a>
+    </nav>
+    <div class="side-foot">Actuals through <b>Aug 2026</b><br>Updated monthly</div>
+  </aside>
+  <main class="content" id="content"><!--PAGES--></main>
+</div>
 <script>
-
-/* CPX DASHBOARD v3 — two scenarios (As-Is / Target), revenue-target lever */
-const CPX_DATA = {"meta":{"latest":8,"latestLabel":"Aug-26","updated":"Sep 2026 cycle","runRate":6929,"newSignings":{"month":"Aug","names":["Nayomi Dream","Ulta Beauty"],"commission":389},"pipelineOrders":[4907,5800,4449,4224,4981,3652,3680,4395]},"seasonality":[0.0747,0.1133,0.0802,0.0734,0.0829,0.0734,0.0747,0.0747,0.0802,0.0734,0.1256,0.0734],"actuals":{"ncOps":[204243,311187,235296,195589,209667,149793,148435,174210],"cpxRec":[199065,301631,213485,195439,220560,150339,133480,174225],"cpxCos":[65432,68175,85883,58842,66393,39391,35639,48705],"marsRev":[96282,86617,191853,51705,79276,61595,23109,33628],"marsCos":[35816,54068,32067,36628,31552,33735,32380,52044],"opex":[421526,382411,356484,400792,336637,457106,488309,423366],"brands":[28,30,32,32,32,27,26,28],"affiliates":[211,236,205,194,199,170,107,115],"orders":[5813,7033,5353,4915,5694,4187,3932,4501],"payout":[69786,74222,84710,58652,58005,38814,40539,45314],"pnlNE":[-227427,-116406,-69096,-249118,-134746,-318298,-399739,-316262]},"marsStatic":{"rev":78008,"cos":38536},"adjustments":{"latestOps":174210,"latestRecognized":174225,"latestAdj":15},"brands":[{"name":"Sephora","m":[122396,239243,120375,109899,110810,100071,89145,105497],"status":"\u2713 Active"},{"name":"Nayomi","m":[24860,29715,53242,45666,48284,12763,26775,34029],"status":"\u2191 Growing"},{"name":"Level Shoes","m":[8294,2635,739,658,4437,6614,2426,9603],"status":"\u2191 Growing"},{"name":"DKNY","m":[6108,4770,12100,8546,10592,2507,7207,5301],"status":"\u2193 Declining"},{"name":"Izil","m":[5009,4376,3324,2161,2817,1858,2094,3844],"status":"\u2191 Growing"},{"name":"OnTime","m":[5344,6677,9912,2072,4837,4272,3070,2692],"status":"\u2193 Declining"},{"name":"Riva","m":[4581,5072,5674,3105,5996,3307,2545,2222],"status":"\u26a0 At Risk"},{"name":"Mumzworld","m":[1872,1982,2389,1906,1458,1065,1404,1988],"status":"\u2191 Growing"},{"name":"Bloomingdales","m":[2533,2320,2961,2641,7663,6956,5061,1845],"status":"\u26a0 At Risk"},{"name":"Cole Haan","m":[3150,2090,8348,9518,1670,1723,1307,1321],"status":"\u2193 Declining"},{"name":"Bath and Body Works","m":[4761,1425,1593,882,1010,1517,1172,1102],"status":"\u2713 Active"},{"name":"Charlotte Tilburry","m":[1151,572,2275,921,2693,907,1378,872],"status":"\u26a0 At Risk"},{"name":"Mother Care","m":[552,400,517,517,317,447,447,541],"status":"\u2191 Growing"},{"name":"Mamas & Papas","m":[2989,2320,1661,1377,2096,1752,1921,537],"status":"\u26a0 At Risk"},{"name":"New Balance","m":[269,147,146,140,207,131,206,458],"status":"\u2191 Growing"},{"name":"Noon - GZ","m":[469,0,0,0,324,190,241,387],"status":"\u2191 Growing"},{"name":"Namshi - GZ","m":[36,78,209,25,107,71,57,356],"status":"\u2191 Growing"},{"name":"Nayomi Dream","m":[0,0,0,0,0,0,0,346],"status":"\u2014 New"},{"name":"Squatwolf","m":[251,892,1636,872,1229,2235,1000,303],"status":"\u26a0 At Risk"},{"name":"Sun & Sands Sports","m":[704,211,29,75,84,264,14,257],"status":"\u2191 Growing"},{"name":"Victoria's Secret","m":[235,308,705,206,279,235,250,147],"status":"\u26a0 At Risk"},{"name":"Footlocker","m":[0,0,0,0,106,35,18,141],"status":"\u2191 Growing"},{"name":"Nice One","m":[0,0,0,0,1,0,0,112],"status":"\u2191 Growing"},{"name":"Styli","m":[382,142,114,25,214,62,45,100],"status":"\u2713 Active"},{"name":"Airalo","m":[83,118,63,165,268,92,214,98],"status":"\u26a0 At Risk"},{"name":"Adidas - RKT","m":[250,216,279,87,153,260,197,60],"status":"\u26a0 At Risk"},{"name":"Ulta Beauty","m":[0,0,0,0,0,0,0,43],"status":"\u2014 New"},{"name":"Banana republic","m":[180,82,482,266,48,13,16,9],"status":"\u26a0 At Risk"},{"name":"H&M","m":[992,1137,1387,1137,1410,6,0,0],"status":"\u2593 Inactive"},{"name":"Ounass","m":[1092,1045,1967,1313,0,0,0,0],"status":"\u2593 Inactive"},{"name":"Swarovski","m":[1513,854,705,77,0,0,0,0],"status":"\u2593 Inactive"},{"name":"Vogacloset","m":[1047,386,541,594,261,440,228,0],"status":"\u2593 Inactive"},{"name":"GAP","m":[424,351,312,117,279,0,0,0],"status":"\u2593 Inactive"},{"name":"Dabdoob - GZ","m":[965,707,324,0,0,0,0,0],"status":"\u2593 Inactive"},{"name":"6th Street - GZ","m":[365,266,144,0,0,0,0,0],"status":"\u2593 Inactive"},{"name":"American Eagle","m":[153,94,106,65,18,0,0,0],"status":"\u2593 Inactive"},{"name":"Triumph","m":[104,122,805,526,0,0,0,0],"status":"\u2593 Inactive"},{"name":"Allbirds","m":[298,427,200,19,0,0,0,0],"status":"\u2593 Inactive"},{"name":"MetroBrazil","m":[739,0,0,0,0,0,0,0],"status":"\u2593 Inactive"},{"name":"Reef Perfumes - GZ","m":[0,0,0,0,0,0,0,0],"status":"\u2014 New"},{"name":"Eyewa","m":[25,0,32,11,0,0,0,0],"status":"\u2593 Inactive"},{"name":"YaHala","m":[66,0,0,0,0,0,0,0],"status":"\u2593 Inactive"},{"name":"Under Armour","m":[0,7,0,0,0,0,0,0],"status":"\u2593 Inactive"}],"affiliates":[{"name":"Alaa Ghawi","m":[1051,1724,986,1135,1209,1059,785,988],"payout":64435,"tier":"Anchor","status":"\u2713 Active"},{"name":"Dima","m":[886,1236,894,835,812,598,754,719],"payout":74310,"tier":"Anchor","status":"\u2713 Active"},{"name":"Muhammad","m":[263,275,114,185,203,132,418,532],"payout":21364,"tier":"Anchor","status":"\u2191 Scaling"},{"name":"Abdulaziz","m":[399,610,411,411,381,196,291,508],"payout":36073,"tier":"Anchor","status":"\u2191 Scaling"},{"name":"Sahseh","m":[199,196,207,121,272,221,210,228],"payout":21246,"tier":"Core","status":"\u2713 Active"},{"name":"Nawaf\u2605","m":[94,158,153,98,102,48,84,174],"payout":4403,"tier":"Core","status":"\u2191 Scaling"},{"name":"Geeks","m":[105,60,120,126,156,162,181,164],"payout":12790,"tier":"Core","status":"\u2713 Active"},{"name":"Amal (#399671)","m":[171,133,147,130,222,96,64,120],"payout":30293,"tier":"Tail","status":"\u2713 Active"},{"name":"Mohamed (#399726)","m":[152,152,164,142,148,48,123,100],"payout":23179,"tier":"Tail","status":"\u2713 Active"},{"name":"Ragad Essa Aldahous","m":[147,239,176,178,187,82,44,98],"payout":18885,"tier":"Tail","status":"\u2713 Active"},{"name":"Donia Hesham","m":[12,44,128,31,49,26,19,73],"payout":6404,"tier":"Growing","status":"\u2191 Scaling"},{"name":"Mahmoud","m":[92,73,78,52,42,13,37,71],"payout":3361,"tier":"Growing","status":"\u2191 Scaling"},{"name":"Abdulrhaman","m":[110,153,146,84,118,50,37,53],"payout":6221,"tier":"Tail","status":"\u2193 Declining"},{"name":"Tasneem Mohamed Kamel","m":[2,2,2,6,134,173,137,51],"payout":10530,"tier":"Tail","status":"\u2193 Declining"},{"name":"Kumail Raza","m":[55,16,43,14,82,154,52,44],"payout":11152,"tier":"Tail","status":"\u2193 Declining"},{"name":"Mohanad","m":[61,45,69,59,54,30,25,44],"payout":3576,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Amani","m":[57,65,63,25,25,10,19,36],"payout":6026,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Saudi Coupon","m":[14,23,29,29,42,47,45,36],"payout":3730,"tier":"Tail","status":"\u2193 Declining"},{"name":"Zahra","m":[0,0,0,1,45,7,32,35],"payout":4680,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Mariam Khalid Althawadi","m":[101,53,25,15,29,9,39,30],"payout":7274,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Rahman Hussain","m":[16,13,4,13,25,5,10,29],"payout":1361,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Abanob Hamdy","m":[448,34,21,13,15,52,23,24],"payout":3744,"tier":"Tail","status":"\u2193 Declining"},{"name":"AsmaaShaheen","m":[0,0,0,2,0,0,0,22],"payout":184,"tier":"Tail","status":"\u2713 Active"},{"name":"Raja","m":[17,23,3,19,50,41,27,17],"payout":4552,"tier":"Tail","status":"\u2193 Declining"},{"name":"Mahmoud Abd Elrhman","m":[29,19,27,22,35,13,14,17],"payout":5982,"tier":"Tail","status":"\u2193 Declining"},{"name":"Ahmed (#399054)","m":[0,0,0,0,2,0,19,15],"payout":394,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Tamer","m":[21,17,13,31,30,10,25,14],"payout":693,"tier":"Tail","status":"\u2193 Declining"},{"name":"Anwar Alghamdi","m":[0,0,0,0,0,0,0,13],"payout":38,"tier":"Tail","status":"\u2713 Active"},{"name":"Omar","m":[19,7,15,14,10,10,9,12],"payout":1096,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Nasrsalem","m":[6,22,7,7,8,3,5,10],"payout":718,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Mohamed (#399703)","m":[14,37,19,29,31,6,5,10],"payout":3026,"tier":"Tail","status":"\u2193 Declining"},{"name":"Sara (#399652)","m":[14,15,3,4,6,3,4,9],"payout":1343,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Rahman","m":[52,79,59,132,90,65,8,8],"payout":1773,"tier":"Tail","status":"\u2193 Declining"},{"name":"Saf","m":[2,2,0,0,2,6,0,7],"payout":63,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Mahmoud Hassan","m":[9,9,7,10,18,4,3,7],"payout":549,"tier":"Tail","status":"\u2193 Declining"},{"name":"Amal (#399769)","m":[32,8,20,4,9,8,9,6],"payout":713,"tier":"Tail","status":"\u2193 Declining"},{"name":"Hadi","m":[0,0,0,0,0,0,2,6],"payout":16,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Gift","m":[82,38,100,57,97,57,70,6],"payout":5123,"tier":"Tail","status":"\u2193 Declining"},{"name":"Mahmou Abdo","m":[0,0,0,0,13,34,6,6],"payout":1660,"tier":"Tail","status":"\u2193 Declining"},{"name":"Ahmed (#400105)","m":[4,4,8,14,12,6,7,6],"payout":1076,"tier":"Tail","status":"\u2193 Declining"},{"name":"Sara (#398951)","m":[1,2,6,17,12,5,0,6],"payout":919,"tier":"Tail","status":"\u2193 Declining"},{"name":"Ahmed (#398814)","m":[23,13,14,18,18,7,12,6],"payout":2240,"tier":"Tail","status":"\u2193 Declining"},{"name":"Rofayda Ali","m":[68,161,118,106,148,129,1,5],"payout":202,"tier":"Tail","status":"\u2193 Declining"},{"name":"Mohamed (#399617)","m":[13,6,5,2,2,2,3,5],"payout":256,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Waad","m":[1,2,4,1,1,2,2,5],"payout":298,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Anoud","m":[13,7,3,10,9,12,2,4],"payout":858,"tier":"Tail","status":"\u2193 Declining"},{"name":"Ahmed (#399605)","m":[0,4,4,2,8,3,6,4],"payout":559,"tier":"Tail","status":"\u2193 Declining"},{"name":"Weaam","m":[18,10,14,8,4,1,1,4],"payout":235,"tier":"Tail","status":"\u2191 Scaling"},{"name":"Kareem","m":[15,3,12,9,10,6,6,4],"payout":1732,"tier":"Tail","status":"\u2193 Declining"},{"name":"Maryam Mohamed","m":[19,8,8,3,4,1,5,4],"payout":835,"tier":"Tail","status":"\u2191 Scaling"}]};
-const MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const PER_ORDER_THEO=490*0.082*0.65, ORD_PER_AFF_ASSUMED=27;
-// Actual blended commission per order (volume-weighted across booked months) — reconciles to real order counts
-const PER_ORDER=CPX_DATA.actuals.ncOps.slice(0,CPX_DATA.meta.latest).reduce((a,b)=>a+b,0)/CPX_DATA.actuals.orders.slice(0,CPX_DATA.meta.latest).reduce((a,b)=>a+b,0);
-// Actual blended orders per affiliate (volume-weighted) — reconciles to real affiliate counts
-const ORD_PER_AFF=CPX_DATA.actuals.orders.slice(0,CPX_DATA.meta.latest).reduce((a,b)=>a+b,0)/CPX_DATA.actuals.affiliates.slice(0,CPX_DATA.meta.latest).reduce((a,b)=>a+b,0);
-const PLAN={opex:420000,brands:207,exChurn:0.05,newChurn:0.05,expansion:0.10,arpa:240000,fast:false};
-const N=CPX_DATA.meta.latest, A=CPX_DATA.actuals, S=CPX_DATA.seasonality;
-const MARSGP=CPX_DATA.marsStatic.rev-CPX_DATA.marsStatic.cos;
-const IMPLIED_BASE=A.ncOps.reduce((a,b)=>a+b,0)/S.slice(0,N).reduce((a,b)=>a+b,0);
-const OPEX_RUN=A.opex.slice(0,N).reduce((a,b)=>a+b,0)/N;
-
-let LV={...PLAN}, MODE="target", CH={};
-
-/* ---------- TARGET engine (levers applied) ---------- */
-function engine(L){
-  const ramp=L.fast?[.30,.50,.70,.85,.95,1,1]:[.10,.20,.35,.55,.75,.90,1];
-  const mARPA=L.arpa/12, total=[], existing=[], newRev=[];
-  for(let m=1;m<=12;m++){
-    let ex;if(m<=N)ex=A.ncOps[m-1];else{const n=m-N;ex=IMPLIED_BASE*S[m-1]*Math.pow(1-L.exChurn,n)*Math.pow(1+L.expansion,n/(12-N));}
-    let nr=0;for(let sc=N+1;sc<=12;sc++)if(m>=sc){const age=m-sc;nr+=(L.brands/(12-N))*Math.pow(1-L.newChurn,age)*ramp[Math.min(age,6)]*mARPA;}
-    existing.push(ex);newRev.push(nr);total.push(ex+nr);
+// ===== DATA BLOCK — monthly update: replace this object and commit =====
+// Source: Unit_Economics_Model (2).xlsx — actuals through August 2026
+const DATA = {
+ "meta": {
+  "currency": "USD",
+  "year": 2026,
+  "latestClosedIdx": 7,
+  "asOf": "August 2026"
+ },
+ "months": [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+ ],
+ "targetARR": 8200000.0,
+ "prior2025": [
+  200173.0,
+  190007.0,
+  421639.0,
+  193977.0,
+  227060.0,
+  255660.0,
+  247516.0,
+  252478.0,
+  279526.0,
+  313266.0,
+  743727.0,
+  270011.0
+ ],
+ "seasonality": [
+  0.062,
+  0.068,
+  0.103,
+  0.0618,
+  0.0631,
+  0.0763,
+  0.0736,
+  0.0742,
+  0.0778,
+  0.0917,
+  0.1609,
+  0.0877
+ ],
+ "distribution": [
+  0.01,
+  0.02,
+  0.03,
+  0.04,
+  0.06,
+  0.08,
+  0.1,
+  0.12,
+  0.13,
+  0.13,
+  0.14,
+  0.14
+ ],
+ "actualRevenue": [
+  321748.0,
+  364817.0,
+  580184.0,
+  332444.0,
+  424112.0,
+  313970.0,
+  247874.0,
+  206422.0
+ ],
+ "existingActualRev": [
+  325489.4486044929,
+  358366.78012253233,
+  568567.733151804,
+  338448.74063989107,
+  412875.9700476515,
+  302729.203539823,
+  202099.1150442478,
+  177879.91831177674
+ ],
+ "actualNewClients": [
+  0,
+  3,
+  2,
+  2,
+  4,
+  3,
+  8,
+  3
+ ],
+ "returningClients": [
+  22.0,
+  21.0,
+  21.0,
+  18.0,
+  18.0,
+  19.0,
+  15.0,
+  20.0
+ ],
+ "adjustments": [
+  -93672.15793056501,
+  -76705.24166099388,
+  -68717.76718856365,
+  -55912.049012933974
+ ],
+ "influActive": [
+  449.0,
+  392.0,
+  395.0,
+  423.0,
+  382.0,
+  326.0,
+  257.0,
+  488
+ ],
+ "influNew": [
+  18.0,
+  36.0,
+  23.0,
+  25.0,
+  16.0,
+  10.0,
+  11.0,
+  231
+ ],
+ "ads": [
+  1809.0,
+  1854.0,
+  2908.0,
+  1943.0,
+  1035.0,
+  782.0,
+  924.0,
+  2293.6
+ ],
+ "cac": {
+  "merchant": {
+   "cost": [
+    2210.0,
+    6672.0,
+    6370.0,
+    6914.0,
+    7498.0,
+    8088.0,
+    7868.0,
+    8188.0
+   ],
+   "count": [
+    0.0,
+    5.0,
+    2.0,
+    2.0,
+    6.0,
+    4.0,
+    9.0,
+    6.0
+   ],
+   "target": 3500.0
+  },
+  "creator": {
+   "cost": [
+    11517.0,
+    12160.0,
+    11206.0,
+    9603.0,
+    9683.0,
+    8905.0,
+    9255.0,
+    9108.0
+   ],
+   "count": [
+    18.0,
+    36.0,
+    23.0,
+    25.0,
+    16.0,
+    10.0,
+    11.0,
+    null
+   ],
+   "target": 1000.0
   }
-  const rows={cpxS:[],cpxC:[],mR:[],mC:[],ox:[],ne:[],cum:[]};let run=0;
-  for(let m=1;m<=12;m++){
-    let cpxS,cpxC,mR,mC,ox;
-    if(m<=N){cpxS=A.cpxRec[m-1];cpxC=A.cpxCos[m-1];mR=A.marsRev[m-1];mC=A.marsCos[m-1];ox=A.opex[m-1];}
-    else{cpxS=total[m-1];cpxC=.3*total[m-1];mR=CPX_DATA.marsStatic.rev;mC=CPX_DATA.marsStatic.cos;ox=L.opex;}
-    const v=(cpxS-cpxC)+(mR-mC)-ox;
-    rows.cpxS.push(cpxS);rows.cpxC.push(cpxC);rows.mR.push(mR);rows.mC.push(mC);rows.ox.push(ox);rows.ne.push(v);run+=v;rows.cum.push(run);
+ },
+ "topClients": [
+  {
+   "name": "Ounass",
+   "monthly": [
+    218182.16473791696,
+    187406.94349897892,
+    338546.22191967326,
+    205744.31586113002,
+    176471.88563648742,
+    176817.15452688903,
+    82377.12729748129,
+    61030.36078965283
+   ]
+  },
+  {
+   "name": "Sephora",
+   "monthly": [
+    47564.87406398911,
+    117011.30020422056,
+    83304.28863172226,
+    62152.75697753574,
+    74636.3512593601,
+    52734.377127297485,
+    66395.37100068074,
+    42597.41320626277
+   ]
+  },
+  {
+   "name": "Level shoes",
+   "monthly": [
+    20973.451327433628,
+    9465.214431586113,
+    50820.42205582029,
+    22473.247106875428,
+    28077.87610619469,
+    34980.53097345133,
+    22552.75697753574,
+    33820.55820285909
+   ]
+  },
+  {
+   "name": "Bloomingdales",
+   "monthly": [
+    10551.940095302927,
+    9638.665759019741,
+    27249.829816201498,
+    13680.326752893125,
+    67647.10687542547,
+    11401.497617426821,
+    0.0,
+    5804.220558202859
+   ]
+  },
+  {
+   "name": "Charlotte Tilbury",
+   "monthly": [
+    859.9046970728386,
+    1223.417290673928,
+    35428.4547311096,
+    10401.633764465623,
+    34042.4778761062,
+    5432.266848196052,
+    3821.647379169503,
+    4160.925799863853
+   ]
   }
-  let monthPos="Never";for(let m=1;m<=12;m++)if(rows.ne[m-1]>=0){monthPos=MO[m-1];break;}
-  let recovers="Not in-year";for(let m=1;m<=12;m++)if(rows.cum[m-1]>=0){recovers=MO[m-1];break;}
-  const be=recovers;
-  const proj=total.reduce((a,b)=>a+b,0);
-  const banked=A.ncOps.reduce((a,b)=>a+b,0),remaining=Math.max(0,proj-banked);
-  const remSeas=S.slice(N).reduce((a,b)=>a+b,0);
-  const catchup=S.map((s,i)=>i<N?null:remaining*s/remSeas);
-  return{proj,revTarget:proj,neFY:rows.ne.reduce((a,b)=>a+b,0),be,monthPos,recovers,rows,total,existing,newRev,catchup,remaining};
-}
-
-/* ---------- AS-IS engine (today frozen flat) ---------- */
-function asIs(){
-  const total=[],rows={cpxS:[],cpxC:[],mR:[],mC:[],ox:[],ne:[],cum:[]};let run=0;
-  for(let m=1;m<=12;m++){
-    let r; if(m<=N)r=A.ncOps[m-1]; else r=IMPLIED_BASE*S[m-1]; // frozen, no churn/expansion, no new
-    total.push(r);
-    let cpxS,cpxC,mR,mC,ox;
-    if(m<=N){cpxS=A.cpxRec[m-1];cpxC=A.cpxCos[m-1];mR=A.marsRev[m-1];mC=A.marsCos[m-1];ox=A.opex[m-1];}
-    else{cpxS=r;cpxC=.3*r;mR=CPX_DATA.marsStatic.rev;mC=CPX_DATA.marsStatic.cos;ox=OPEX_RUN;}
-    const v=(cpxS-cpxC)+(mR-mC)-ox;
-    rows.cpxS.push(cpxS);rows.cpxC.push(cpxC);rows.mR.push(mR);rows.mC.push(mC);rows.ox.push(ox);
-    rows.ne.push(v);run+=v;rows.cum.push(run);
+ ],
+ "roasMonths": [
+  "Nov 25",
+  "Dec 25",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug"
+ ],
+ "roasClients": [
+  {
+   "name": "Touche Prive",
+   "start": "2025-11",
+   "moActive": 10,
+   "level": 1,
+   "moAtLevel": 9,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Anfasik",
+   "start": "2025-12",
+   "moActive": 9,
+   "level": 2,
+   "moAtLevel": 8,
+   "l12": 0,
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 2000,
+   "arpa": 2000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    null,
+    2000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Right Bite",
+   "start": "2025-12",
+   "moActive": 9,
+   "level": 5,
+   "moAtLevel": 2,
+   "l12": 2,
+   "l23": 2,
+   "l34": 2,
+   "totalSpend": 18500,
+   "arpa": 90000,
+   "status": "\u2713 Active",
+   "spend": [
+    null,
+    1000.0,
+    null,
+    2000.0,
+    null,
+    3000.0,
+    null,
+    5000.0,
+    7500.0,
+    null
+   ]
+  },
+  {
+   "name": "Golden Scent",
+   "start": "2025-12",
+   "moActive": 9,
+   "level": 5,
+   "moAtLevel": 5,
+   "l12": 1,
+   "l23": 1,
+   "l34": 1,
+   "totalSpend": 16000,
+   "arpa": 60000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    1000.0,
+    2000.0,
+    3000.0,
+    5000.0,
+    5000.0,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Sahseh",
+   "start": "2026-02",
+   "moActive": 7,
+   "level": 1,
+   "moAtLevel": 6,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Bookmypet",
+   "start": "2026-02",
+   "moActive": 7,
+   "level": 1,
+   "moAtLevel": 6,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Lawni",
+   "start": "2026-02",
+   "moActive": 7,
+   "level": 1,
+   "moAtLevel": 6,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2b1b Inactive",
+   "spend": [
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Studio Earth",
+   "start": "2026-03",
+   "moActive": 6,
+   "level": 1,
+   "moAtLevel": 5,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Smarteletec",
+   "start": "2026-03",
+   "moActive": 6,
+   "level": 1,
+   "moAtLevel": 5,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Fons and Splendor",
+   "start": "2026-04",
+   "moActive": 5,
+   "level": 1,
+   "moAtLevel": 4,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Oneshot",
+   "start": "2026-04",
+   "moActive": 5,
+   "level": 1,
+   "moAtLevel": 4,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "DKNY",
+   "start": "2026-05",
+   "moActive": 4,
+   "level": 5,
+   "moAtLevel": 0,
+   "l12": 3,
+   "l23": 0,
+   "l34": 0,
+   "totalSpend": 6000,
+   "arpa": 60000,
+   "status": "\u2713 Active",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    5000.0
+   ]
+  },
+  {
+   "name": "Allbirds",
+   "start": "2026-05",
+   "moActive": 4,
+   "level": 1,
+   "moAtLevel": 3,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Kizik",
+   "start": "2026-05",
+   "moActive": 4,
+   "level": 1,
+   "moAtLevel": 3,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Izil",
+   "start": "2026-05",
+   "moActive": 4,
+   "level": 1.0,
+   "moAtLevel": 3,
+   "l12": 0,
+   "l23": 0,
+   "l34": 0,
+   "totalSpend": 8168.822328,
+   "arpa": 8168.822328,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    8168.822328,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Aiza",
+   "start": "2026-05",
+   "moActive": 4,
+   "level": 2,
+   "moAtLevel": 0,
+   "l12": 3,
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 3000,
+   "arpa": 3000,
+   "status": "\u2191 Scaling",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null,
+    2000.0
+   ]
+  },
+  {
+   "name": "Jetour",
+   "start": "2026-06",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Maison safqa",
+   "start": "2026-06",
+   "moActive": 3,
+   "level": 3.0,
+   "moAtLevel": 1,
+   "l12": 1,
+   "l23": 0,
+   "l34": 0,
+   "totalSpend": 6000,
+   "arpa": 36000.0,
+   "status": "\u2191 Scaling",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    5000.0,
+    null
+   ]
+  },
+  {
+   "name": "Arte madrid",
+   "start": "2026-06",
+   "moActive": 3,
+   "level": 1,
+   "moAtLevel": 2,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2717 At risk",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null,
+    null
+   ]
+  },
+  {
+   "name": "Reefi",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Avantcha",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Alma home",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Nysaa Beauty",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Joli",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Just Hype",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Under 500",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Ejalo Beauty",
+   "start": "2026-07",
+   "moActive": 2,
+   "level": 1,
+   "moAtLevel": 1,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2192 Watch",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0,
+    null
+   ]
+  },
+  {
+   "name": "Laurus Aroma",
+   "start": "2026-08",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Metro Brazil",
+   "start": "2026-08",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
+  },
+  {
+   "name": "Transformative",
+   "start": "2026-08",
+   "moActive": 1,
+   "level": 1,
+   "moAtLevel": 0,
+   "l12": "-",
+   "l23": "-",
+   "l34": "-",
+   "totalSpend": 1000,
+   "arpa": 1000,
+   "status": "\u2014 Too early",
+   "spend": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1000.0
+   ]
   }
-  let monthPos="Never";for(let m=1;m<=12;m++)if(rows.ne[m-1]>=0){monthPos=MO[m-1];break;}
-  let recovers="Not in-year";for(let m=1;m<=12;m++)if(rows.cum[m-1]>=0){recovers=MO[m-1];break;}
-  const be=recovers;
-  return{proj:total.reduce((a,b)=>a+b,0),neFY:rows.ne.reduce((a,b)=>a+b,0),be,monthPos,recovers,total,rows};
-}
-
-/* ---------- scenario definitions with explicit assumptions ---------- */
-const SCEN={
-  A:{label:"Cost discipline",lv:{opex:250000,brands:207,fast:false},
-     assume:[["New brands","207 (plan)"],["OpEx/mo","250K"],["Ramp","Standard"],["ARPA","240K"]]},
-  B:{label:"Faster onboarding",lv:{opex:300000,brands:207,fast:true},
-     assume:[["New brands","207 (plan)"],["OpEx/mo","300K"],["Ramp","Fast"],["ARPA","240K"]]},
-  C:{label:"Fast ramp, current OpEx",lv:{opex:420000,brands:207,fast:true},
-     assume:[["New brands","207 (plan)"],["OpEx/mo","420K (current)"],["Ramp","Fast"],["ARPA","240K"]]},
-  D:{label:"Volume push",lv:{opex:250000,brands:300,fast:false},
-     assume:[["New brands","300"],["OpEx/mo","250K"],["Ramp","Standard"],["ARPA","240K"]]},
-  E:{label:"Status quo",lv:{opex:420000,brands:207,fast:false},
-     assume:[["New brands","207 (plan)"],["OpEx/mo","420K (current)"],["Ramp","Standard"],["ARPA","240K"]]},
+ ],
+ "roasARPA": 9695.476632,
+ "defaults": {
+  "growth": 0.2,
+  "newClients": 205.0,
+  "arpa": 24000,
+  "dropout": 0.25,
+  "cac": 3500,
+  "churn": 0.35,
+  "gm": 0.5,
+  "influPerClient": 2.0,
+  "adsPerInflu": 4.7
+ }
 };
 
-/* ---------- fmt & chart theme ---------- */
-const $=s=>document.querySelector(s);
-const f0=v=>v==null?"—":Math.round(v).toLocaleString("en-US");
-const fS=v=>(v<0?"−":"")+f0(Math.abs(v));
-const fK=v=>Math.abs(v)>=1e6?(v/1e6).toFixed(2)+"M":Math.round(v/1000)+"K";
-const cls=v=>v>=0?"pos":"neg";
-const INK="#1A2230",MUT="#6A7382",CPX="#FA5523",CPXMID="#F5915F",CPXLT="#FBC4AF",GREEN="#12805A",GRID="#EEF0F4";
-Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.color=MUT;
-const money=v=>"AED "+Math.round(v).toLocaleString("en-US");
-function destroy(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
-function tip(fmt){return{backgroundColor:"#1A2230",titleColor:"#fff",bodyColor:"#E6E9EF",borderColor:"#2A3446",borderWidth:1,padding:10,cornerRadius:6,
-  callbacks:{label:c=>" "+c.dataset.label+": "+(fmt?fmt(c.parsed.y):money(c.parsed.y))}};}
-function spark(cv,vals,color){destroy(cv.id);
-  CH[cv.id]=new Chart(cv,{type:"line",data:{labels:vals.map((_,i)=>i),datasets:[{data:vals,borderColor:color||CPX,borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:.3,
-    fill:true,backgroundColor:x=>{const g=x.chart.ctx.createLinearGradient(0,0,0,32);g.addColorStop(0,(color||CPX)+"2E");g.addColorStop(1,(color||CPX)+"00");return g;}}]},
-    options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{...tip(v=>Math.round(v).toLocaleString())}},scales:{x:{display:false},y:{display:false}},interaction:{intersect:false,mode:"index"}}});}
+/* ============================================================
+   MOONTECH UNIT ECONOMICS DASHBOARD
+   One engine. Levers in, everything out.
+   ============================================================ */
+"use strict";
 
-function tileHTML(host,{lab,big,bigCls,sub,sparkVals,sparkColor}){
-  const id="sp"+Math.random().toString(36).slice(2,8);
-  host.innerHTML=`<div class="klab">${lab}</div><div class="big sm ${bigCls||''}">${big}</div>`+(sub?`<div class="ksub">${sub}</div>`:"")+(sparkVals?`<div class="spark"><canvas id="${id}"></canvas></div>`:"");
-  if(sparkVals)requestAnimationFrame(()=>spark(document.getElementById(id),sparkVals,sparkColor));
+/* ---------- palette (mirrors CSS custom properties) ---------- */
+function cssv(name, fallback){
+  try{
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }catch(e){ return fallback; }
+}
+const C = {
+  accent: cssv('--indigo', '#4F46E5'),
+  accentTint: cssv('--indigo-tint', '#C7C3F5'),
+  accentSoft: cssv('--indigo-soft', '#ECEBFE'),
+  dark: cssv('--ink', '#141821'),
+  good: cssv('--good', '#0E9F6E'),
+  bad: cssv('--bad', '#DC2F44'),
+  warn: cssv('--warn', '#C77A0F'),
+  grey: '#98A2B3',
+  grid: cssv('--grid', '#EEF1F6'),
+  muted: cssv('--text-3', '#8B94A6')
+};
+
+/* ---------- formatters ---------- */
+const fmtMoney = v => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+const fK = v => {
+  const a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (a >= 1e6) return s + '$' + (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
+  if (a >= 1e3) return s + '$' + Math.round(a/1e3) + 'K';
+  return s + '$' + Math.round(a);
+};
+const fMshort = v => (v<0?'-':'') + '$' + (Math.abs(v)/1e6).toFixed(2) + 'M';
+const fPct = (v, dp=0) => (v*100).toFixed(dp) + '%';
+const fNum = v => Math.round(v).toLocaleString('en-US');
+const f1 = v => v.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
+
+/* Sign-aware delta span. goodPos=false flips semantics (e.g. cost overruns). */
+function deltaSpan(v, opts){
+  const o = Object.assign({goodPos:true, fmt:fNum, prefix:''}, opts||{});
+  if (v === 0 || v === null || v === undefined || isNaN(v)) return '<span class="muted num">—</span>';
+  const good = o.goodPos ? v > 0 : v < 0;
+  const arrow = v > 0 ? '▲' : '▼';
+  return '<span class="' + (good?'delta-good':'delta-bad') + ' num" data-v="' + v + '" data-goodpos="' + o.goodPos + '">' +
+    arrow + ' ' + o.prefix + o.fmt(Math.abs(v)) + '</span>';
 }
 
-/* ================= COCKPIT ================= */
-function renderCockpit(){
-  const t=engine(LV), ai=asIs();
-  // hero chart always shows Target projection (the plan); As-Is lives in the table below
-  const projBars=MO.map((_,i)=>i<N?null:t.total[i]);
-  const actBars=MO.map((_,i)=>i<N?A.ncOps[i]:null);
-  const asisBars=MO.map((_,i)=>i<N?null:ai.total[i]);
-  destroy("cRunway");
-  CH.cRunway=new Chart($("#cRunway"),{type:"bar",data:{labels:MO,datasets:[
-    {label:"Actual booked",data:actBars,backgroundColor:INK,borderRadius:3,barPercentage:.72,categoryPercentage:.8},
-    {label:"Target projected",data:projBars,backgroundColor:CPXLT,borderColor:CPX,borderWidth:1.4,borderRadius:3,barPercentage:.72,categoryPercentage:.8},
-    {type:"line",label:"As-Is (frozen)",data:MO.map((_,i)=>i<N?A.ncOps[i]:ai.total[i]),borderColor:MUT,borderWidth:1.5,borderDash:[4,4],pointRadius:0,pointHoverRadius:4,tension:.25},
-  ]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:600},interaction:{intersect:false,mode:"index"},
-    plugins:{legend:{display:false},tooltip:tip()},scales:{x:{grid:{display:false},ticks:{color:MUT}},y:{grid:{color:GRID},ticks:{color:MUT,callback:fK},beginAtZero:true}}}});
-  $("#runwayLegend").innerHTML=`<span><i style="background:${INK}"></i>Actual booked (Jan–${MO[N-1]})</span>`+
-    `<span><i style="background:${CPXLT}"></i>Target projected (levers)</span>`+
-    `<span><i style="background:${MUT};height:2px;border-radius:0"></i>As-Is (frozen, no changes)</span>`;
+/* ============================================================
+   ENGINE — replicates the Excel model exactly.
+   Levers in, full result out. Every projected number displayed
+   anywhere comes from here; actuals come from DATA.
+   ============================================================ */
+function engine(L){
+  const seas = DATA.seasonality, prior = DATA.prior2025, dist = DATA.distribution;
+  const li = DATA.meta.latestClosedIdx;               // last closed month (0-based)
+  const priorTotal = prior.reduce((a,b)=>a+b,0);
 
-  // live heading reflecting current levers
-  $("#cockHeading").innerHTML=`Levers: <b>${LV.brands} brands</b> · OpEx <b>${f0(LV.opex)}</b>/mo · ${LV.fast?"fast":"standard"} ramp · ARPA <b>${f0(LV.arpa)}</b>`;
+  const seasARPA = seas.map(s => L.arpa * s);          // monthly ARPA at plan seasonality
+  const existingPlan = prior.map(p => p * (1 + L.growth));
 
-  // verdict = the Target outcome (the plan)
-  $("#verdict").innerHTML=`<div class="eyebrow" style="color:var(--cpx);font-weight:700">TARGET PLAN · FY OUTCOME</div>
-    <div class="hero"><div class="n ${cls(t.neFY)}">${fS(t.neFY)}</div>
-      <div class="c">FY profit${t.recovers==="Not in-year"?" · H1 loss not recovered in-year":" · recovers by "+t.recovers}</div></div>
-    <div class="r"><span class="k">Revenue target <span style="color:var(--faint);font-weight:400">· CPX only</span></span><span class="v">${f0(t.proj)}</span></div>
-    <div class="r"><span class="k">Projected profit <span style="color:var(--faint);font-weight:400">· ITCAN unit (CPX+MARS)</span></span><span class="v ${cls(t.neFY)}">${fS(t.neFY)}</span></div>
-    <div class="r"><span class="k">YTD profit (Jan–${MO[N-1]}) <span style="color:var(--faint);font-weight:400">· ITCAN unit (CPX+MARS)</span></span><span class="v neg">${fS(A.pnlNE.reduce((a,b)=>a+b,0))}</span></div>`;
-
-  // combined As-Is vs Target comparison — all metrics, one table
-  const rt=t.proj, ra=ai.proj, mARPA=LV.arpa/12;
-  const tag=s=>` <span style="color:var(--faint);font-weight:400;font-size:.85em">· ${s}</span>`;
-  const rows=[
-    ["Revenue (net commission)"+tag("CPX only"), ra, rt, 0],
-    ["Profit (net earnings)"+tag("ITCAN unit · CPX+MARS"), ai.neFY, t.neFY, 1],
-    ["Orders"+tag("CPX only"), ra/PER_ORDER, rt/PER_ORDER, 0],
-    ["Active affiliates (avg/mo)"+tag("CPX only"), ra/PER_ORDER/ORD_PER_AFF/12, rt/PER_ORDER/ORD_PER_AFF/12, 0],
-    ["Brands @ 20K ARPA equivalents"+tag("CPX only"), ra/mARPA, rt/mARPA, 0],
-    ["Brands @ nominal monthly ARPA"+tag("CPX only"), ra/CPX_DATA.meta.runRate, rt/CPX_DATA.meta.runRate, 0],
-    ["Recovers H1 loss"+tag("ITCAN unit · CPX+MARS"), null, null, 2],
-  ];
-  let ch=`<table class="cmp"><thead><tr><th>FY metric</th><th>As-Is<br><span class="th-sub">frozen</span></th><th>Target<br><span class="th-sub">levers</span></th><th>Uplift<br><span class="th-sub">Target − As-Is</span></th></tr></thead><tbody>`;
-  rows.forEach(([name,a,b,kind])=>{
-    if(kind===2){
-      ch+=`<tr><td>${name}</td><td class="c-asis">${ai.recovers}</td><td class="c-tgt">${t.recovers}</td><td class="c-dash">—</td></tr>`;
-    } else {
-      const up=b-a, f=kind===1?fS:f0;
-      ch+=`<tr><td>${name}</td><td class="c-asis">${f(a)}</td><td class="c-tgt"><b>${f(b)}</b></td><td class="${up>=0?'pos':'neg'}">${(up>=0?'+':'−')+f0(Math.abs(up))}</td></tr>`;
-    }
+  // new-client build (plan)
+  const signedPlan = dist.map(d => Math.round(d * L.newClients));
+  const cumPlan = []; signedPlan.reduce((a,b,i)=> (cumPlan[i]=a+b, cumPlan[i]), 0);
+  const newRevOf = (signed, cum) => signed.map((_, m) => {
+    const mature = m >= 3 ? cum[m-3] : 0;              // cohorts past their first 3 months
+    const ramp = signed[m] + (signed[m-1]||0) + (signed[m-2]||0); // newest 3 cohorts
+    return mature * seasARPA[m] + ramp * seasARPA[m] * (1 - L.dropout);
   });
-  ch+="</tbody></table>";
-  $("#cmpTable").innerHTML=ch;
+  const newRevPlan = newRevOf(signedPlan, cumPlan);
+  const planRev = existingPlan.map((e,m) => e + newRevPlan[m]);
 
-  // next-month asks (from Target catch-up)
-  // next-month projection tiles — what the model expects, split existing vs build (no seasonal catch-up)
-  const nm=MO[N];
-  const nextTotal=t.total[N], nextExist=t.existing[N], nextBuild=t.newRev[N];
-  const ordTotal=nextTotal/PER_ORDER, ordExist=nextExist/PER_ORDER, ordBuild=nextBuild/PER_ORDER;
-  const affTotal=ordTotal/ORD_PER_AFF;
-  tileHTML($("#ask0"),{lab:`${nm} projected commission`,big:f0(nextTotal),bigCls:"brand",sub:`existing ${f0(nextExist)} · new brands ${f0(nextBuild)}`,sparkVals:[...A.ncOps,nextTotal],sparkColor:CPX});
-  tileHTML($("#ask1"),{lab:`${nm} projected orders`,big:f0(ordTotal),bigCls:"brand",sub:`existing ${f0(ordExist)} · new brands ${f0(ordBuild)}`,sparkVals:[...A.orders,ordTotal],sparkColor:CPX});
-  tileHTML($("#ask2"),{lab:`${nm} affiliates (avg)`,big:f0(affTotal),bigCls:"brand",sub:`at ${ORD_PER_AFF.toFixed(1)} orders each · ${MO[N-1]} actual ${A.affiliates[N-1]}`,sparkVals:[...A.affiliates,affTotal],sparkColor:CPX});
+  // blended: actuals for closed months, plan forward
+  const rev = planRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
 
-  const B=CPX_DATA.brands.slice().sort((a,b)=>b.m[N-1]-a.m[N-1]);
-  const top=B.slice(0,4), rest=A.ncOps[N-1]-top.reduce((a,b)=>a+b.m[N-1],0);
-  destroy("cConc");
-  CH.cConc=new Chart($("#cConc"),{type:"doughnut",data:{labels:[...top.map(b=>b.name),"All others"],
-    datasets:[{data:[...top.map(b=>b.m[N-1]),rest],backgroundColor:[CPX,CPXMID,CPXLT,"#F6D9C9","#E6E9EF"],borderColor:"#fff",borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{boxWidth:9,font:{size:10},color:INK}},tooltip:tip(v=>money(v)+" · "+Math.round(100*v/A.ncOps[N-1])+"%")}}});
+  // "signings stop" baseline: actual signings to date, zero new from next month
+  const signedStop = signedPlan.map((s,m) => m <= li ? DATA.actualNewClients[m] : 0);
+  const cumStop = []; signedStop.reduce((a,b,i)=> (cumStop[i]=a+b, cumStop[i]), 0);
+  const stopRev = existingPlan.map((e,m) => e + newRevOf(signedStop, cumStop)[m]);
+  const stopBlend = stopRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
 
-  const H=[
-    {lab:"Active brands",cur:A.brands[N-1],prev:A.brands[N-2],unit:"brand",series:A.brands},
-    {lab:"Active affiliates",cur:A.affiliates[N-1],prev:A.affiliates[N-2],unit:"affiliate",series:A.affiliates},
-    {lab:"Orders",cur:A.orders[N-1],prev:A.orders[N-2],unit:"order",series:A.orders},
-    {lab:"Commission / order",cur:+(A.ncOps[N-1]/A.orders[N-1]).toFixed(1),prev:+(A.ncOps[N-2]/A.orders[N-2]).toFixed(1),unit:"AED",series:A.ncOps.map((v,i)=>v/A.orders[i])},
-    {lab:"Net commission",cur:A.ncOps[N-1],prev:A.ncOps[N-2],unit:"AED",series:A.ncOps},
-  ];
-  $("#healthRow").innerHTML=H.map((h,i)=>{const d=h.cur-h.prev,up=d>=0;
-    const dtxt=(up?"+":"−")+f0(Math.abs(d))+" "+h.unit+(Math.abs(d)===1?"":"s")+" vs "+MO[N-2];
-    return `<div class="col3" style="grid-column:span 2;min-width:0"><div class="klab">${h.lab} · ${MO[N-1]}</div>
-      <div class="big sm">${f0(h.cur)}</div><div style="margin-top:5px"><span class="delta ${up?'up':'dn'}">${up?'▲':'▼'} ${dtxt}</span></div>
-      <div class="spark"><canvas id="hs${i}"></canvas></div></div>`;}).join("");
-  H.forEach((h,i)=>requestAnimationFrame(()=>spark(document.getElementById("hs"+i),h.series,(h.cur-h.prev)>=0?GREEN:CPX)));
+  // ARR: 3-month rolling average of de-seasonalised revenue (window truncated at start)
+  const arrOf = series => series.map((_,m) => {
+    const w = [];
+    for (let k = Math.max(0, m-2); k <= m; k++) w.push(series[k] / seas[k]);
+    return w.reduce((a,b)=>a+b,0) / w.length;
+  });
+  const arr = arrOf(rev);
+  const arrStop = arrOf(stopBlend);
 
-  renderScnTable(t,ai);
+  // customer-equivalents
+  const custEqTarget = cumPlan.map(c => Math.round(priorTotal / L.arpa + c));
+  const custEqActual = DATA.actualRevenue.map((r,m) => Math.round(r / seasARPA[m]));
+  const custEqFY = Math.round(L.targetARR / L.arpa);
+
+  // unit economics
+  const ltv = L.arpa * (1 - L.dropout) / L.churn;
+  const ltvcac = ltv / L.cac;
+  const payback = L.cac / (L.arpa * L.gm / 12);
+  const nrr = existingPlan.reduce((a,b)=>a+b,0) / priorTotal;
+
+  // shortfall adjustment → additional clients needed (Excel Cockpit!B13)
+  const adjSum = DATA.adjustments.reduce((a,b)=>a+b,0);
+  const remaining = 12 - (li + 1);
+  const addlClients = adjSum < 0 ? Math.ceil(Math.abs(adjSum) / remaining / (L.arpa/12)) : 0;
+
+  // influencer capacity forecast (future months from target cust-eq)
+  const influForecast = custEqTarget.map((c,m) => m <= li ? DATA.influActive[m] : Math.round(c * L.influPerClient));
+  const adsForecast = influForecast.map((f,m) => m <= li ? DATA.ads[m] : Math.round(f * L.adsPerInflu));
+
+  const ytdActual = DATA.actualRevenue.reduce((a,b)=>a+b,0);
+  const ytdPlan = planRev.slice(0, li+1).reduce((a,b)=>a+b,0);
+  const cumRev = []; rev.reduce((a,b,i)=> (cumRev[i]=a+b, cumRev[i]), 0);
+
+  return { seasARPA, existingPlan, signedPlan, cumPlan, newRevPlan, planRev, rev, stopBlend,
+    arr, arrStop, custEqTarget, custEqActual, custEqFY,
+    ltv, ltvcac, payback, nrr, addlClients, adjSum,
+    influForecast, adsForecast, ytdActual, ytdPlan, cumRev,
+    yeARR: arr[11], latestARR: arr[li], fyPlanRevenue: planRev.reduce((a,b)=>a+b,0) };
 }
 
-function renderScnTable(t,ai){
-  $("#scnTableTitle").innerHTML=`Target vs actual — monthly &nbsp;<span style="color:var(--faint);font-weight:400">Jan–${MO[N-1]}: target = pace needed, missed = shortfall vs pace &nbsp;·&nbsp; ${MO[N]}–Dec: target = levers-projected (matches Targets &amp; Brand Build)</span>`;
-  const fyTarget=t.proj;
-  // Target: closed months = seasonal pace; projected months = model projection
-  const target=MO.map((_,i)=> i<N ? S[i]*fyTarget : t.total[i]);
-  const actual=MO.map((_,i)=> i<N ? A.ncOps[i] : null);
-  const missed=MO.map((_,i)=> i<N ? S[i]*fyTarget - A.ncOps[i] : null);
-  const div=i=>i===N?' style="border-left:2px solid var(--line)"':''; // divider before Aug
-  let h=`<table><thead><tr><th></th>${MO.map((m,i)=>`<th${div(i)}>${m}${i<N?"":" ·P"}</th>`).join("")}<th>FY</th></tr></thead><tbody>`;
-  // Row 1: Target
-  h+=`<tr><td>Target</td>`;
-  target.forEach((v,i)=>{h+=`<td class="${i<N?'c-tgt':'c-proj'}"${div(i)}>${f0(v)}</td>`;});
-  h+=`<td><b>${f0(fyTarget)}</b></td></tr>`;
-  // Row 2: Actual
-  h+=`<tr><td>Actual</td>`;
-  actual.forEach((v,i)=>{h+=v==null?`<td class="c-dash"${div(i)}>—</td>`:`<td class="c-act"${div(i)}>${f0(v)}</td>`;});
-  h+=`<td><b>${f0(A.ncOps.slice(0,N).reduce((a,b)=>a+b,0))}</b></td></tr>`;
-  // Row 3: Missed (closed months only)
-  h+=`<tr><td>Missed vs pace</td>`;
-  missed.forEach((v,i)=>{
-    if(v==null){h+=`<td class="c-dash"${div(i)}>—</td>`;}
-    else{const cl=v>0?'neg':'pos';h+=`<td class="${cl}"${div(i)}>${v>0?'−':'+'}${f0(Math.abs(v))}</td>`;}
-  });
-  const fyMissed=missed.filter(v=>v!=null).reduce((a,b)=>a+b,0);
-  h+=`<td><b class="${fyMissed>0?'neg':'pos'}">${fyMissed>0?'−':'+'}${f0(Math.abs(fyMissed))}</b></td></tr>`;
-  h+="</tbody></table>";
-  $("#scnTable").innerHTML=h;
-}
+/* ---------- state ---------- */
+const state = { levers: Object.assign({ targetARR: DATA.targetARR }, DATA.defaults) };
+window.__state = state;                 // exposed for tests / console debugging
+window.__engine = engine;
 
-/* ================= TARGETS (As-Is / Target / Actual) ================= */
-function renderTargets(){
-  const t=engine(LV), ai=asIs();
-  const mets=[
-    {name:"Net commission (AED)",div:1,act:A.ncOps},
-    {name:"Orders",div:PER_ORDER,act:A.orders},
-    {name:"Active affiliates",div:PER_ORDER*ORD_PER_AFF,act:A.affiliates},
-    {name:"Brands — 20K ARPA equivalents",div:LV.arpa/12,act:A.ncOps.map(v=>v/(LV.arpa/12))},
-    {name:`Brands — nominal monthly ARPA (AED ${f0(CPX_DATA.meta.runRate)}/brand)`,div:CPX_DATA.meta.runRate,act:A.brands},
-  ];
-  let html="";
-  mets.forEach((mt,mi)=>{
-    // closed months: all rows = the real actual. projected months: derive from revenue.
-    const asisL=MO.map((_,i)=> i<N ? mt.act[i] : ai.total[i]/mt.div);
-    const tgtL =MO.map((_,i)=> i<N ? mt.act[i] : t.total[i]/mt.div);
-    const act  =MO.map((_,i)=> i<N ? mt.act[i] : null);
-    const asisFY=asisL.reduce((a,b)=>a+b,0), tgtFY=tgtL.reduce((a,b)=>a+b,0), actFY=mt.act.slice(0,N).reduce((a,b)=>a+b,0);
-    html+=`<div class="card" style="margin-bottom:14px"><div class="eyebrow" style="font-size:.9rem;color:var(--ink);font-weight:600">${mt.name}</div>
-      <div class="ch" style="height:168px;margin-top:8px"><canvas id="tc${mi}"></canvas></div>
-      <div class="twrap" style="margin-top:12px;border-radius:9px"><table><thead><tr><th></th>${MO.map((m,i)=>`<th>${m}${i<N?"":" ·P"}</th>`).join("")}<th>FY</th></tr></thead><tbody>
-      <tr class="sub-r"><td>As-Is (frozen)</td>${asisL.map((v,i)=>`<td class="${i<N?'c-act':'c-asis'}">${f0(v)}</td>`).join("")}<td class="c-asis"><b>${f0(asisFY)}</b></td></tr>
-      <tr><td>Target (levers)</td>${tgtL.map((v,i)=>`<td class="${i<N?'c-act':'c-tgt'}">${f0(v)}</td>`).join("")}<td class="c-tgt"><b>${f0(tgtFY)}</b></td></tr>
-      <tr><td>Actual</td>${act.map(v=>v==null?'<td class="c-dash">—</td>':`<td class="c-act">${f0(v)}</td>`).join("")}<td class="c-act"><b>${f0(actFY)}</b></td></tr>
-      </tbody></table></div></div>`;
-  });
-  $("#targetBlocks").innerHTML=html;
-  mets.forEach((mt,mi)=>{
-    const asisL=MO.map((_,i)=> i<N ? mt.act[i] : ai.total[i]/mt.div);
-    const tgtL =MO.map((_,i)=> i<N ? mt.act[i] : t.total[i]/mt.div);
-    const act  =MO.map((_,i)=> i<N ? mt.act[i] : null);
-    destroy("tc"+mi);
-    CH["tc"+mi]=new Chart(document.getElementById("tc"+mi),{data:{labels:MO,datasets:[
-      {type:"line",label:"As-Is",data:asisL,borderColor:MUT,borderWidth:1.5,borderDash:[4,4],pointRadius:0,pointHoverRadius:4,tension:.25},
-      {type:"line",label:"Target",data:tgtL,borderColor:CPX,borderWidth:2,pointRadius:0,pointHoverRadius:5,tension:.25},
-      {type:"bar",label:"Actual",data:act,backgroundColor:INK,borderRadius:2,barPercentage:.55,categoryPercentage:.8},
-    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{intersect:false,mode:"index"},
-      plugins:{legend:{display:false},tooltip:tip(v=>Math.round(v).toLocaleString())},
-      scales:{x:{grid:{display:false},ticks:{color:MUT}},y:{grid:{color:GRID},ticks:{color:MUT,callback:v=>mt.div===1?fK(v):Math.round(v).toLocaleString()},beginAtZero:true}}}});
-  });
-}
-
-/* ================= LEVERS ================= */
-const LDEF=[
-  {k:"opex",label:"SBU OpEx / month (Aug on)",hint:"Operating expense assumed for each remaining month. The reduction lever.",plan:PLAN.opex,step:10000},
-  {k:"brands",label:"New brand signings (year)",hint:"20K-monthly-ARPA brands signed across the remaining months in equal cohorts (no signings landed before, so the build starts now).",plan:PLAN.brands,step:1},
-  {k:"arpa",label:"New-brand ARPA (annual)",hint:"Annual revenue a fully-ramped new brand contributes.",plan:PLAN.arpa,step:10000},
-  {k:"exChurn",label:"Existing-brand churn (% / mo)",hint:"Monthly revenue lost from the current book. Enter as percent, e.g. 5.",plan:PLAN.exChurn,step:1,pct:1},
-  {k:"newChurn",label:"New-brand churn (% / mo)",hint:"Monthly attrition within new cohorts. Enter as percent.",plan:PLAN.newChurn,step:1,pct:1},
-  {k:"expansion",label:"Existing-brand expansion (%)",hint:"Growth of surviving existing brands over the rest of the year. Enter as percent.",plan:PLAN.expansion,step:1,pct:1},
+/* ---------- scenario presets ---------- */
+const SCENARIOS = [
+  { name: 'Plan of record', desc: 'The model as agreed: 20% existing growth, 205 new clients, 25% early dropout.', set: {} },
+  { name: 'Signings slip 25%', desc: 'Same growth and dropout, but only 154 new clients land.', set: { newClients: 154 } },
+  { name: 'Dropout worsens', desc: '205 signings but 40% quit inside 3 months.', set: { dropout: 0.40 } },
+  { name: 'Existing book flat', desc: 'No growth from returning clients; new-client plan holds.', set: { growth: 0 } },
+  { name: 'Stretch', desc: '240 new clients and dropout improved to 20%.', set: { newClients: 240, dropout: 0.20 } }
 ];
-function renderLevers(){
-  let h=LDEF.map(d=>`<div class="lev ${d.hero?'hero-lev':''}"><label>${d.label}</label><div class="hint">${d.hint}</div>
-    <input type="number" id="lv-${d.k}" value="${d.pct?+(LV[d.k]*100).toFixed(1):LV[d.k]}" step="${d.step}">
-    <div class="plan">plan: ${d.pct?(d.plan*100).toFixed(0)+"%":f0(d.plan)}</div>
-    <div class="live" id="live-${d.k}"></div></div>`).join("");
-  // locked GP margin info tile (not a lever)
-  const mAct=1-A.cpxCos.reduce((a,b)=>a+b,0)/A.cpxRec.reduce((a,b)=>a+b,0);
-  h+=`<div class="lev" style="background:var(--line2)"><label>CPX GP margin — locked</label>
-    <div class="hint">Held at the model's moving average, not a lever. Projected COS runs at 30% of commission.</div>
-    <div class="big sm" style="margin-top:2px">${(mAct*100).toFixed(1)}%</div>
-    <div class="plan">Jan–${MO[N-1]} actual average</div></div>`;
-  h+=`<div class="lev"><label>New-brand ramp curve</label><div class="hint">How fast new brands reach full productivity.</div>
-    <select id="lv-fast"><option value="false"${!LV.fast?" selected":""}>Standard · 10→90% / 6mo</option><option value="true"${LV.fast?" selected":""}>Fast · 30→100% / 6mo</option></select>
-    <div class="plan">plan: Standard</div><div class="live"></div></div>`;
-  $("#leverGrid").innerHTML=h;
-}
-function readLevers(){LDEF.forEach(d=>{const v=parseFloat($("#lv-"+d.k).value);if(!isNaN(v))LV[d.k]=d.pct?v/100:v;});LV.fast=$("#lv-fast").value==="true";}
-function renderImpact(){
-  const r=engine(LV), base=engine(PLAN).neFY;
-  $("#leverImpact").innerHTML=`<div class="lab">These levers produce — revenue, then profit</div>
-    <div class="n ${cls(r.neFY)}">${fS(r.neFY)}</div>
-    <div class="row">
-      <div><div class="k">Revenue target (from levers)</div><div class="v brand">${f0(r.proj)}</div></div>
-      <div><div class="k">Orders needed</div><div class="v">${f0(r.proj/PER_ORDER)}</div></div>
-      <div><div class="k">Affiliates (avg/mo)</div><div class="v">${f0(r.proj/PER_ORDER/ORD_PER_AFF/12)}</div></div>
-      <div><div class="k">Recovers H1 loss</div><div class="v ${r.recovers==="Not in-year"?"neg":"pos"}">${r.recovers}</div></div>
-      <div><div class="k">vs committed plan</div><div class="v ${cls(r.neFY-base)}">${fS(r.neFY-base)}</div></div></div>`;
-  $("#live-opex").textContent=`→ ${fS(r.neFY)} profit`;
-  $("#live-brands").textContent=`→ projection ${f0(r.proj)}`;
-  ["arpa","exChurn","newChurn","expansion","margin"].forEach(k=>{const e=$("#live-"+k);if(e)e.textContent="";});
+
+/* ============================================================
+   PAGE SKELETONS
+   ============================================================ */
+function buildPages(){
+  const el = document.getElementById('content');
+  el.innerHTML = `
+  <!-- ================= COCKPIT ================= -->
+  <section class="page active" id="page-cockpit">
+    <div class="page-head"><h1>Cockpit</h1>
+    <div class="page-sub">Moontech platform revenue, annualised run-rate and the path to the year-end target. Actuals closed through August 2026; September onward is the model at current lever settings.</div></div>
+    <div class="grid">
+      <div class="card kpi span-3"><div class="kpi-label">ARR — Latest month <span class="tag">Jul, run-rate</span></div>
+        <div class="kpi-value num" id="k-latest-arr"></div><div class="kpi-note" id="k-latest-note"></div>
+        <div class="kpi-spark"><canvas id="spark-arr"></canvas></div></div>
+      <div class="card kpi span-3"><div class="kpi-label">Projected year-end ARR</div>
+        <div class="kpi-value num" id="k-ye-arr"></div><div class="kpi-note" id="k-ye-note"></div>
+        <div class="kpi-spark"><canvas id="spark-ye"></canvas></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Revenue YTD <span class="tag">Jan–Aug actual</span></div>
+        <div class="kpi-value num" id="k-ytd"></div><div class="kpi-note" id="k-ytd-note"></div>
+        <div class="kpi-spark"><canvas id="spark-rev"></canvas></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">New clients YTD <span class="tag">signed</span></div>
+        <div class="kpi-value num" id="k-newc"></div><div class="kpi-note" id="k-newc-note"></div>
+        <div class="kpi-spark"><canvas id="spark-newc"></canvas></div></div>
+
+      <div class="card span-12"><h2>ARR path to year-end</h2>
+        <div class="card-sub">Annualised run-rate: 3-month rolling average of de-seasonalised monthly revenue. Solid dark = actuals · accent = model projection · dashed grey = if signings stop after July · dotted = target.</div>
+        <div class="chart-box" style="height:300px"><canvas id="ch-arr"></canvas></div></div>
+
+      <div class="card span-8"><h2>Monthly platform revenue <span class="tag">operational, all clients</span></h2>
+        <div class="card-sub">Dark bars = actuals · light bars = model projection · accent line = full-year plan · dashed grey = if signings stop.</div>
+        <div class="chart-box" style="height:280px"><canvas id="ch-rev"></canvas></div></div>
+
+      <div class="card span-4"><h2>Model health</h2><div class="card-sub">Unit economics at current levers.</div>
+        <div id="health-tiles"></div></div>
+
+      <div class="card span-12"><h2>Month by month — actual vs plan</h2>
+        <div class="card-sub">Plan = the model at current lever settings. Variance is actual minus plan for closed months.</div>
+        <div class="table-wrap" id="tbl-cockpit"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= TARGETS ================= -->
+  <section class="page" id="page-targets">
+    <div class="page-head"><h1>Targets vs Actuals</h1>
+    <div class="page-sub">Where 2026 is landing against the plan, measured the way the model measures it: customer-equivalents at plan ARPA, signings, and the revenue mix between the existing book and new ROAS clients.</div></div>
+    <div class="grid">
+      <div class="card span-6"><h2>Customer-equivalents <span class="tag">revenue ÷ seasonal ARPA</span></h2>
+        <div class="card-sub" id="sub-custeq"></div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-custeq"></canvas></div></div>
+      <div class="card span-6"><h2>New clients signed — cumulative</h2>
+        <div class="card-sub">Actual signings vs the plan's signing schedule.</div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-signed"></canvas></div></div>
+      <div class="card span-6"><h2>Revenue mix — existing vs new <span class="tag">share of monthly revenue</span></h2>
+        <div class="card-sub">The plan expects new ROAS clients to carry a rising share. Actual existing-book share, Jan–Aug.</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-mix"></canvas></div></div>
+      <div class="card span-6"><h2>Client counts</h2>
+        <div class="card-sub">Returning clients (from 2025) plus cumulative new ROAS clients — actuals.</div>
+        <div class="table-wrap" id="tbl-counts"></div></div>
+      <div class="card span-12"><h2>Detail</h2><div class="table-wrap" id="tbl-targets"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= TOP CLIENTS ================= -->
+  <section class="page" id="page-topclients">
+    <div class="page-head"><h1>Top Clients</h1>
+    <div class="page-sub">Concentration in the existing book, Jan–Aug 2026 actuals.</div></div>
+    <div class="grid">
+      <div class="card kpi span-4"><div class="kpi-label">Top client share <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-top1"></div><div class="kpi-note" id="k-top1-note"></div></div>
+      <div class="card kpi kpi-plain span-4"><div class="kpi-label">Top 5 share <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-top5"></div><div class="kpi-note">of all platform revenue</div></div>
+      <div class="card kpi kpi-plain span-4"><div class="kpi-label">Everyone else <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-rest"></div><div class="kpi-note" id="k-rest-note"></div></div>
+      <div class="card span-12"><h2>Share of monthly revenue</h2>
+        <div class="card-sub">Stacked share of each month's actual platform revenue.</div>
+        <div class="chart-box" style="height:280px"><canvas id="ch-top"></canvas></div></div>
+      <div class="card span-12"><h2>Monthly revenue by client <span class="tag">$ actual</span></h2>
+        <div class="table-wrap" id="tbl-top"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= CAC ================= -->
+  <section class="page" id="page-cac">
+    <div class="page-head"><h1>CAC</h1>
+    <div class="page-sub">Acquisition cost on both sides of the marketplace: merchants (ROAS clients) and creators. Jan–Aug 2026 actuals from the acquisition-cost section of the model workbook.</div></div>
+    <div class="grid">
+      <div class="card kpi span-3"><div class="kpi-label">Merchant CAC <span class="tag">blended YTD</span></div>
+        <div class="kpi-value num" id="k-mcac"></div><div class="kpi-note" id="k-mcac-note"></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Merchants acquired <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-mcount"></div><div class="kpi-note" id="k-mspend"></div></div>
+      <div class="card kpi span-3"><div class="kpi-label">Creator CAC <span class="tag">blended YTD</span></div>
+        <div class="kpi-value num" id="k-ccac"></div><div class="kpi-note" id="k-ccac-note"></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Creators acquired <span class="tag">YTD</span></div>
+        <div class="kpi-value num" id="k-ccount"></div><div class="kpi-note" id="k-cspend"></div></div>
+
+      <div class="card span-6"><h2>Merchant CAC by month</h2>
+        <div class="card-sub">Cost per acquired merchant vs the target used in the LTV:CAC model. Bars turn red when a month runs over target.</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-mcac"></canvas></div></div>
+      <div class="card span-6"><h2>Creator CAC by month</h2>
+        <div class="card-sub">Cost per newly activated creator vs target.</div>
+        <div class="chart-box" style="height:250px"><canvas id="ch-ccac"></canvas></div></div>
+
+      <div class="card span-6"><h2>Merchant CAC — detail</h2><div class="table-wrap" id="tbl-mcac"></div></div>
+      <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
+
+      <div class="card span-12"><h2>Acquisition-cost breakdown <span class="tag">both sides, by month</span></h2>
+        <div class="card-sub">Full merchant and creator acquisition cost and count for every closed month, with blended CAC on each side.</div>
+        <div class="table-wrap" id="tbl-cac-breakdown"></div>
+        <div class="legend-note" id="cac-note"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= LEVERS ================= -->
+  <section class="page" id="page-levers">
+    <div class="page-head"><h1>Levers</h1>
+    <div class="page-sub">Every projected number on this dashboard is computed from the levers below — change one and everything downstream moves. Closed months (Jan–Aug) are actuals and never move.</div></div>
+    <div class="live-heading" id="live-heading"></div>
+    <div class="grid">
+      <div class="card span-4"><h2>Growth levers</h2><div class="card-sub">The demand side of the plan.</div>
+        <div class="lever"><label>Existing-client growth vs 2025 <span class="hint">%</span></label>
+          <input type="number" step="1" id="lv-growth"></div>
+        <div class="lever"><label>New clients signed in 2026 <span class="hint">count, full year</span></label>
+          <input type="number" step="1" id="lv-newClients"></div>
+        <div class="lever"><label>ARPA — new clients <span class="hint">$ / year</span></label>
+          <input type="number" step="500" id="lv-arpa"></div>
+        <div class="lever"><label>3-month dropout <span class="hint">% of new clients quitting early</span></label>
+          <input type="number" step="1" id="lv-dropout"></div>
+      </div>
+      <div class="card span-4"><h2>Unit-economics levers</h2><div class="card-sub">Feed LTV, LTV:CAC and payback.</div>
+        <div class="lever"><label>Annual churn <span class="hint">%</span></label>
+          <input type="number" step="1" id="lv-churn"></div>
+        <div class="lever"><label>Merchant CAC <span class="hint">$ per new client (plan)</span></label>
+          <input type="number" step="100" id="lv-cac"></div>
+        <div class="lever"><label>Gross margin <span class="hint">% blended</span></label>
+          <input type="number" step="1" id="lv-gm"></div>
+        <div class="lever"><label>Target ARR <span class="hint">$ — the goal line</span></label>
+          <input type="number" step="100000" id="lv-targetARR"></div>
+      </div>
+      <div class="card span-4"><h2>Fixed references</h2><div class="card-sub">Facts, not levers — shown locked.</div>
+        <div class="locked"><span>2025 platform revenue</span><b class="num" id="lk-2025"></b></div>
+        <div class="locked"><span>Seasonality shape</span><b>2025 monthly mix</b></div>
+        <div class="locked"><span>Signing schedule</span><b>1%→14% ramp over 12&nbsp;mo</b></div>
+        <div class="locked"><span>Influencers / client-equivalent</span><b class="num" id="lk-influ"></b></div>
+        <div class="locked"><span>Ads / influencer / month</span><b class="num" id="lk-ads"></b></div>
+        <div class="callout" id="adj-callout"></div>
+      </div>
+
+      <div class="card span-12"><h2>Output — unit economics</h2><div id="lever-outputs" class="grid" style="grid-template-columns:repeat(6,1fr); gap:12px"></div></div>
+
+      <div class="card span-12"><h2>Revenue build — how the year stacks up</h2>
+        <div class="card-sub">Each month = existing book (growing vs 2025) + new clients still in their first 3 months (discounted for dropout) + new clients past month 3 (paying full seasonal ARPA). This is where the back-loaded shape comes from: cohorts signed in H1 only mature in H2, and November carries the seasonal peak.</div>
+        <div class="chart-box" style="height:290px"><canvas id="ch-build"></canvas></div>
+        <div class="table-wrap" style="margin-top:14px" id="tbl-build"></div></div>
+    </div>
+  </section>
+
+  <!-- ================= SCENARIOS ================= -->
+  <section class="page" id="page-scenarios">
+    <div class="page-head"><h1>Path to $8.2M</h1>
+    <div class="page-sub">Five lever sets, each priced through the same engine. History (Jan–Aug) is shared by every scenario; lines only diverge from September.</div></div>
+    <div class="scen-banner" id="scen-banner"></div>
+    <div class="scen-grid" id="scen-cards"></div>
+    <div class="card" style="margin-top:14px"><h2>ARR by scenario</h2>
+      <div class="card-sub">One shared history, branching forward. Scenarios that miss the target are dashed. Dotted horizontal line = target ARR.</div>
+      <div class="chart-box" style="height:300px"><canvas id="ch-scen"></canvas></div></div>
+  </section>
+
+  <!-- ================= ROAS CLIENTS ================= -->
+  <section class="page" id="page-roas">
+    <div class="page-head"><h1>ROAS Clients</h1>
+    <div class="page-sub">Every new ROAS client and where they sit on the spend ladder. Clients start at Level 1 ($1K/month test budget) and are meant to climb: L2 ≈ $2K, L3 ≈ $3K, L4 ≈ $5K, L5 ≈ $7.5K. Level is set by the highest monthly spend reached.</div></div>
+    <div class="grid">
+      <div class="card span-8"><h2>Book health</h2><div class="card-sub">Status of all signed ROAS clients as of July.</div>
+        <div id="roas-chips" style="display:flex; flex-wrap:wrap; gap:8px"></div>
+        <div class="callout warn" id="roas-arpa-callout" style="margin-top:14px"></div></div>
+      <div class="card kpi span-4"><div class="kpi-label">Current ROAS book ARPA</div>
+        <div class="kpi-value num" id="k-roas-arpa"></div>
+        <div class="kpi-note">Average across all signed ROAS clients. Level 3+ = latest spend annualised; below L3 = spend to date.</div></div>
+      <div class="card span-12"><h2>Client ladder <span class="tag">spend by month, $</span></h2>
+        <div class="table-wrap" id="tbl-roas"></div>
+        <div class="legend-note">Level transitions (L1→L2 etc.) show months taken to step up; “–” = hasn't stepped. Spend cells shade with size.</div></div>
+    </div>
+  </section>
+
+  <!-- ================= METHOD ================= -->
+  <section class="page" id="page-method">
+    <div class="page-head"><h1>Method</h1>
+    <div class="page-sub">How every number on this dashboard is produced — in plain language, with every assumption stated.</div></div>
+    <div class="card method" id="method-body"></div>
+  </section>`;
 }
 
-/* ================= PNL ================= */
-function renderPnl(){
-  const r=engine(LV), ai=asIs();
-  destroy("cCum");
-  CH.cCum=new Chart($("#cCum"),{type:"line",data:{labels:MO,datasets:[
-    {label:"Target (levers)",data:r.rows.cum,borderColor:CPX,borderWidth:2.5,pointRadius:3,
-     pointBackgroundColor:r.rows.cum.map((_,i)=>i<N?INK:CPX),tension:.2},
-    {label:"As-Is (frozen)",data:ai.rows.cum,borderColor:MUT,borderWidth:1.6,borderDash:[5,4],pointRadius:0,pointHoverRadius:4,tension:.2},
-  ]},
-    options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},interaction:{intersect:false,mode:"index"},
-      plugins:{legend:{display:false},tooltip:tip()},scales:{x:{grid:{display:false},ticks:{color:MUT}},y:{grid:{color:GRID},ticks:{color:MUT,callback:fK}}}}});
-  $("#cumLegend").innerHTML=`<span><i style="background:${CPX}"></i>Target (levers applied)</span><span><i style="background:${MUT};height:2px;border-radius:0"></i>As-Is (frozen)</span>`;
+/* ============================================================
+   CHARTS
+   ============================================================ */
+const charts = {};
+function mkChart(id, cfg){
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) { charts[id].destroy(); }
+  charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+function setChartDefaults(){
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = C.muted;
+  // crisp on retina / high-DPI monitors — was the "pixelated" look
+  Chart.defaults.devicePixelRatio = Math.max(2, (window.devicePixelRatio || 1));
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.boxHeight = 10;
+  Chart.defaults.plugins.legend.labels.padding = 14;
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.legend.labels.font = { size: 11.5, weight: '500' };
+  if (Chart.defaults.elements && Chart.defaults.elements.point) Chart.defaults.elements.point.hoverRadius = 5;
+  if (Chart.defaults.elements && Chart.defaults.elements.line) Chart.defaults.elements.line.capBezierPoints = true;
+}
+const darkTooltip = {
+  backgroundColor: '#1E2530', titleColor: '#fff', bodyColor: '#D7DCE3',
+  padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4,
+  callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fK(ctx.parsed.y)) }
+};
+const baseScalesMoney = {
+  x: { grid: { display:false }, ticks: { color: C.muted } },
+  y: { beginAtZero:true, grid: { color: C.grid }, border:{display:false}, ticks: { color: C.muted, callback: v => fK(v) } }
+};
+function sparkline(id, values, color, fill){
+  mkChart(id, { type:'line',
+    data:{ labels: values.map((_,i)=>i), datasets:[{ data: values, borderColor: color, borderWidth:1.6,
+      pointRadius:0, fill:true, backgroundColor: fill, tension:.35 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{ x:{display:false}, y:{display:false} }, animation:false } });
+}
 
-  // two P&L summary boxes
-  function pnlBox(el,title,color,rr,rec){
-    const cpxRev=rr.cpxS?rr.cpxS.reduce((a,b)=>a+b,0):null;
-    el.innerHTML=`<div class="eyebrow" style="color:${color};font-weight:700">${title}</div>
-      <div class="scnbox">
-        <div class="sr"><span>CPX revenue (FY)</span><b>${f0(rr.rev)}</b></div>
-        <div class="sr"><span>CPX COS</span><b>${f0(rr.cos)}</b></div>
-        <div class="sr"><span>MARS gross profit</span><b>${f0(rr.marsGP)}</b></div>
-        <div class="sr"><span>SBU OpEx</span><b>${f0(rr.opex)}</b></div>
-        <div class="sr big-r"><span>FY profit</span><b class="${cls(rr.ne)}">${fS(rr.ne)}</b></div>
-        <div class="sr sub"><span>Recovers H1 loss</span><b class="${rec==='Not in-year'?'neg':'pos'}">${rec}</b></div>
-      </div>`;
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  const L = state.levers;
+  const R = engine(L);
+  state.result = R;
+  const li = DATA.meta.latestClosedIdx;
+  const M = DATA.months;
+
+  /* ---------- COCKPIT ---------- */
+  document.getElementById('k-latest-arr').textContent = fMshort(R.latestARR);
+  const latestDelta = R.arr[li] - R.arr[li-1];
+  document.getElementById('k-latest-note').innerHTML = deltaSpan(latestDelta, {fmt:fK}) + ' vs June';
+  document.getElementById('k-ye-arr').textContent = fMshort(R.yeARR);
+  const yeGap = R.yeARR - L.targetARR;
+  document.getElementById('k-ye-note').innerHTML = (yeGap >= 0
+    ? '<span class="chip chip-good">hits target</span>' : '<span class="chip chip-bad">misses target</span>')
+    + ' ' + deltaSpan(yeGap, {fmt:fK}) + ' vs ' + fK(L.targetARR);
+  document.getElementById('k-ytd').textContent = fK(R.ytdActual);
+  document.getElementById('k-ytd-note').innerHTML = deltaSpan(R.ytdActual - R.ytdPlan, {fmt:fK}) + ' vs plan YTD (' + fK(R.ytdPlan) + ')';
+  const newcYTD = DATA.actualNewClients.reduce((a,b)=>a+b,0);
+  const newcTgt = R.signedPlan.slice(0, li+1).reduce((a,b)=>a+b,0);
+  document.getElementById('k-newc').textContent = newcYTD;
+  document.getElementById('k-newc-note').innerHTML = deltaSpan(newcYTD - newcTgt) + ' vs plan of ' + newcTgt;
+
+  const sparkFill = (c) => c + '22';
+  sparkline('spark-arr', R.arr.slice(0, li+1), latestDelta>=0?C.good:C.bad, sparkFill(latestDelta>=0?C.good:C.bad));
+  const yeCol = yeGap>=0?C.good:C.warn;
+  sparkline('spark-ye', R.arr.slice(li), yeCol, sparkFill(yeCol));
+  const revDelta = DATA.actualRevenue[li] - DATA.actualRevenue[li-1];
+  sparkline('spark-rev', DATA.actualRevenue, revDelta>=0?C.good:C.bad, sparkFill(revDelta>=0?C.good:C.bad));
+  const ncDelta = DATA.actualNewClients[li] - DATA.actualNewClients[li-1];
+  sparkline('spark-newc', DATA.actualNewClients, ncDelta>=0?C.good:C.bad, sparkFill(ncDelta>=0?C.good:C.bad));
+
+  // ARR hero chart
+  mkChart('ch-arr', { type:'line', data:{ labels: M, datasets:[
+    { label:'Actual ARR', data: R.arr.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'Projected (levers)', data: R.arr.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'If signings stop', data: R.arrStop.map((v,m)=> m>=li ? v : null), borderColor:C.grey, borderWidth:1.6, pointRadius:0, borderDash:[5,4], tension:.3 },
+    { label:'Target ARR', data: M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  // monthly revenue chart
+  mkChart('ch-rev', { type:'bar', data:{ labels: M, datasets:[
+    { label:'Actual', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Projected (levers)', data: R.planRev.map((v,m)=> m>li ? v : null), backgroundColor:C.accentTint, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Full-year plan', data: R.planRev, type:'line', borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.3, order:1 },
+    { label:'If signings stop', data: R.stopBlend.map((v,m)=> m>=li ? v : null), type:'line', borderColor:C.grey, borderWidth:1.4, borderDash:[5,4], pointRadius:0, tension:.3, order:2 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  // health tiles — color classes strictly follow the pass/fail sign
+  const health = [
+    { l:'LTV : CAC', v: R.ltvcac.toFixed(1) + 'x', ok: R.ltvcac >= 3, note: 'LTV ' + fK(R.ltv) + ' vs CAC ' + fK(L.cac) },
+    { l:'Payback', v: f1(R.payback) + ' mo', ok: R.payback <= 12, note: 'CAC ÷ monthly gross profit per client' },
+    { l:'NRR — existing book', v: fPct(R.nrr), ok: R.nrr >= 1, note: 'planned growth of the 2025 base' },
+    { l:'ROAS book ARPA today', v: fK(DATA.roasARPA), warn: DATA.roasARPA < L.arpa, note: 'vs ' + fK(L.arpa) + ' assumed for new clients' }
+  ];
+  document.getElementById('health-tiles').innerHTML = health.map(h => {
+    let cls = '', style = '';
+    if (h.ok === true) cls = 'delta-good';
+    else if (h.ok === false) cls = 'delta-bad';
+    else if (h.warn) style = 'style="color:var(--warn)"';
+    return '<div class="health-tile"><div><div class="h-l">' + h.l + '</div><div class="h-n">' + h.note + '</div></div>' +
+      '<div class="h-v num ' + cls + '" ' + style + ' data-static="1">' + h.v + '</div></div>';
+  }).join('');
+
+  // cockpit table
+  let ct = '<table><tr><th class="txt">Month</th><th>Actual</th><th>Plan</th><th>Variance</th><th>ARR</th><th>Cumulative revenue</th></tr>';
+  for (let m=0; m<12; m++){
+    const closed = m <= li;
+    ct += '<tr><td class="txt">' + M[m] + (closed?'':' <span class="tag">proj</span>') + '</td>' +
+      '<td class="num">' + (closed ? fmtMoney(DATA.actualRevenue[m]) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num muted">' + fmtMoney(R.planRev[m]) + '</td>' +
+      '<td class="num">' + (closed ? deltaSpan(DATA.actualRevenue[m]-R.planRev[m], {fmt:fK}) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num">' + fK(R.arr[m]) + '</td><td class="num">' + fmtMoney(R.cumRev[m]) + '</td></tr>';
   }
-  const sum=a=>a.reduce((x,y)=>x+y,0);
-  pnlBox($("#pnlBoxTarget"),"TARGET P&L — LEVERS APPLIED","var(--cpx)",{
-    rev:sum(r.rows.cpxS),cos:sum(r.rows.cpxC),marsGP:sum(r.rows.mR)-sum(r.rows.mC),opex:sum(r.rows.ox),ne:r.neFY},r.recovers);
-  pnlBox($("#pnlBoxAsis"),"AS-IS P&L — BUSINESS FROZEN","var(--muted)",{
-    rev:sum(ai.rows.cpxS),cos:sum(ai.rows.cpxC),marsGP:sum(ai.rows.mR)-sum(ai.rows.mC),opex:sum(ai.rows.ox),ne:ai.neFY},ai.recovers);
-  const rows=[["CPX Revenue (recognized)",r.rows.cpxS],["CPX COS",r.rows.cpxC],
-    ["CPX Gross Profit",r.rows.cpxS.map((v,i)=>v-r.rows.cpxC[i]),1,1],
-    ["MARS Revenue",r.rows.mR],["MARS COS",r.rows.mC],
-    ["MARS Gross Profit",r.rows.mR.map((v,i)=>v-r.rows.mC[i]),1,1],
-    ["SBU OpEx",r.rows.ox],["Net Earnings",r.rows.ne,1,1,1],["Cumulative NE",r.rows.cum,1,0,1]];
-  let h=`<table><thead><tr><th></th>${MO.map((m,i)=>`<th>${m}${i<N?"":" ·P"}</th>`).join("")}<th>FY</th></tr></thead><tbody>`;
-  rows.forEach(([name,vals,band,,signed])=>{const fy=name.startsWith("Cumulative")?vals[11]:vals.reduce((a,b)=>a+b,0);
-    h+=`<tr${band?' class="band"':''}><td>${name}</td>`;
-    vals.forEach((v,i)=>{h+=`<td class="${band?'':(i<N?'c-act':'c-proj')}">${signed?fS(v):f0(v)}</td>`;});
-    h+=`<td><b>${signed?fS(fy):f0(fy)}</b></td></tr>`;});
-  h+="</tbody></table>";$("#pnlTable").innerHTML=h;
-  $("#pnlNote").innerHTML=`Operational ${MO[N-1]} commission was ${f0(CPX_DATA.adjustments.latestOps)}; the P&L recognizes ${f0(CPX_DATA.adjustments.latestRecognized)} (adjustment ${f0(CPX_DATA.adjustments.latestAdj)} — recognition timing). Actual columns tie to the live P&L exactly. Projected months use CPX COS at 30% of commission and MARS at its Jan–${MO[N-1]} average gross profit of ${f0(MARSGP)}/month.`;
+  const ytdVar = R.ytdActual - R.ytdPlan;
+  ct += '<tr class="total"><td class="txt">Full year</td><td class="num">' + fmtMoney(R.ytdActual) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fmtMoney(R.fyPlanRevenue) + '</td><td class="num">' + deltaSpan(ytdVar,{fmt:fK}) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fK(R.yeARR) + ' <span class="tag">YE</span></td><td class="num">' + fmtMoney(R.cumRev[11]) + '</td></tr></table>';
+  document.getElementById('tbl-cockpit').innerHTML = ct;
+
+  /* ---------- TARGETS ---------- */
+  document.getElementById('sub-custeq').textContent =
+    'One customer-equivalent = ' + fK(L.arpa) + ' of annual revenue. Full-year target: ' + R.custEqFY + ' equivalents for ' + fK(L.targetARR) + ' ARR.';
+  mkChart('ch-custeq', { type:'bar', data:{ labels:M, datasets:[
+    { label:'Actual', data: R.custEqActual.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.6 },
+    { label:'Target', data: R.custEqTarget, type:'line', borderColor:C.accent, borderWidth:1.8, pointRadius:2, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
+
+  const cumActualSigned = []; DATA.actualNewClients.reduce((a,b,i)=>(cumActualSigned[i]=a+b, cumActualSigned[i]),0);
+  mkChart('ch-signed', { type:'line', data:{ labels:M, datasets:[
+    { label:'Actual cumulative', data: cumActualSigned.concat(Array(12-(li+1)).fill(null)), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:.15 },
+    { label:'Plan cumulative', data: R.cumPlan, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.25 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
+
+  const mixTarget = R.existingPlan.map((e,m)=> e / R.planRev[m]);
+  const mixActual = DATA.existingActualRev.map((e,m)=> (e!=null && DATA.actualRevenue[m]) ? e / DATA.actualRevenue[m] : null);
+  // existing-share can nudge just above 100% in some months (split computed independently),
+  // so lift the ceiling above the real max — otherwise those points clip at the axis and the line looks broken
+  const mixMax = Math.max(1.05, ...mixActual.filter(v=>v!=null), ...mixTarget.filter(v=>v!=null)) + 0.03;
+  mkChart('ch-mix', { type:'line', data:{ labels:M, datasets:[
+    { label:'Existing share — actual', data: mixActual.concat(Array(12-mixActual.length).fill(null)), borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0 },
+    { label:'Existing share — plan', data: mixTarget, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.3 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fPct(c.parsed.y,1))}}, legend:{position:'bottom'} },
+    scales:{ x:baseScalesMoney.x, y:{min:0.3, max:mixMax, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+
+  let tc2 = '<table><tr><th class="txt">Month</th><th>Returning (2025)</th><th>New ROAS (cum.)</th><th>Total active</th><th>Returning %</th></tr>';
+  for (let m=0; m<=li; m++){
+    const tot = DATA.returningClients[m] + cumActualSigned[m];
+    tc2 += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+DATA.returningClients[m]+'</td><td class="num">'+cumActualSigned[m]+'</td>' +
+      '<td class="num">'+tot+'</td><td class="num">'+fPct(DATA.returningClients[m]/tot)+'</td></tr>';
+  }
+  tc2 += '</table>';
+  document.getElementById('tbl-counts').innerHTML = tc2;
+
+  const rowT = (label, arr2, fmt, fy) => '<tr><td class="txt">'+label+'</td>' +
+    arr2.map(v => '<td class="num">' + (v==null?'<span class="muted">—</span>':fmt(v)) + '</td>').join('') +
+    '<td class="num"><b>' + (fy==null?'—':fmt(fy)) + '</b></td></tr>';
+  const padA = a => a.concat(Array(12-a.length).fill(null));
+  let tt = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
+  tt += rowT('Target customer-equivalents', R.custEqTarget, fNum, R.custEqFY);
+  tt += rowT('Actual customer-equivalents', padA(R.custEqActual), fNum, null);
+  tt += rowT('Target new clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
+  tt += rowT('Actual new clients signed', padA(DATA.actualNewClients), fNum, newcYTD);
+  tt += rowT('Plan revenue', R.planRev, fK, R.fyPlanRevenue);
+  tt += rowT('Actual revenue', padA(DATA.actualRevenue), fK, R.ytdActual);
+  tt += '</table>';
+  document.getElementById('tbl-targets').innerHTML = tt;
+
+  /* ---------- TOP CLIENTS ---------- */
+  const ytdByClient = DATA.topClients.map(c => ({ name:c.name, ytd: c.monthly.reduce((a,b)=>a+(b||0),0), monthly:c.monthly }));
+  const top1 = ytdByClient[0];
+  const top5ytd = ytdByClient.reduce((a,c)=>a+c.ytd,0);
+  document.getElementById('k-top1').textContent = fPct(top1.ytd / R.ytdActual, 1);
+  document.getElementById('k-top1-note').textContent = top1.name + ' · ' + fK(top1.ytd) + ' YTD';
+  document.getElementById('k-top5').textContent = fPct(top5ytd / R.ytdActual, 1);
+  document.getElementById('k-rest').textContent = fPct(1 - top5ytd / R.ytdActual, 1);
+  document.getElementById('k-rest-note').textContent = fK(R.ytdActual - top5ytd) + ' across the rest of the book';
+
+  const topColors = [C.accent, '#8B8BE3', C.accentTint, '#D3D3F4', '#E9E9FA'];
+  mkChart('ch-top', { type:'bar', data:{ labels:M.slice(0,li+1), datasets:
+    ytdByClient.map((c,i)=>({ label:c.name, data:c.monthly.map((v,m)=> (v||0)/DATA.actualRevenue[m]), backgroundColor: topColors[i], stack:'s', borderRadius:2, barPercentage:.62 }))
+    .concat([{ label:'Rest of book', data: M.slice(0,li+1).map((_,m)=> Math.max(0, 1 - ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0)/DATA.actualRevenue[m])), backgroundColor:'#E4E7EC', stack:'s', borderRadius:2, barPercentage:.62 }])
+  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+fPct(c.parsed.y,1)}}, legend:{position:'bottom'} },
+    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{stacked:true, min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+
+  let tp = '<table><tr><th class="txt">Client</th>' + M.slice(0,li+1).map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
+  ytdByClient.forEach(c => {
+    tp += '<tr><td class="txt">'+c.name+'</td>' + c.monthly.map(v=>'<td class="num">'+(v?fK(v):'<span class="muted">—</span>')+'</td>').join('') +
+      '<td class="num"><b>'+fK(c.ytd)+'</b></td><td class="num">'+fPct(c.ytd/R.ytdActual,1)+'</td></tr>';
+  });
+  tp += '<tr class="total"><td class="txt">Top 5</td>' + M.slice(0,li+1).map((_,m)=>'<td class="num">'+fK(ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0))+'</td>').join('') +
+    '<td class="num">'+fK(top5ytd)+'</td><td class="num">'+fPct(top5ytd/R.ytdActual,1)+'</td></tr></table>';
+  document.getElementById('tbl-top').innerHTML = tp;
+
+  /* ---------- CAC ---------- */
+  const mc = DATA.cac.merchant, cc = DATA.cac.creator;
+  // a month counts toward blended CAC only if it has both a cost and a non-zero count
+  const valid = (src, m) => src.cost[m] != null && src.count[m] != null && src.count[m] > 0;
+  const blended = src => {
+    let cost = 0, n = 0;
+    for (let m = 0; m <= li; m++) if (valid(src, m)) { cost += src.cost[m]; n += src.count[m]; }
+    return { cost, n, cac: n ? cost / n : null };
+  };
+  const mB = blended(mc), cB = blended(cc);
+  document.getElementById('k-mcac').textContent = fmtMoney(mB.cac);
+  document.getElementById('k-mcac-note').innerHTML = deltaSpan(mc.target - mB.cac, {fmt:fmtMoney, goodPos:true}) + ' vs ' + fmtMoney(mc.target) + ' target';
+  document.getElementById('k-mcount').textContent = mB.n;
+  document.getElementById('k-mspend').textContent = fmtMoney(mB.cost) + ' acquisition cost';
+  document.getElementById('k-ccac').textContent = fmtMoney(cB.cac);
+  document.getElementById('k-ccac-note').innerHTML = deltaSpan(cc.target - cB.cac, {fmt:fmtMoney, goodPos:true}) + ' vs ' + fmtMoney(cc.target) + ' target';
+  document.getElementById('k-ccount').textContent = cB.n;
+  document.getElementById('k-cspend').textContent = fmtMoney(cB.cost) + ' acquisition cost';
+
+  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:M.slice(0,li+1), datasets:[
+    { label:'Actual CAC', data: M.slice(0,li+1).map((_,m)=> valid(src,m) ? src.cost[m]/src.count[m] : null),
+      backgroundColor: M.slice(0,li+1).map((_,m)=> valid(src,m) ? (src.cost[m]/src.count[m] <= src.target ? C.dark : '#D08A93') : 'transparent'), borderRadius:4, barPercentage:.62 },
+    { label:'Target', data: M.slice(0,li+1).map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fmtMoney(c.parsed.y))}}, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+  cacChart('ch-mcac', mc); cacChart('ch-ccac', cc);
+
+  const cacTable = (src, unit, B) => {
+    let t = '<table><tr><th class="txt">Month</th><th>Acq. cost</th><th>'+unit+'</th><th>CAC</th><th>vs target</th></tr>';
+    for (let m=0; m<=li; m++){
+      const has = src.cost[m] != null;
+      const canCac = valid(src, m);
+      const cacV = canCac ? src.cost[m]/src.count[m] : null;
+      t += '<tr><td class="txt">'+M[m]+'</td>' +
+        '<td class="num">'+(has?fmtMoney(src.cost[m]):'<span class="muted">—</span>')+'</td>' +
+        '<td class="num">'+(src.count[m]!=null?src.count[m]:'<span class="muted">—</span>')+'</td>' +
+        '<td class="num">'+(cacV!=null?fmtMoney(cacV):'<span class="muted">n/a</span>')+'</td>' +
+        '<td class="num">'+(cacV!=null?deltaSpan(src.target-cacV,{fmt:fmtMoney}):'<span class="muted">—</span>')+'</td></tr>';
+    }
+    t += '<tr class="total"><td class="txt">Blended YTD</td><td class="num">'+fmtMoney(B.cost)+'</td><td class="num">'+B.n+'</td>' +
+      '<td class="num">'+(B.cac!=null?fmtMoney(B.cac):'—')+'</td><td class="num">'+(B.cac!=null?deltaSpan(src.target-B.cac,{fmt:fmtMoney}):'—')+'</td></tr></table>';
+    return t;
+  };
+  document.getElementById('tbl-mcac').innerHTML = cacTable(mc, 'Merchants', mB);
+  document.getElementById('tbl-ccac').innerHTML = cacTable(cc, 'Creators', cB);
+
+  // combined acquisition-cost breakdown (both sides, per month) — replaces the old placeholder
+  const bothMonths = [];
+  for (let m=0; m<=li; m++){
+    const mCacV = valid(mc,m) ? mc.cost[m]/mc.count[m] : null;
+    const cCacV = valid(cc,m) ? cc.cost[m]/cc.count[m] : null;
+    bothMonths.push({ m, mCost:mc.cost[m], mN:mc.count[m], mCac:mCacV, cCost:cc.cost[m], cN:cc.count[m], cCac:cCacV });
+  }
+  let bt = '<table><tr><th class="txt">Month</th>' +
+    '<th>Merchant cost</th><th>Merchants</th><th>Merchant CAC</th>' +
+    '<th>Creator cost</th><th>Creators</th><th>Creator CAC</th><th>Total spend</th></tr>';
+  let tMcost=0, tCcost=0;
+  bothMonths.forEach(b => {
+    const tot = (b.mCost||0) + (b.cCost||0); tMcost += b.mCost||0; tCcost += b.cCost||0;
+    bt += '<tr><td class="txt">'+M[b.m]+'</td>' +
+      '<td class="num">'+(b.mCost!=null?fmtMoney(b.mCost):'—')+'</td><td class="num">'+(b.mN!=null?b.mN:'—')+'</td>' +
+      '<td class="num">'+(b.mCac!=null?fmtMoney(b.mCac):'<span class="muted">n/a</span>')+'</td>' +
+      '<td class="num">'+(b.cCost!=null?fmtMoney(b.cCost):'—')+'</td><td class="num">'+(b.cN!=null?b.cN:'<span class="muted">—</span>')+'</td>' +
+      '<td class="num">'+(b.cCac!=null?fmtMoney(b.cCac):'<span class="muted">n/a</span>')+'</td>' +
+      '<td class="num tot">'+fmtMoney(tot)+'</td></tr>';
+  });
+  bt += '<tr class="total"><td class="txt">YTD total</td>' +
+    '<td class="num">'+fmtMoney(tMcost)+'</td><td class="num">'+mB.n+'</td><td class="num">'+(mB.cac!=null?fmtMoney(mB.cac):'—')+'</td>' +
+    '<td class="num">'+fmtMoney(tCcost)+'</td><td class="num">'+cB.n+'</td><td class="num">'+(cB.cac!=null?fmtMoney(cB.cac):'—')+'</td>' +
+    '<td class="num tot">'+fmtMoney(tMcost+tCcost)+'</td></tr></table>';
+  document.getElementById('tbl-cac-breakdown').innerHTML = bt;
+  // note any month excluded for a missing count
+  const missing = [];
+  for (let m=0; m<=li; m++){ if (cc.cost[m]!=null && (cc.count[m]==null||cc.count[m]===0)) missing.push(M[m]+' (creator count)'); if (mc.cost[m]!=null && (mc.count[m]==null||mc.count[m]===0)) missing.push(M[m]+' (merchant count)'); }
+  document.getElementById('cac-note').innerHTML = missing.length
+    ? '<b>Note:</b> ' + missing.join(', ') + ' had acquisition spend recorded but no acquisition count in the workbook, so that month is included in total spend but excluded from the blended CAC (dividing by zero). Blended CAC uses only months with both figures.'
+    : 'Blended CAC = total acquisition cost ÷ total acquisitions across all months shown.';
+
+  /* ---------- LEVERS ---------- */
+  document.getElementById('live-heading').innerHTML =
+    'At <span class="v">' + fPct(L.growth) + '</span> existing-book growth, <span class="v">' + L.newClients +
+    '</span> new clients at <span class="v">' + fK(L.arpa) + '</span> ARPA with <span class="v">' + fPct(L.dropout) +
+    '</span> early dropout → year-end ARR <span class="v num">' + fMshort(R.yeARR) + '</span> against a <span class="v num">' +
+    fK(L.targetARR) + '</span> target — ' + (yeGap>=0
+      ? '<span class="delta-good" data-v="'+yeGap+'" data-goodpos="true">on target, ▲ ' + fK(yeGap) + ' of headroom</span>'
+      : '<span class="delta-bad" data-v="'+yeGap+'" data-goodpos="true">▼ short by ' + fK(Math.abs(yeGap)) + '</span>') + '.';
+
+  document.getElementById('lk-2025').textContent = fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0));
+  document.getElementById('lk-influ').textContent = L.influPerClient;
+  document.getElementById('lk-ads').textContent = L.adsPerInflu;
+  document.getElementById('adj-callout').innerHTML = '<b>Shortfall check:</b> the workbook models ' + fK(Math.abs(R.adjSum)) +
+    ' of revenue at risk over Aug–Dec; covering it at ' + fK(L.arpa) + ' ARPA would take <b>' + R.addlClients +
+    ' additional clients</b> on top of the plan.';
+
+  const outs = [
+    { l:'Year-end ARR', v:fMshort(R.yeARR), n:(yeGap>=0?'▲ ':'▼ ') + fK(Math.abs(yeGap)) + ' vs target', ok: yeGap>=0 },
+    { l:'FY plan revenue', v:fK(R.fyPlanRevenue), n:'existing ' + fK(R.existingPlan.reduce((a,b)=>a+b,0)) + ' + new ' + fK(R.newRevPlan.reduce((a,b)=>a+b,0)) },
+    { l:'LTV (new clients)', v:fK(R.ltv), n:'ARPA × (1−dropout) ÷ churn' },
+    { l:'LTV : CAC', v:R.ltvcac.toFixed(1)+'x', n: R.ltvcac>=3 ? 'above the 3x rule of thumb' : 'below the 3x rule of thumb', ok:R.ltvcac>=3 },
+    { l:'Payback', v:f1(R.payback)+' mo', n:'months of gross profit to repay CAC', ok:R.payback<=12 },
+    { l:'NRR (existing)', v:fPct(R.nrr), n:'net revenue retention of 2025 base', ok:R.nrr>=1 }
+  ];
+  document.getElementById('lever-outputs').innerHTML = outs.map(o =>
+    '<div><div class="kpi-label">'+o.l+'</div><div class="kpi-value num" style="font-size:19px">'+o.v+'</div>' +
+    '<div class="kpi-note' + (o.ok===true?' delta-good':(o.ok===false?' delta-bad':'')) + '" data-static="1">'+o.n+'</div></div>').join('');
+
+  // revenue build stacked chart
+  const rampRev = R.signedPlan.map((_,m)=>{
+    const ramp = R.signedPlan[m] + (R.signedPlan[m-1]||0) + (R.signedPlan[m-2]||0);
+    return ramp * R.seasARPA[m] * (1 - L.dropout);
+  });
+  const matureRev = R.newRevPlan.map((v,m)=> v - rampRev[m]);
+  mkChart('ch-build', { type:'bar', data:{ labels:M, datasets:[
+    { label:'Existing book', data:R.existingPlan, backgroundColor:'#2A3342', stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'New — first 3 months (ramping)', data:rampRev, backgroundColor:C.accentTint, stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'New — matured (month 4+)', data:matureRev, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'Actual revenue', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), type:'line', borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0, order:0 }
+  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} },
+    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{...baseScalesMoney.y, stacked:true} }}});
+
+  let tb = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
+  tb += rowT('New clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('Cumulative signed', R.cumPlan, fNum, R.cumPlan[11]);
+  tb += rowT('Existing revenue', R.existingPlan, fK, R.existingPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('New-client revenue', R.newRevPlan, fK, R.newRevPlan.reduce((a,b)=>a+b,0));
+  tb += rowT('Total plan', R.planRev, fK, R.fyPlanRevenue);
+  tb += '</table>';
+  document.getElementById('tbl-build').innerHTML = tb;
+
+  /* ---------- SCENARIOS ---------- */
+  const scenResults = SCENARIOS.map(s => {
+    const lv = Object.assign({}, state.levers, s.set);
+    return { s, lv, r: engine(lv) };
+  });
+  const hits = scenResults.filter(x => x.r.yeARR >= L.targetARR).length;
+  const banner = document.getElementById('scen-banner');
+  banner.className = 'scen-banner ' + (hits >= 1 ? 'ok' : 'warn');
+  banner.textContent = hits + ' of ' + SCENARIOS.length + ' scenarios reach the ' + fK(L.targetARR) + ' year-end ARR target.';
+  document.getElementById('scen-cards').innerHTML = scenResults.map((x,i) => {
+    const hit = x.r.yeARR >= L.targetARR;
+    return '<div class="scen-card' + (hit?' hit':'') + '"><h3>' + x.s.name + '</h3>' +
+      '<span class="chip ' + (hit?'chip-good':'chip-bad') + '">' + (hit ? 'hits ' : 'misses ') + fK(L.targetARR) + '</span>' +
+      '<div class="assum">' + x.s.desc + '</div>' +
+      '<div class="scen-out"><span>Year-end ARR</span><b class="num">' + fMshort(x.r.yeARR) + '</b></div>' +
+      '<div class="scen-out"><span>Gap to target</span>' + deltaSpan(x.r.yeARR - L.targetARR, {fmt:fK}) + '</div>' +
+      '<div class="scen-out"><span>FY plan revenue</span><b class="num">' + fK(x.r.fyPlanRevenue) + '</b></div>' +
+      '<div class="scen-out"><span>LTV : CAC</span><b class="num">' + x.r.ltvcac.toFixed(1) + 'x</b></div>' +
+      '<button class="apply-btn" data-scen="' + i + '">Apply to levers</button></div>';
+  }).join('');
+  document.querySelectorAll('#scen-cards .apply-btn').forEach(btn => btn.addEventListener('click', () => {
+    const s = SCENARIOS[+btn.dataset.scen];
+    state.levers = Object.assign({}, state.levers, s.set);
+    syncInputs(); render(); showPage('levers');
+  }));
+
+  const scenColors = [C.accent, '#D08770', '#B48EAD', '#8FA1B3', C.good];
+  mkChart('ch-scen', { type:'line', data:{ labels:M, datasets:
+    [{ label:'Actual', data: (function(){ const base = engine(state.levers); return base.arr.map((v,m)=> m<=li ? v : null); })(), borderColor:C.dark, borderWidth:2.6, pointRadius:2.5, tension:.3 }]
+    .concat(scenResults.map((x,i)=>({ label:x.s.name, data: x.r.arr.map((v,m)=> m>=li ? v : null),
+      borderColor: scenColors[i], borderWidth:1.8, pointRadius:0, tension:.3, borderDash: x.r.yeARR>=L.targetARR?[0]:[6,4] })))
+    .concat([{ label:'Target', data:M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, borderDash:[2,3], pointRadius:0 }])
+  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+
+  /* ---------- ROAS ---------- */
+  const statusMap = {
+    '✓ Active': 'chip-good', '↑ Scaling': 'chip-accent', '~ Low spend': 'chip-warn',
+    '→ Watch': 'chip-warn', '— Too early': 'chip-neutral', '✗ At risk': 'chip-bad', '⬛ Inactive': 'chip-neutral'
+  };
+  const norm = s => s === 'Inactive' ? '⬛ Inactive' : s;
+  const counts = {};
+  DATA.roasClients.forEach(c => { const k = norm(c.status); counts[k] = (counts[k]||0)+1; });
+  const order = ['✓ Active','↑ Scaling','~ Low spend','→ Watch','— Too early','✗ At risk','⬛ Inactive'];
+  const stClass2 = {
+    '✓ Active':'st-active', '↑ Scaling':'st-scaling', '~ Low spend':'st-low', '→ Watch':'st-watch',
+    '— Too early':'st-early', '✗ At risk':'st-risk', '⬛ Inactive':'st-inactive'
+  };
+  const stLbl2 = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
+    '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
+  document.getElementById('roas-chips').innerHTML = order.filter(k=>counts[k]).map(k =>
+    '<span class="st ' + stClass2[k] + '" style="font-size:12px; padding:5px 12px 5px 10px"><span class="dot"></span>' + stLbl2[k] + ' · ' + counts[k] + '</span>').join('') +
+    '<span class="st st-inactive" style="font-size:12px; padding:5px 12px 5px 10px; background:var(--neutral-chip); color:var(--text-2)"><span class="dot" style="background:var(--text-3)"></span>Total · ' + DATA.roasClients.length + '</span>';
+  document.getElementById('k-roas-arpa').textContent = fK(DATA.roasARPA);
+  document.getElementById('roas-arpa-callout').innerHTML =
+    '<b>Watch this gap:</b> the growth plan assumes new clients are worth <b>' + fK(L.arpa) + '</b> a year, but the current ROAS book averages <b>' +
+    fK(DATA.roasARPA) + '</b> — most clients are still sitting at the $1K test level. The plan only works if clients climb the ladder the way Right Bite and Golden Scent did.';
+
+  const stClass = {
+    '✓ Active':'st-active', '↑ Scaling':'st-scaling', '~ Low spend':'st-low', '→ Watch':'st-watch',
+    '— Too early':'st-early', '✗ At risk':'st-risk', '⬛ Inactive':'st-inactive'
+  };
+  const stLabel = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
+    '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
+  // deterministic monogram color from the client name (self-contained, no external logos)
+  const AV_COLORS = ['#4F46E5','#0E9F6E','#C77A0F','#2563EB','#DB2777','#7C3AED','#0891B2','#CA8A04','#DC2626','#059669','#7C74EC','#B45309'];
+  const avatar = name => {
+    let h = 0; for (let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
+    const col = AV_COLORS[h % AV_COLORS.length];
+    const initials = name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+    return '<span class="avatar" style="background:'+col+'">'+initials+'</span>';
+  };
+  // spend tier → chip class (uniform size, color carries magnitude; aligned to the L1–L5 ladder)
+  const tierOf = v => v>=4500?5 : v>=3600?4 : v>=2700?3 : v>=1800?2 : 1;
+  const sorted = DATA.roasClients.map((c,i)=>({c,i}))
+    .sort((a,b)=> (b.c.level - a.c.level) || (b.c.totalSpend - a.c.totalSpend));
+  let tr2 = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th>' +
+    '<th>1→2</th><th>2→3</th><th>3→4</th>' +
+    DATA.roasMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>Total</th><th>ARPA</th><th class="txt">Status</th></tr></thead><tbody>';
+  sorted.forEach(({c}) => {
+    const lvl = Math.round(c.level);
+    const step = v => (v==='-'||v==null) ? '<span class="step none">–</span>' : '<span class="step">'+v+'mo</span>';
+    tr2 += '<tr>' +
+      '<td class="txt"><div class="cwrap">'+avatar(c.name)+'<div><div class="cname">'+c.name+'</div><div class="cstart">since '+c.start+'</div></div></div></td>' +
+      '<td class="num">'+c.moActive+'</td>' +
+      '<td><span class="lvl lvl'+lvl+'">L'+lvl+'</span></td>' +
+      '<td>'+step(c.l12)+'</td><td>'+step(c.l23)+'</td><td>'+step(c.l34)+'</td>' +
+      c.spend.map(v => {
+        if (v == null) return '<td class="spend-cell"></td>';
+        return '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(v)+'</span></td>';
+      }).join('') +
+      '<td class="num tot">'+fmtMoney(c.totalSpend)+'</td>' +
+      '<td class="num arpa-big">'+fmtMoney(c.arpa)+'</td>' +
+      '<td class="txt"><span class="st '+(stClass[norm(c.status)]||'st-inactive')+'"><span class="dot"></span>'+(stLabel[norm(c.status)]||norm(c.status))+'</span></td>' +
+      '</tr>';
+  });
+  tr2 += '</tbody></table>';
+  document.getElementById('tbl-roas').innerHTML = tr2;
+
+  /* ---------- METHOD ---------- */
+  document.getElementById('method-body').innerHTML = `
+    <h2>What this dashboard is</h2>
+    <p>A live version of the Moontech 2026 unit-economics model. Actuals are closed through <b>August 2026</b>; everything after that is computed by one engine from the levers on the Levers page. When a lever changes, every projected number on every page changes with it — there are no separately typed targets.</p>
+    <h2>How revenue is built</h2>
+    <ul>
+      <li><b>Existing book:</b> each month of 2025 actual revenue, grown by the existing-client growth lever (currently ${fPct(L.growth)}). Full-year 2025 was ${fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0))}.</li>
+      <li><b>New clients:</b> the full-year signing count (currently ${L.newClients}) is spread across the year on a fixed ramp — 1% of signings in January rising to 14% in November and December. A client's revenue in any month is the plan ARPA shaped by that month's seasonality weight.</li>
+      <li><b>Early dropout:</b> clients in their first three months are discounted by the dropout lever (currently ${fPct(L.dropout)}), reflecting ROAS clients that quit after the test phase. From month four a cohort pays full seasonal ARPA.</li>
+      <li><b>Seasonality:</b> the 2025 monthly revenue shape (November peaks at ~16% of the year). Seasonality is treated as a fact, not a lever.</li>
+    </ul>
+    <h2>How ARR is measured</h2>
+    <p>Monthly revenue is de-seasonalised (divided by that month's seasonality weight) and averaged over a rolling three months, giving an annualised run-rate that isn't distorted by strong or weak seasonal months. July's ARR of ${fMshort(R.latestARR)} is the May–July average run-rate. Moving forward, actuals roll out of the window as projections enter it.</p>
+    <h2>Unit economics</h2>
+    <ul>
+      <li><b>LTV</b> = ARPA × (1 − 3-month dropout) ÷ annual churn.</li>
+      <li><b>Payback</b> = CAC ÷ (ARPA × gross margin ÷ 12) — months of gross profit to recover acquisition cost.</li>
+      <li><b>Customer-equivalent</b> = ${fK(L.arpa)} of annual revenue, so one large client can count as several equivalents.</li>
+    </ul>
+    <h2>Basis and scope of the numbers</h2>
+    <ul>
+      <li>Revenue is Moontech platform revenue on an operational basis, in USD, as recorded in the model workbook.</li>
+      <li><b>Merchant CAC</b> and <b>Creator CAC</b> are total acquisition cost ÷ acquisitions, blended across every closed month that has both a cost and a count. Where the workbook records spend for a month but no acquisition count (e.g. August creator count), that month is kept in total spend but left out of the blended CAC so the average is not divided by zero.</li>
+      <li>The <b>“if signings stop”</b> line keeps the existing book growing at the growth lever and lets already-signed clients play out, but adds zero new signings from August.</li>
+      <li>July's existing-vs-new revenue split isn't in the source workbook yet, so the revenue-mix chart shows actuals through June only.</li>
+    </ul>
+    <h2>Known data notes</h2>
+    <ul>
+      <li>Izil shows $8,169 spend in May but is recorded at Level 1 in the workbook — worth confirming at source.</li>
+      <li>August creator acquisitions have a cost recorded but no count yet, so August is excluded from blended creator CAC (see the CAC page note).</li>
+      <li>The 30 ROAS clients here reconcile 1:1 with the workbook's client list.</li>
+    </ul>
+    <div class="footer-note">Built from Unit_Economics_Model (1).xlsx · actuals through July 2026 · monthly update = replace the DATA block at the top of this file and commit.</div>`;
 }
 
-/* ================= BRANDS ================= */
-function renderBrands(){
-  const B=CPX_DATA.brands.slice().sort((a,b)=>b.m[N-1]-a.m[N-1]);
-  const tot=A.ncOps[N-1], t3=B.slice(0,3);
-  const fig=$("#brandFigs");fig.innerHTML="";
-  [["Active brands · "+MO[N-1],A.brands[N-1],""],["Commission · "+MO[N-1],f0(tot),""],
-   [t3[0].name+" share",Math.round(100*t3[0].m[N-1]/tot)+"%","risk"],["Recognized (P&L) · "+MO[N-1],f0(CPX_DATA.adjustments.latestRecognized),""]
-  ].forEach(([l,v,c])=>{const d=document.createElement("div");d.innerHTML=`<div class="klab">${l}</div><div class="big sm ${c}">${v}</div>`;fig.appendChild(d);});
-  const top=B.slice(0,6);
-  destroy("cBrandConc");
-  CH.cBrandConc=new Chart($("#cBrandConc"),{type:"bar",data:{labels:top.map(b=>b.name),datasets:[{label:"Commission",data:top.map(b=>b.m[N-1]),
-    backgroundColor:top.map((b,i)=>i===0?CPX:i===1?CPXMID:CPXLT),borderRadius:3}]},
-    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip(v=>money(v)+" · "+Math.round(100*v/tot)+"%")},
-      scales:{x:{grid:{color:GRID},ticks:{color:MUT,callback:fK}},y:{grid:{display:false},ticks:{color:INK,font:{size:11}}}}}});
-  const chip=s=>s.includes("Grow")?'<span class="chip up">▲ Growing</span>':s.includes("Decl")?'<span class="chip dn">▼ Declining</span>':s.includes("New")?'<span class="chip nw">New</span>':s.includes("Stable")?'<span class="chip fl">Stable</span>':`<span class="chip fl">${s||"—"}</span>`;
-  let h=`<table><thead><tr><th>Brand</th>${MO.slice(0,N).map(m=>`<th>${m}</th>`).join("")}<th>Avg</th><th>Status</th></tr></thead><tbody>`;
-  B.forEach(b=>{const act=b.m.filter(v=>v>0),avg=act.length?act.reduce((x,y)=>x+y,0)/act.length:0;
-    h+=`<tr><td>${b.name}</td>${b.m.map(v=>`<td>${v?f0(v):'<span style="color:#C7CDD6">·</span>'}</td>`).join("")}<td><b>${f0(avg)}</b></td><td style="text-align:left">${chip(b.status)}</td></tr>`;});
-  h+="</tbody></table>";$("#brandTable").innerHTML=h;
+/* ---------- lever inputs ---------- */
+const PCT_LEVERS = ['growth','dropout','churn','gm'];
+function syncInputs(){
+  Object.keys(state.levers).forEach(k => {
+    const el = document.getElementById('lv-' + k);
+    if (!el) return;
+    el.value = PCT_LEVERS.includes(k) ? Math.round(state.levers[k]*1000)/10 : state.levers[k];
+  });
+}
+function bindInputs(){
+  ['growth','newClients','arpa','dropout','churn','cac','gm','targetARR'].forEach(k => {
+    const el = document.getElementById('lv-' + k);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const raw = parseFloat(el.value);
+      if (isNaN(raw)) return;
+      state.levers[k] = PCT_LEVERS.includes(k) ? raw/100 : raw;
+      render();
+    });
+  });
 }
 
-/* ================= AFFILIATES (Top-50 fix) ================= */
-function renderAffiliates(){
-  const F=CPX_DATA.affiliates.slice().sort((a,b)=>b.m[N-1]-a.m[N-1]);
-  const pipeTot=CPX_DATA.meta.pipelineOrders[N-1]; // honest denominator
-  const fig=$("#affFigs");fig.innerHTML="";
-  [["Active affiliates · "+MO[N-1],A.affiliates[N-1],A.affiliates[N-1]<A.affiliates[N-2]?"neg":""],
-   ["Orders · "+MO[N-1],f0(A.orders[N-1]),""],
-   ["Payout · Jan–"+MO[N-1],f0(A.payout.reduce((a,b)=>a+b,0)),""],
-   ["Orders / affiliate",(A.orders[N-1]/A.affiliates[N-1]).toFixed(1),""],
-   ["Top-"+F.length+" share of "+MO[N-1]+" orders",Math.round(100*F.reduce((a,b)=>a+b.m[N-1],0)/pipeTot)+"%",""]
-  ].forEach(([l,v,c])=>{const d=document.createElement("div");d.innerHTML=`<div class="klab">${l}</div><div class="big sm ${c}">${v}</div>`;fig.appendChild(d);});
-  const tier=t=>({Anchor:'<span class="chip up">Anchor</span>',Core:'<span class="chip fl">Core</span>',Growing:'<span class="chip nw">Growing</span>'}[t]||`<span class="chip fl">${t||"Tail"}</span>`);
-  const st=s=>s.includes("Decl")?'<span class="chip dn">▼</span>':s.includes("Grow")?'<span class="chip up">▲</span>':'<span class="chip fl">·</span>';
-  let h=`<table><thead><tr><th>Affiliate</th>${MO.slice(0,N).map(m=>`<th>${m}</th>`).join("")}<th>Payout</th><th>Tier</th><th>Trend</th></tr></thead><tbody>`;
-  F.forEach(f=>{h+=`<tr><td>${f.name}</td>${f.m.map(v=>`<td>${v?f0(v):'<span style="color:#C7CDD6">·</span>'}</td>`).join("")}<td>${f0(f.payout)}</td><td style="text-align:left">${tier(f.tier)}</td><td style="text-align:left">${st(f.status||"")}</td></tr>`;});
-  h+=`</tbody></table>`;$("#affTable").innerHTML=h;
-  const cap=document.getElementById("affCap");if(cap)cap.remove();
-  $("#affTable").insertAdjacentHTML("afterend",`<p id="affCap" style="font-size:.75rem;color:var(--muted);line-height:1.5;margin-top:10px;max-width:80ch">This is the top ${F.length} affiliates by ${MO[N-1]} order volume — a subset, so their orders sum to ${f0(pipeTot)}, about ${Math.round(100*pipeTot/A.orders[N-1])}% of the ${f0(A.orders[N-1])} total active orders that month. Shares above use this top-${F.length} pipeline as the denominator.</p>`);
+/* ---------- navigation ---------- */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.page === name));
+}
+function bindNav(){
+  document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => showPage(a.dataset.page)));
 }
 
-/* ================= PATH (with assumptions) ================= */
-function renderPath(){
-  const cur=engine(LV);
-  // count profitable scenarios
-  const results=Object.entries(SCEN).map(([k,s])=>({k,s,r:engine({...PLAN,...s.lv})}));
-  const profitable=results.filter(x=>x.r.neFY>=0);
-  let h=`<div class="card col12" style="grid-column:1/-1;margin-bottom:4px;border-left:3px solid ${profitable.length?'var(--green)':'var(--red)'}">
-    <div style="font-size:.95rem;font-weight:600;color:var(--ink)">${profitable.length} of ${results.length} scenarios reach full-year profit</div>
-    <div style="font-size:.82rem;color:var(--muted);margin-top:3px;line-height:1.5">With the unit build starting only in ${MO[N]}, standard-ramp scenarios at plan volume no longer recover the year at any OpEx level — the paths that reach profit need faster onboarding (brands productive sooner) or a much larger signing push. ${profitable.length?`Best realistic path: <b style="color:var(--green)">${profitable.sort((a,b)=>b.r.neFY-a.r.neFY)[0].s.label}</b>.`:""}</div></div>`;
-  h+=`<div class="scard cur"><div class="tag">Current levers</div><div class="lbl">What the Levers page is set to now</div>
-    <div class="ne ${cls(cur.neFY)}">${fS(cur.neFY)}</div>
-    <div class="meta">Recovers H1 loss: <b style="color:${cur.recovers==="Not in-year"?"var(--red)":"var(--green)"}">${cur.recovers}</b> · profitable monthly from ${cur.monthPos}<br>Projection ${f0(cur.proj)}</div></div>`;
-  results.forEach(({k,s,r})=>{const win=r.neFY>=0;
-    h+=`<div class="scard${win?' win':''}"><div class="tag">${s.label}${win?' <span class="chip up" style="font-size:.6rem;vertical-align:middle">PROFIT</span>':''}</div><div class="lbl">Scenario ${k}</div>
-      <div class="ne ${cls(r.neFY)}">${fS(r.neFY)}</div>
-      <div class="meta">Recovers H1 loss: <b style="color:${r.recovers==="Not in-year"?"var(--red)":"var(--green)"}">${r.recovers}</b> · profitable monthly from ${r.monthPos}<br>Projection ${f0(r.proj)}</div>
-      <ul class="assume">${s.assume.map(([a,b])=>`<li><span>${a}</span><b>${b}</b></li>`).join("")}</ul>
-      <button class="act" data-scen="${k}">Apply to levers</button></div>`;});
-  $("#scenCards").innerHTML=h;
-  document.querySelectorAll("[data-scen]").forEach(b=>b.onclick=()=>{LV={...PLAN,...SCEN[b.dataset.scen].lv};renderLevers();recompute();show("levers");});
+/* ---------- boot ---------- */
+function boot(){
+  setChartDefaults();
+  buildPages();
+  bindNav();
+  syncInputs();
+  bindInputs();
+  render();
 }
-
-/* ================= BRAND BUILD (cohort schedule) ================= */
-function renderCohorts(){
-  const L=LV;
-  const ramp=L.fast?[.30,.50,.70,.85,.95,1,1]:[.10,.20,.35,.55,.75,.90,1];
-  const perCohort=L.brands/(12-N), mARPA=L.arpa/12;
-  const startCohort=N+1; // build restarts after the latest actual month
-  const cohorts=[];for(let sc=N+1;sc<=12;sc++)cohorts.push(sc);
-  const months=[];for(let m=N+1;m<=12;m++)months.push(m); // Aug..Dec
-  // matrix[cohort][month] revenue
-  const matrix={}, totals={}, survivors={};
-  cohorts.forEach(sc=>{matrix[sc]={};});
-  months.forEach(m=>{totals[m]=0;survivors[m]=0;
-    cohorts.forEach(sc=>{
-      if(m>=sc){const age=m-sc;const rev=perCohort*Math.pow(1-L.newChurn,age)*ramp[Math.min(age,6)]*mARPA;
-        matrix[sc][m]=rev;totals[m]+=rev;survivors[m]+=perCohort*Math.pow(1-L.newChurn,age);}
-    });});
-  $("#coh-per").textContent=perCohort.toFixed(1);
-  $("#coh-churn").textContent=(L.newChurn*100).toFixed(0)+"%";
-  $("#coh-count").textContent=["","One","Two","Three","Four","Five","Six"][12-N]||String(12-N);
-  $("#coh-start").textContent=MO[N];
-  const ns=CPX_DATA.meta.newSignings;
-  $("#coh-signed").textContent=ns&&ns.names.length
-    ? `${ns.names.length} brands signed in ${ns.month} (${ns.names.join(", ")}) at pilot scale — AED ${f0(ns.commission)} combined. They sit inside the actual book and are not counted as 20K-ARPA units, so the unit build starts in ${MO[N]}.`
-    : `No brands were signed before ${MO[N]}, so the entire build starts fresh.`;
-
-  // stacked bar chart
-  const palette=[CPX,"#F5915F","#F7B38C","#F9CDB2","#FBE0D0","#1A2230"];
-  destroy("cCohort");
-  CH.cCohort=new Chart($("#cCohort"),{type:"bar",data:{labels:months.map(m=>MO[m-1]),
-    datasets:cohorts.map((sc,i)=>({label:MO[sc-1]+" cohort",data:months.map(m=>matrix[sc][m]||0),
-      backgroundColor:palette[i],borderRadius:2,stack:"s"}))},
-    options:{responsive:true,maintainAspectRatio:false,animation:{duration:500},interaction:{intersect:false,mode:"index"},
-      plugins:{legend:{position:"bottom",labels:{boxWidth:9,font:{size:10},color:INK,padding:8}},tooltip:tip()},
-      scales:{x:{stacked:true,grid:{display:false},ticks:{color:MUT}},y:{stacked:true,grid:{color:GRID},ticks:{color:MUT,callback:fK},beginAtZero:true}}}});
-
-  // matrix table
-  let h=`<table><thead><tr><th>Cohort signed</th><th>Brands</th>${months.map(m=>`<th>${MO[m-1]}</th>`).join("")}<th>FY new</th></tr></thead><tbody>`;
-  cohorts.forEach(sc=>{
-    const rowFY=months.reduce((a,m)=>a+(matrix[sc][m]||0),0);
-    h+=`<tr><td>${MO[sc-1]} cohort</td><td class="c-asis">${perCohort.toFixed(1)}</td>`;
-    months.forEach(m=>{h+=matrix[sc][m]?`<td class="c-proj">${f0(matrix[sc][m])}</td>`:'<td class="c-dash">—</td>';});
-    h+=`<td><b>${f0(rowFY)}</b></td></tr>`;});
-  h+=`<tr class="band"><td>New-brand revenue (total)</td><td></td>${months.map(m=>`<td>${f0(totals[m])}</td>`).join("")}<td><b>${f0(months.reduce((a,m)=>a+totals[m],0))}</b></td></tr>`;
-  h+=`<tr class="sub-r"><td>Surviving new brands (count)</td><td></td>${months.map(m=>`<td>${survivors[m].toFixed(1)}</td>`).join("")}<td><b>${survivors[months[months.length-1]].toFixed(1)}</b></td></tr>`;
-  h+="</tbody></table>";
-  $("#cohortTable").innerHTML=h;
-
-  const fyNew=months.reduce((a,m)=>a+totals[m],0);
-  $("#cohortNote").innerHTML=`At current levers, ${L.brands} signings across ${12-N} cohorts (${MO[N]}–Dec${CPX_DATA.meta.newSignings&&CPX_DATA.meta.newSignings.names.length?` — the ${CPX_DATA.meta.newSignings.names.length} pilot signings in ${CPX_DATA.meta.newSignings.month} are in the actual book, not counted as units`:` — no brands were signed in ${MO[N-1]}`}) add <b style="color:var(--cpx)">${f0(fyNew)}</b> of new-brand commission from ${MO[startCohort-1]}–Dec. Each cohort is ${perCohort.toFixed(1)} brands ramping on the ${L.fast?"fast (30→100%)":"standard (10→90%)"} curve at AED ${f0(mARPA)}/brand/month, less ${(L.newChurn*100).toFixed(0)}% monthly churn. The stack shows why the year is back-loaded: December carries all ${12-N} cohorts at once, the earliest ones near full productivity.`;
-}
-
-function renderScale(){
-  const B=CPX_DATA.brands, Fa=CPX_DATA.affiliates;
-  const jul=A.ncOps[N-1];
-  const seph=B.find(b=>/ephora/i.test(b.name));
-  const sephJul=seph?seph.m[N-1]:0, exSeph=jul-sephJul;
-  const nayomi=B.find(b=>b.name==="Nayomi");
-  const sephShare=Math.round(100*sephJul/jul);
-  $("#scaleReframe").innerHTML=`<div class="eyebrow" style="color:var(--cpx);font-weight:700">THE REFRAME — WHAT ACTUALLY HAS TO GROW</div>
-    <p style="font-size:.9rem;line-height:1.6;margin-top:8px;color:var(--ink)">Sephora is <b>${sephShare}% of ${MO[N-1]} commission</b> (${f0(sephJul)}) — and it's a <b>fixed budget that can't scale</b>, down ${Math.round(100*(1-seph.m[N-1]/seph.m[0]))}% since January. Strip it out and the rest of the book runs at just <b style="color:var(--cpx)">${f0(exSeph)}/month</b>. That ex-Sephora base is what the plan actually depends on: the ${f0(engine(LV).proj)} target needs the non-Sephora book to carry it, since Sephora is capped. Every move below is about growing that ${f0(exSeph)}.</p>`;
-
-  const ranked=B.slice().sort((a,b)=>b.m[N-1]-a.m[N-1]).filter(b=>b.m[N-1]>0);
-  const top=ranked.slice(0,8);
-  destroy("cScaleConc");
-  CH.cScaleConc=new Chart($("#cScaleConc"),{type:"bar",data:{labels:top.map(b=>b.name),datasets:[{label:"Commission",data:top.map(b=>b.m[N-1]),
-    backgroundColor:top.map(b=>/ephora/i.test(b.name)?"#C6CCD6":b.name==="Nayomi"?GREEN:CPX),borderRadius:3}]},
-    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:tip(v=>money(v)+" · "+Math.round(100*v/jul)+"%")},
-      scales:{x:{grid:{color:GRID},ticks:{color:MUT,callback:fK}},y:{grid:{display:false},ticks:{color:INK,font:{size:11}}}}}});
-
-  const mom=b=>{const pr=b.m.slice(Math.max(0,N-4),N-1).filter(x=>x>0);return pr.length?b.m[N-1]-pr.reduce((a,x)=>a+x,0)/pr.length:0;};
-  const dec=B.filter(b=>b.m[N-1]>0&&!/ephora/i.test(b.name)&&mom(b)<0).sort((a,b)=>mom(a)-mom(b));
-  const decLeak=-dec.reduce((s,b)=>s+mom(b),0);
-  $("#scaleDefend").innerHTML=`<div class="eyebrow" style="color:var(--red);font-weight:700">DEFEND — STOP THE LEAK</div>
-    <div class="csub" style="margin-bottom:10px">${dec.length} brands (ex-Sephora) are running below their 3-month average — <b class="neg">−${f0(decLeak)}</b>/month combined. Arresting this beats new signings short-term.</div>
-    <div class="twrap" style="border-radius:9px"><table><thead><tr><th>Brand</th><th>${MO[N-1]}</th><th>Δ vs 3-mo avg</th></tr></thead><tbody>
-    ${dec.slice(0,6).map(b=>`<tr><td>${b.name}</td><td>${f0(b.m[N-1])}</td><td class="neg">−${f0(Math.abs(mom(b)))}</td></tr>`).join("")}
-    </tbody></table></div>`;
-
-  const growers=B.filter(b=>b.m[N-1]>500&&!/ephora/i.test(b.name)&&mom(b)>=0).sort((a,b)=>b.m[N-1]-a.m[N-1]);
-  $("#scaleGrow").innerHTML=`<div class="eyebrow" style="color:var(--green);font-weight:700">SCALE — THE GROWTH ENGINES</div>
-    <div class="csub" style="margin-bottom:10px"><b>${nayomi?nayomi.name:"Nayomi"}</b> is the standout — ${f0(nayomi?nayomi.m[N-1]:0)} in ${MO[N-1]}, ${Math.round(100*(nayomi?nayomi.m[N-1]:0)/jul)}% of commission, still active. Effort compounds here.</div>
-    <div class="twrap" style="border-radius:9px"><table><thead><tr><th>Brand</th><th>${MO[N-1]}</th><th>% comm</th></tr></thead><tbody>
-    ${growers.slice(0,6).map(b=>`<tr><td>${b.name}</td><td>${f0(b.m[N-1])}</td><td class="pos">${Math.round(100*b.m[N-1]/jul)}%</td></tr>`).join("")}
-    </tbody></table></div>`;
-
-  const fr=Fa.slice().sort((a,b)=>b.m[N-1]-a.m[N-1]);
-  const pipe=CPX_DATA.meta.pipelineOrders[N-1];
-  const top2=fr.slice(0,2), top2Share=Math.round(100*(top2[0].m[N-1]+top2[1].m[N-1])/pipe);
-  const affDrop=Math.round(100*(1-A.affiliates[N-1]/A.affiliates[0]));
-  const payRate=Math.round(100*A.payout.slice(0,N).reduce((a,b)=>a+b,0)/A.ncOps.slice(0,N).reduce((a,b)=>a+b,0));
-  $("#scaleAffiliates").innerHTML=`<div class="eyebrow" style="color:var(--cpx);font-weight:700">AFFILIATE RISK — THE REAL CONSTRAINT</div>
-    <div class="csub" style="line-height:1.6"><b>The active base is down <span class="neg">−${affDrop}%</span></b> — ${A.affiliates[0]} in Jan to ${A.affiliates[N-1]} in ${MO[N-1]}. Two anchors — <b>${top2[0].name}</b> and <b>${top2[1].name}</b> — are <b>${top2Share}%</b> of top-50 orders: a single point of failure. Affiliate <i>supply</i>, not payout economics (steady ~${payRate}% of commission), is the binding constraint. Recruiting has to reverse the decline, not just top it up.</div>`;
-
-  const dead=B.filter(b=>b.m[N-1]===0&&Math.max(...b.m.slice(0,N-1))>0).map(b=>({n:b.name,peak:Math.max(...b.m.slice(0,N-1))})).sort((a,b)=>b.peak-a.peak);
-  $("#scaleReactivate").innerHTML=`<div class="eyebrow" style="font-weight:700">REACTIVATE — WARM LEADS</div>
-    <div class="csub" style="margin-bottom:10px">${dead.length} brands went dark after producing revenue — combined peak ${f0(dead.reduce((s,b)=>s+b.peak,0))}/mo. Known integrations, warmer than cold outreach.</div>
-    <div class="twrap" style="border-radius:9px"><table><thead><tr><th>Brand</th><th>Peak/mo</th></tr></thead><tbody>
-    ${dead.slice(0,6).map(b=>`<tr><td>${b.n}</td><td class="mut">${f0(b.peak)}</td></tr>`).join("")}
-    </tbody></table></div>`;
-
-  const base=engine(LV);
-  const price=x=>engine({...LV,...x}).neFY-base.neFY;
-  const moves=[
-    ["Cut OpEx to 300K/mo","The single biggest swing — proven lever.",price({opex:300000})],
-    ["Faster new-brand onboarding","30% month-1 productivity vs 10%. Ambitious but transformative.",price({fast:true})],
-    ["Cut OpEx to 350K/mo","Partial cost discipline.",price({opex:350000})],
-    ["Halve existing churn (5%→2.5%)","Retention on the current book — the defend play, quantified.",price({exChurn:0.025})],
-    ["Double expansion (10%→20%)","Grow surviving brands harder.",price({expansion:0.20})],
-  ].sort((a,b)=>b[2]-a[2]);
-  $("#scaleMoves").innerHTML=`<div class="eyebrow" style="font-weight:700;margin-bottom:4px">HIGHEST-LEVERAGE MOVES — PRICED BY THE MODEL</div>
-    <div class="csub" style="margin-bottom:12px">FY profit impact of each move vs the committed plan (${fS(base.neFY)}). Ranked by size.</div>
-    <div class="twrap" style="border-radius:9px"><table><thead><tr><th>Move</th><th>Why</th><th>FY profit impact</th></tr></thead><tbody>
-    ${moves.map(([n,why,imp])=>`<tr><td><b>${n}</b></td><td style="white-space:normal;color:var(--muted);font-size:.8rem">${why}</td><td class="${imp>=0?'pos':'neg'}"><b>${imp>=0?'+':'−'}${f0(Math.abs(imp))}</b></td></tr>`).join("")}
-    </tbody></table></div>
-    <p style="font-size:.78rem;color:var(--muted);margin-top:10px;line-height:1.5">Model-priced sensitivities on the locked target basis, not forecasts. OpEx is the surest lever; onboarding speed the largest but most ambitious. The brand-level actions (defend / scale / reactivate) feed the churn, expansion and signing inputs.</p>`;
-}
-
-function renderMethod(){
-  const D=CPX_DATA;
-  $("#methodBody").innerHTML=`
-  <h2>Two scenarios</h2>
-  <p><b>As-Is</b> is the "if nothing changes" floor: the existing book held flat at its current run-rate, with no new signings, no churn, no expansion, and OpEx at the actual run-rate of <b>${f0(OPEX_RUN)}/mo</b>. <b>Target</b> applies the plan's levers — new-brand acquisition, ramp speed, churn, expansion, and OpEx — to show what the plan produces. The Target plan runs OpEx at <b>420K/mo</b>. The two OpEx figures differ on purpose: As-Is reflects what OpEx has actually been, Target reflects the planned level.</p>
-  <h2>How the model is built</h2>
-  <p>The model runs <b>bottom-up to build revenue, then top-down to derive volumes.</b> Revenue is not typed in — it is <b>built up</b> from the brands: the existing book plus each monthly cohort of new signings as it ramps. Adding those together gives the year's revenue, so the revenue figure answers "what do the brands actually produce." From that revenue, orders and affiliates are <b>derived top-down</b> — revenue divided by the per-order rate gives orders, orders divided by the per-affiliate rate gives affiliates. This mirrors how the business works: you control brand signings, and orders and affiliates follow from the revenue they generate.</p>
-  <h2>Unit economics</h2>
-  <p>The dashboard converts revenue to orders at <b>AED ${PER_ORDER.toFixed(2)} per order</b> — the actual blended commission per order across Jan–${MO[N-1]}, which reconciles to real order counts. (For reference, the theoretical unit is AED 490 average order value × 8.2% commission × 65% CPX share = AED 26.12; the booked blend runs higher.) A blended active affiliate produces <b>${ORD_PER_AFF.toFixed(1)} orders/month</b>. A standard brand unit is <b>AED 20K/month</b> (240K annual ARPA). The current nominal run-rate is <b>AED ${f0(D.meta.runRate)}/brand/month</b>.</p>
-  <h2>How revenue projects</h2>
-  <p>Existing brands project from an implied base (banked commission ÷ seasonality of the actual months), decayed by churn and lifted by expansion. New brands arrive in equal monthly cohorts from <b>${MO[N]}–Dec</b>${CPX_DATA.meta.newSignings&&CPX_DATA.meta.newSignings.names.length?` (the ${CPX_DATA.meta.newSignings.names.length} pilot-scale signings in ${CPX_DATA.meta.newSignings.month} — AED ${f0(CPX_DATA.meta.newSignings.commission)} combined — are already in the actual book and are not counted as 20K units)`:""}, each ramping on the chosen curve with ${(0.05*100).toFixed(0)}%/mo cohort churn. <b>The levers produce revenue, and that revenue is the target</b>; <b>profit is the output</b> — projected CPX cost of sales at 30% of commission, MARS held at its Jan–${MO[N-1]} average gross profit of <b>${f0(MARSGP)}/month</b>, less OpEx.</p>
-  <h2>Reconciliation</h2>
-  <p>Actual months tie to the live ITCAN P&L net earnings to the dirham. <b>CPX</b> is the direct CPX line; <b>MARS</b> is every other channel (Coupon Rush, Code 71, Fixed Fee, Unassigned, and variances). Operational commission from the export and recognized revenue in the P&L differ by booking timing; the brand-pipeline adjustment reconciles the two.</p>
-  <h2>This cycle</h2>
-  <p><b>${D.meta.updated}</b> — ${MO[N-1]} actuals loaded: commission ${f0(A.ncOps[N-1])}, ${A.brands[N-1]} brands, ${A.affiliates[N-1]} affiliates, ${f0(A.orders[N-1])} orders. ${CPX_DATA.meta.newSignings&&CPX_DATA.meta.newSignings.names.length?CPX_DATA.meta.newSignings.names.length+" pilot brands signed in "+CPX_DATA.meta.newSignings.month+"; ":""}the 20K-unit build begins in ${MO[N]}, and the Target plan holds OpEx at 420K.</p>`;
-}
-
-/* ================= wiring ================= */
-function recompute(){
-  if($("#lv-opex"))readLevers();
-  renderCockpit();renderTargets();renderPnl();renderPath();renderCohorts();renderScale();
-  if($("#lv-opex"))renderImpact();
-}
-function show(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
-  $("#page-"+id).classList.add("active");
-  document.querySelector(`nav a[data-page="${id}"]`).classList.add("active");
-  window.scrollTo(0,0);Object.values(CH).forEach(c=>{try{c.resize();}catch(e){}});
-}
-document.querySelectorAll("nav a").forEach(a=>a.onclick=()=>show(a.dataset.page));
-document.addEventListener("click",e=>{if(e.target.id==="btnApply")recompute();if(e.target.id==="btnReset"){LV={...PLAN};renderLevers();recompute();}});
-document.addEventListener("change",e=>{if(e.target.closest("#leverGrid"))recompute();});
-document.querySelectorAll(".mLatest").forEach(el=>el.textContent=MO[N-1]+"-26");
-$("#footMonth").textContent=MO[N-1]+" 2026";$("#footStamp").textContent=CPX_DATA.meta.updated;
-renderLevers();renderBrands();renderAffiliates();renderMethod();recompute();
-
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
 
 </script>
 </body>
