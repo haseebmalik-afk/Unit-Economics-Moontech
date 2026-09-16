@@ -6,29 +6,32 @@
 <title>Moontech · Unit Economics 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  /* base */
-  --bg:#EFF1F5; --bg-2:#E8EBF1; --card:#FFFFFF;
-  --border:#E2E6EE; --border-soft:#EDF0F5; --hairline:#EAEDF3;
-  --ink:#141821; --text:#20262F; --text-2:#586173; --text-3:#8B94A6; --text-4:#AEB6C4;
-  /* signature */
-  --indigo:#4F46E5; --indigo-600:#4338CA; --indigo-700:#3730A3;
-  --indigo-soft:#ECEBFE; --indigo-tint:#C7C3F5; --indigo-wash:#F4F3FF;
+  /* base — clean & bright */
+  --bg:#F6F8F8; --bg-2:#EFF2F2; --card:#FFFFFF;
+  --border:#E3E9E9; --border-soft:#EDF1F1; --hairline:#EEF1F1;
+  --ink:#0D1618; --text:#212B2D; --text-2:#566065; --text-3:#879094; --text-4:#AAB2B5;
+  /* signature — teal */
+  --accent:#0D9488; --accent-600:#0B7A70; --accent-700:#095E56;
+  --accent-soft:#DDF3F0; --accent-tint:#96D8D0; --accent-wash:#EFFAF8;
   /* semantic — sign only */
-  --good:#0E9F6E; --good-deep:#057A55; --good-bg:#E3F6EE;
-  --bad:#DC2F44; --bad-deep:#B91C33; --bad-bg:#FCE9EC;
+  --good:#1B9E4B; --good-deep:#0F7A38; --good-bg:#E4F5E9;
+  --bad:#E23B4E; --bad-deep:#BE2438; --bad-bg:#FCEAEC;
   --warn:#C77A0F; --warn-bg:#FCF1DE;
-  --neutral-chip:#EDF0F5;
-  /* sidebar */
-  --side-1:#171B26; --side-2:#12151E; --side-text:#8892A4; --side-dim:#5C6474;
-  --grid:#EEF1F6; --radius:14px; --radius-sm:9px;
-  /* layered depth */
-  --shadow-sm:0 1px 1px rgba(20,24,33,.04), 0 1px 2px rgba(20,24,33,.05);
-  --shadow-md:0 1px 2px rgba(20,24,33,.04), 0 4px 12px -2px rgba(20,24,33,.06);
-  --shadow-lg:0 2px 4px rgba(20,24,33,.05), 0 12px 28px -6px rgba(20,24,33,.10);
+  --neutral-chip:#EDF1F1;
+  /* sidebar — flat */
+  --side-1:#0F1A1C; --side-2:#0A1214; --side-text:#849095; --side-dim:#5A6468;
+  --grid:#EEF2F2; --radius:12px; --radius-sm:9px;
+  /* flat depth — hairline borders carry the cards, minimal shadow */
+  --shadow-sm:0 1px 2px rgba(13,22,24,.04);
+  --shadow-md:0 1px 3px rgba(13,22,24,.06);
+  --shadow-lg:0 4px 16px -4px rgba(13,22,24,.10);
+  /* back-compat aliases (indigo-* still referenced in a few JS spots) */
+  --indigo:#0D9488; --indigo-600:#0B7A70; --indigo-700:#095E56;
+  --indigo-soft:#DDF3F0; --indigo-tint:#96D8D0; --indigo-wash:#EFFAF8;
 }
 *{box-sizing:border-box; margin:0; padding:0}
 html,body{height:100%}
@@ -38,13 +41,13 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg
 .layout{display:flex; min-height:100vh}
 
 /* ---------- sidebar ---------- */
-.sidebar{width:210px; min-width:210px; background:linear-gradient(180deg,var(--side-1),var(--side-2));
+.sidebar{width:198px; min-width:198px; background:var(--side-1);
   color:var(--side-text); position:sticky; top:0; height:100vh; display:flex; flex-direction:column;
   padding:22px 0 16px; box-shadow:inset -1px 0 0 rgba(255,255,255,.04), 6px 0 24px -14px rgba(20,24,33,.5); z-index:5}
 .brand{display:flex; align-items:center; gap:11px; padding:0 20px 20px; margin-bottom:12px;
   border-bottom:1px solid rgba(255,255,255,.07)}
-.brand .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(140deg,#6D63FF,#4F46E5);
-  display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px -2px rgba(79,70,229,.55), inset 0 1px 0 rgba(255,255,255,.25); flex-shrink:0}
+.brand .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(140deg,#12B3A6,#0D9488);
+  display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px -2px rgba(13,148,136,.5), inset 0 1px 0 rgba(255,255,255,.25); flex-shrink:0}
 .brand .mark svg{width:19px; height:19px; display:block}
 .brand .word{font-weight:700; letter-spacing:.02em; color:#fff; font-size:15px; line-height:1.1}
 .brand .sub{font-size:11px; color:var(--side-text); margin-top:2px; letter-spacing:.01em}
@@ -52,9 +55,7 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg
 .nav a{display:flex; align-items:center; gap:10px; padding:9px 20px; color:var(--side-text); text-decoration:none;
   font-size:13.5px; font-weight:500; border-left:2.5px solid transparent; cursor:pointer; transition:color .15s, background .15s}
 .nav a:hover{color:#D9DEE7; background:rgba(255,255,255,.03)}
-.nav a.active{color:#fff; border-left-color:var(--indigo); background:linear-gradient(90deg,rgba(79,70,229,.20),rgba(79,70,229,.02)); font-weight:600}
-.nav a::before{content:""; width:5px; height:5px; border-radius:50%; background:currentColor; opacity:.35; flex-shrink:0}
-.nav a.active::before{opacity:1; background:var(--indigo-tint)}
+.nav a.active{color:#fff; border-left-color:var(--indigo); background:linear-gradient(90deg,rgba(13,148,136,.22),rgba(13,148,136,.02)); font-weight:600}
 .nav .group{padding:18px 20px 7px; font-size:10.5px; letter-spacing:.14em; color:#586173; text-transform:uppercase; font-weight:600}
 .side-foot{padding:14px 20px 0; font-size:11px; color:#5B6474; border-top:1px solid rgba(255,255,255,.07); line-height:1.6}
 .side-foot b{color:#B9C0CC; font-weight:600}
@@ -73,8 +74,7 @@ h2{font-size:15.5px; font-weight:650; letter-spacing:-.01em; margin-bottom:2px; 
 /* fluid grid — columns grow, not stretch to infinity */
 .grid{display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:16px}
 .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-  padding:18px 20px; box-shadow:var(--shadow-sm); transition:box-shadow .2s}
-.card:hover{box-shadow:var(--shadow-md)}
+  padding:18px 20px; box-shadow:none}
 .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}
 .span-4{grid-column:span 4}.span-3{grid-column:span 3}
 @media(max-width:1180px){.span-8{grid-column:span 12}.span-4{grid-column:span 6}.span-3{grid-column:span 6}}
@@ -87,8 +87,8 @@ h2{font-size:15.5px; font-weight:650; letter-spacing:-.01em; margin-bottom:2px; 
 .kpi.kpi-plain::before{background:linear-gradient(90deg,var(--text-3),var(--border))}
 .kpi-label{font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--text-3);
   display:flex; align-items:center; gap:7px}
-.kpi-value{font-family:'Fraunces',Georgia,serif; font-size:30px; font-weight:600; margin-top:7px;
-  letter-spacing:-.015em; color:var(--ink); line-height:1.05}
+.kpi-value{font-family:inherit; font-size:29px; font-weight:800; margin-top:7px;
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em; color:var(--ink); line-height:1.05}
 .kpi-note{font-size:11.5px; color:var(--text-2); margin-top:5px}
 .kpi-spark{height:36px; margin-top:10px; margin-left:-2px; margin-right:-2px}
 .delta-good{color:var(--good-deep)} .delta-bad{color:var(--bad-deep)}
@@ -131,11 +131,11 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 .lvl{display:inline-flex; align-items:center; justify-content:center; width:30px; height:24px; border-radius:7px;
   font-weight:700; font-size:11.5px; letter-spacing:.01em; box-shadow:inset 0 0 0 1px rgba(20,24,33,.04)}
 .lvl0{background:#F1F3F7; color:#A9B1BF}
-.lvl1{background:#EDEEFB; color:#8983D6}
-.lvl2{background:#DEDDF9; color:#6C63E0}
-.lvl3{background:#C9C5F4; color:#514AD0}
-.lvl4{background:#8B83EC; color:#fff}
-.lvl5{background:linear-gradient(135deg,#5B52E8,#4338CA); color:#fff; box-shadow:0 2px 6px -1px rgba(79,70,229,.5)}
+.lvl1{background:#DCF2EF; color:#5FB8AE}
+.lvl2{background:#C6EBE6; color:#2FA99C}
+.lvl3{background:#9BDCD4; color:#0B7A70}
+.lvl4{background:#3FB5A9; color:#fff}
+.lvl5{background:linear-gradient(135deg,#0FA093,#0B7A70); color:#fff; box-shadow:0 2px 6px -1px rgba(13,148,136,.45)}
 /* step arrows */
 .step{font-size:11px; color:var(--text-3); font-variant-numeric:tabular-nums}
 .step.none{color:var(--text-4)}
@@ -143,11 +143,11 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 .spend-cell{padding:5px 4px !important; text-align:center}
 .schip{display:inline-block; min-width:52px; padding:4px 0; border-radius:6px; font-size:11px; font-weight:600;
   font-variant-numeric:tabular-nums; text-align:center; line-height:1.2}
-.schip.t1{background:#EEEFFB; color:#7B75D0}
-.schip.t2{background:#E0DEF8; color:#5F57DA}
-.schip.t3{background:#CBC7F3; color:#493FCB}
-.schip.t4{background:#8E86ED; color:#fff}
-.schip.t5{background:linear-gradient(135deg,#5B52E8,#4338CA); color:#fff; box-shadow:0 1px 4px -1px rgba(79,70,229,.5)}
+.schip.t1{background:#E4F4F1; color:#4FB2A7}
+.schip.t2{background:#D2EDE9; color:#1B9E90}
+.schip.t3{background:#A7DDD6; color:#0B7A70}
+.schip.t4{background:#3FB5A9; color:#fff}
+.schip.t5{background:linear-gradient(135deg,#0FA093,#0B7A70); color:#fff; box-shadow:0 1px 4px -1px rgba(13,148,136,.45)}
 /* total spend emphasis */
 .ladder .tot{font-weight:700; color:var(--ink)}
 .ladder .arpa-big{font-weight:700; color:var(--indigo-600)}
@@ -175,17 +175,17 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 .locked b{color:var(--ink)}
 .live-heading{font-size:15px; font-weight:550; background:linear-gradient(120deg,var(--indigo-wash),var(--indigo-soft));
   border:1px solid var(--indigo-tint); color:var(--indigo-700); border-radius:var(--radius);
-  padding:15px 18px; margin-bottom:20px; line-height:1.65; box-shadow:var(--shadow-sm)}
+  padding:15px 18px; margin-bottom:20px; line-height:1.65}
 .live-heading .v{color:var(--indigo-600); font-weight:700}
 
 /* scenarios */
-.scen-banner{font-size:14px; font-weight:600; padding:13px 18px; border-radius:var(--radius); margin-bottom:16px; box-shadow:var(--shadow-sm)}
+.scen-banner{font-size:14px; font-weight:600; padding:13px 18px; border-radius:var(--radius); margin-bottom:16px}
 .scen-banner.ok{background:var(--good-bg); color:var(--good-deep)}
 .scen-banner.warn{background:var(--warn-bg); color:var(--warn)}
 .scen-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); gap:14px}
 .scen-card{border:1px solid var(--border); border-radius:var(--radius); padding:16px 17px; position:relative;
-  background:var(--card); box-shadow:var(--shadow-sm); transition:box-shadow .2s, transform .2s}
-.scen-card:hover{box-shadow:var(--shadow-md); transform:translateY(-2px)}
+  background:var(--card); box-shadow:none; transition:border-color .15s}
+.scen-card:hover{border-color:var(--accent-tint)}
 .scen-card.hit{border-color:#A6E0C3; background:linear-gradient(180deg,#F6FCF9,#fff)}
 .scen-card h3{font-size:14px; font-weight:700; margin-bottom:8px; color:var(--ink)}
 .scen-card .assum{font-size:11.5px; color:var(--text-2); margin:10px 0; line-height:1.55}
@@ -1291,9 +1291,9 @@ function cssv(name, fallback){
   }catch(e){ return fallback; }
 }
 const C = {
-  accent: cssv('--indigo', '#4F46E5'),
-  accentTint: cssv('--indigo-tint', '#C7C3F5'),
-  accentSoft: cssv('--indigo-soft', '#ECEBFE'),
+  accent: cssv('--accent', '#0D9488'),
+  accentTint: cssv('--accent-tint', '#96D8D0'),
+  accentSoft: cssv('--accent-soft', '#DDF3F0'),
   dark: cssv('--ink', '#141821'),
   good: cssv('--good', '#0E9F6E'),
   bad: cssv('--bad', '#DC2F44'),
@@ -1794,7 +1794,7 @@ function render(){
   document.getElementById('k-rest').textContent = fPct(1 - top5ytd / R.ytdActual, 1);
   document.getElementById('k-rest-note').textContent = fK(R.ytdActual - top5ytd) + ' across the rest of the book';
 
-  const topColors = [C.accent, '#8B8BE3', C.accentTint, '#D3D3F4', '#E9E9FA'];
+  const topColors = [C.accent, '#3FB5A9', C.accentTint, '#C6EBE6', '#E4F4F1'];
   mkChart('ch-top', { type:'bar', data:{ labels:M.slice(0,li+1), datasets:
     ytdByClient.map((c,i)=>({ label:c.name, data:c.monthly.map((v,m)=> (v||0)/DATA.actualRevenue[m]), backgroundColor: topColors[i], stack:'s', borderRadius:2, barPercentage:.62 }))
     .concat([{ label:'Rest of book', data: M.slice(0,li+1).map((_,m)=> Math.max(0, 1 - ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0)/DATA.actualRevenue[m])), backgroundColor:'#E4E7EC', stack:'s', borderRadius:2, barPercentage:.62 }])
@@ -1924,7 +1924,7 @@ function render(){
   });
   const matureRev = R.newRevPlan.map((v,m)=> v - rampRev[m]);
   mkChart('ch-build', { type:'bar', data:{ labels:M, datasets:[
-    { label:'Existing book', data:R.existingPlan, backgroundColor:'#2A3342', stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'Existing book', data:R.existingPlan, backgroundColor:'#123536', stack:'b', borderRadius:2, barPercentage:.62 },
     { label:'New — first 3 months (ramping)', data:rampRev, backgroundColor:C.accentTint, stack:'b', borderRadius:2, barPercentage:.62 },
     { label:'New — matured (month 4+)', data:matureRev, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
     { label:'Actual revenue', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), type:'line', borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0, order:0 }
@@ -1967,7 +1967,7 @@ function render(){
     syncInputs(); render(); showPage('levers');
   }));
 
-  const scenColors = [C.accent, '#D08770', '#B48EAD', '#8FA1B3', C.good];
+  const scenColors = [C.accent, '#D08770', '#7E8CC4', '#8FA1B3', C.good];
   mkChart('ch-scen', { type:'line', data:{ labels:M, datasets:
     [{ label:'Actual', data: (function(){ const base = engine(state.levers); return base.arr.map((v,m)=> m<=li ? v : null); })(), borderColor:C.dark, borderWidth:2.6, pointRadius:2.5, tension:.3 }]
     .concat(scenResults.map((x,i)=>({ label:x.s.name, data: x.r.arr.map((v,m)=> m>=li ? v : null),
@@ -2006,7 +2006,7 @@ function render(){
   const stLabel = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
     '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
   // deterministic monogram color from the client name (self-contained, no external logos)
-  const AV_COLORS = ['#4F46E5','#0E9F6E','#C77A0F','#2563EB','#DB2777','#7C3AED','#0891B2','#CA8A04','#DC2626','#059669','#7C74EC','#B45309'];
+  const AV_COLORS = ['#0D9488','#1B9E4B','#C77A0F','#2563EB','#DB2777','#0E7490','#0891B2','#CA8A04','#DC2626','#059669','#4F7CAC','#B45309'];
   const avatar = name => {
     let h = 0; for (let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
     const col = AV_COLORS[h % AV_COLORS.length];
