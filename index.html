@@ -113,6 +113,8 @@ th.txt,td.txt{text-align:left}
 td{padding:8px 9px; border-bottom:1px solid var(--border-soft); text-align:right; color:var(--text)}
 tbody tr:last-child td{border-bottom:none}
 tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink)}
+tr.var-row td{font-size:11px; padding-top:4px; padding-bottom:9px; border-bottom:1.5px solid var(--border)}
+tr.var-row td.txt{color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:10px}
 .muted{color:var(--text-4)}
 .table-wrap{overflow-x:auto; border-radius:var(--radius-sm)}
 
@@ -212,6 +214,20 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
 .health-tile .h-l{font-size:12.5px; font-weight:600; color:var(--text)}
 .health-tile .h-n{font-size:10.5px; color:var(--text-3); margin-top:2px}
 .health-tile .h-v{font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+/* live-data chrome */
+.load-banner{background:var(--accent-wash); border:1px solid var(--accent-tint); color:var(--accent-700); border-radius:var(--radius-sm);
+  padding:10px 14px; font-size:12.5px; font-weight:500; margin-bottom:16px}
+.seg{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#fff}
+.seg button{border:0; background:transparent; font-family:inherit; font-size:11.5px; font-weight:600; color:var(--text-2); padding:6px 11px; cursor:pointer}
+.seg button.on{background:var(--accent); color:#fff}
+.drop-btn{border:1px solid var(--border); background:#fff; border-radius:6px; font-family:inherit; font-size:10.5px; font-weight:600;
+  color:var(--text-2); padding:3px 8px; cursor:pointer; white-space:nowrap}
+.drop-btn:hover:not([disabled]){border-color:var(--bad); color:var(--bad-deep)}
+.drop-btn[disabled]{opacity:.45; cursor:not-allowed}
+.ladder tbody tr.dropped-row td{opacity:.55}
+.ladder tbody tr.dropped-row td:last-child{opacity:1}
+.lvl0{background:#F1F3F7; color:#A9B1BF}
 </style>
 </head>
 <body>
@@ -227,1226 +243,620 @@ tr.total td{font-weight:700; border-top:2px solid var(--border); color:var(--ink
       <a data-page="targets">Targets vs Actuals</a>
       <a data-page="topclients">Top Clients</a>
       <a data-page="cac">CAC</a>
+      <a data-page="roas">ROAS Clients</a>
       <div class="group">Model</div>
       <a data-page="levers">Levers</a>
-      <a data-page="scenarios">Path to $8.2M</a>
-      <a data-page="roas">ROAS Clients</a>
+      <a data-page="planner">Scenario Planner</a>
       <div class="group">About</div>
       <a data-page="method">Method</a>
     </nav>
-    <div class="side-foot">Actuals through <b>Aug 2026</b><br>Updated monthly</div>
+    <div class="side-foot" id="side-foot">Loading live data…</div>
   </aside>
   <main class="content" id="content"><!--PAGES--></main>
 </div>
 <script>
-// ===== DATA BLOCK — monthly update: replace this object and commit =====
-// Source: Unit_Economics_Model (2).xlsx — actuals through August 2026
-const DATA = {
- "meta": {
-  "currency": "USD",
-  "year": 2026,
-  "latestClosedIdx": 7,
-  "asOf": "August 2026"
- },
- "months": [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec"
- ],
- "targetARR": 8200000.0,
- "prior2025": [
-  200173.0,
-  190007.0,
-  421639.0,
-  193977.0,
-  227060.0,
-  255660.0,
-  247516.0,
-  252478.0,
-  279526.0,
-  313266.0,
-  743727.0,
-  270011.0
- ],
- "seasonality": [
-  0.062,
-  0.068,
-  0.103,
-  0.0618,
-  0.0631,
-  0.0763,
-  0.0736,
-  0.0742,
-  0.0778,
-  0.0917,
-  0.1609,
-  0.0877
- ],
- "distribution": [
-  0.01,
-  0.02,
-  0.03,
-  0.04,
-  0.06,
-  0.08,
-  0.1,
-  0.12,
-  0.13,
-  0.13,
-  0.14,
-  0.14
- ],
- "actualRevenue": [
-  321748.0,
-  364817.0,
-  580184.0,
-  332444.0,
-  424112.0,
-  313970.0,
-  247874.0,
-  206422.0
- ],
- "existingActualRev": [
-  325489.4486044929,
-  358366.78012253233,
-  568567.733151804,
-  338448.74063989107,
-  412875.9700476515,
-  302729.203539823,
-  202099.1150442478,
-  177879.91831177674
- ],
- "actualNewClients": [
-  0,
-  3,
-  2,
-  2,
-  4,
-  3,
-  8,
-  3
- ],
- "returningClients": [
-  22.0,
-  21.0,
-  21.0,
-  18.0,
-  18.0,
-  19.0,
-  15.0,
-  20.0
- ],
- "adjustments": [
-  -93672.15793056501,
-  -76705.24166099388,
-  -68717.76718856365,
-  -55912.049012933974
- ],
- "influActive": [
-  449.0,
-  392.0,
-  395.0,
-  423.0,
-  382.0,
-  326.0,
-  257.0,
-  488
- ],
- "influNew": [
-  18.0,
-  36.0,
-  23.0,
-  25.0,
-  16.0,
-  10.0,
-  11.0,
-  231
- ],
- "ads": [
-  1809.0,
-  1854.0,
-  2908.0,
-  1943.0,
-  1035.0,
-  782.0,
-  924.0,
-  2293.6
- ],
- "cac": {
-  "merchant": {
-   "cost": [
-    2210.0,
-    6672.0,
-    6370.0,
-    6914.0,
-    7498.0,
-    8088.0,
-    7868.0,
-    8188.0
-   ],
-   "count": [
-    0.0,
-    5.0,
-    2.0,
-    2.0,
-    6.0,
-    4.0,
-    9.0,
-    6.0
-   ],
-   "target": 3500.0
-  },
-  "creator": {
-   "cost": [
-    11517.0,
-    12160.0,
-    11206.0,
-    9603.0,
-    9683.0,
-    8905.0,
-    9255.0,
-    9108.0
-   ],
-   "count": [
-    18.0,
-    36.0,
-    23.0,
-    25.0,
-    16.0,
-    10.0,
-    11.0,
-    null
-   ],
-   "target": 1000.0
-  }
- },
- "topClients": [
-  {
-   "name": "Ounass",
-   "monthly": [
-    218182.16473791696,
-    187406.94349897892,
-    338546.22191967326,
-    205744.31586113002,
-    176471.88563648742,
-    176817.15452688903,
-    82377.12729748129,
-    61030.36078965283
-   ]
-  },
-  {
-   "name": "Sephora",
-   "monthly": [
-    47564.87406398911,
-    117011.30020422056,
-    83304.28863172226,
-    62152.75697753574,
-    74636.3512593601,
-    52734.377127297485,
-    66395.37100068074,
-    42597.41320626277
-   ]
-  },
-  {
-   "name": "Level shoes",
-   "monthly": [
-    20973.451327433628,
-    9465.214431586113,
-    50820.42205582029,
-    22473.247106875428,
-    28077.87610619469,
-    34980.53097345133,
-    22552.75697753574,
-    33820.55820285909
-   ]
-  },
-  {
-   "name": "Bloomingdales",
-   "monthly": [
-    10551.940095302927,
-    9638.665759019741,
-    27249.829816201498,
-    13680.326752893125,
-    67647.10687542547,
-    11401.497617426821,
-    0.0,
-    5804.220558202859
-   ]
-  },
-  {
-   "name": "Charlotte Tilbury",
-   "monthly": [
-    859.9046970728386,
-    1223.417290673928,
-    35428.4547311096,
-    10401.633764465623,
-    34042.4778761062,
-    5432.266848196052,
-    3821.647379169503,
-    4160.925799863853
-   ]
-  }
- ],
- "roasMonths": [
-  "Nov 25",
-  "Dec 25",
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug"
- ],
- "roasClients": [
-  {
-   "name": "Touche Prive",
-   "start": "2025-11",
-   "moActive": 10,
-   "level": 1,
-   "moAtLevel": 9,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2b1b Inactive",
-   "spend": [
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Anfasik",
-   "start": "2025-12",
-   "moActive": 9,
-   "level": 2,
-   "moAtLevel": 8,
-   "l12": 0,
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 2000,
-   "arpa": 2000,
-   "status": "\u2b1b Inactive",
-   "spend": [
-    null,
-    2000.0,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Right Bite",
-   "start": "2025-12",
-   "moActive": 9,
-   "level": 5,
-   "moAtLevel": 2,
-   "l12": 2,
-   "l23": 2,
-   "l34": 2,
-   "totalSpend": 18500,
-   "arpa": 90000,
-   "status": "\u2713 Active",
-   "spend": [
-    null,
-    1000.0,
-    null,
-    2000.0,
-    null,
-    3000.0,
-    null,
-    5000.0,
-    7500.0,
-    null
-   ]
-  },
-  {
-   "name": "Golden Scent",
-   "start": "2025-12",
-   "moActive": 9,
-   "level": 5,
-   "moAtLevel": 5,
-   "l12": 1,
-   "l23": 1,
-   "l34": 1,
-   "totalSpend": 16000,
-   "arpa": 60000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    1000.0,
-    2000.0,
-    3000.0,
-    5000.0,
-    5000.0,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Sahseh",
-   "start": "2026-02",
-   "moActive": 7,
-   "level": 1,
-   "moAtLevel": 6,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2b1b Inactive",
-   "spend": [
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Bookmypet",
-   "start": "2026-02",
-   "moActive": 7,
-   "level": 1,
-   "moAtLevel": 6,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2b1b Inactive",
-   "spend": [
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Lawni",
-   "start": "2026-02",
-   "moActive": 7,
-   "level": 1,
-   "moAtLevel": 6,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2b1b Inactive",
-   "spend": [
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Studio Earth",
-   "start": "2026-03",
-   "moActive": 6,
-   "level": 1,
-   "moAtLevel": 5,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Smarteletec",
-   "start": "2026-03",
-   "moActive": 6,
-   "level": 1,
-   "moAtLevel": 5,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Fons and Splendor",
-   "start": "2026-04",
-   "moActive": 5,
-   "level": 1,
-   "moAtLevel": 4,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Oneshot",
-   "start": "2026-04",
-   "moActive": 5,
-   "level": 1,
-   "moAtLevel": 4,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "DKNY",
-   "start": "2026-05",
-   "moActive": 4,
-   "level": 5,
-   "moAtLevel": 0,
-   "l12": 3,
-   "l23": 0,
-   "l34": 0,
-   "totalSpend": 6000,
-   "arpa": 60000,
-   "status": "\u2713 Active",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    5000.0
-   ]
-  },
-  {
-   "name": "Allbirds",
-   "start": "2026-05",
-   "moActive": 4,
-   "level": 1,
-   "moAtLevel": 3,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Kizik",
-   "start": "2026-05",
-   "moActive": 4,
-   "level": 1,
-   "moAtLevel": 3,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Izil",
-   "start": "2026-05",
-   "moActive": 4,
-   "level": 1.0,
-   "moAtLevel": 3,
-   "l12": 0,
-   "l23": 0,
-   "l34": 0,
-   "totalSpend": 8168.822328,
-   "arpa": 8168.822328,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    8168.822328,
-    null,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Aiza",
-   "start": "2026-05",
-   "moActive": 4,
-   "level": 2,
-   "moAtLevel": 0,
-   "l12": 3,
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 3000,
-   "arpa": 3000,
-   "status": "\u2191 Scaling",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null,
-    2000.0
-   ]
-  },
-  {
-   "name": "Jetour",
-   "start": "2026-06",
-   "moActive": 3,
-   "level": 1,
-   "moAtLevel": 2,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Maison safqa",
-   "start": "2026-06",
-   "moActive": 3,
-   "level": 3.0,
-   "moAtLevel": 1,
-   "l12": 1,
-   "l23": 0,
-   "l34": 0,
-   "totalSpend": 6000,
-   "arpa": 36000.0,
-   "status": "\u2191 Scaling",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    5000.0,
-    null
-   ]
-  },
-  {
-   "name": "Arte madrid",
-   "start": "2026-06",
-   "moActive": 3,
-   "level": 1,
-   "moAtLevel": 2,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2717 At risk",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null,
-    null
-   ]
-  },
-  {
-   "name": "Reefi",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Avantcha",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Alma home",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Nysaa Beauty",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Joli",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Just Hype",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Under 500",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Ejalo Beauty",
-   "start": "2026-07",
-   "moActive": 2,
-   "level": 1,
-   "moAtLevel": 1,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2192 Watch",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0,
-    null
-   ]
-  },
-  {
-   "name": "Laurus Aroma",
-   "start": "2026-08",
-   "moActive": 1,
-   "level": 1,
-   "moAtLevel": 0,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2014 Too early",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0
-   ]
-  },
-  {
-   "name": "Metro Brazil",
-   "start": "2026-08",
-   "moActive": 1,
-   "level": 1,
-   "moAtLevel": 0,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2014 Too early",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0
-   ]
-  },
-  {
-   "name": "Transformative",
-   "start": "2026-08",
-   "moActive": 1,
-   "level": 1,
-   "moAtLevel": 0,
-   "l12": "-",
-   "l23": "-",
-   "l34": "-",
-   "totalSpend": 1000,
-   "arpa": 1000,
-   "status": "\u2014 Too early",
-   "spend": [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    1000.0
-   ]
-  }
- ],
- "roasARPA": 9695.476632,
- "defaults": {
-  "growth": 0.2,
-  "newClients": 205.0,
-  "arpa": 24000,
-  "dropout": 0.25,
-  "cac": 3500,
-  "churn": 0.35,
-  "gm": 0.5,
-  "influPerClient": 2.0,
-  "adsPerInflu": 4.7
- }
-};
-
 /* ============================================================
-   MOONTECH UNIT ECONOMICS DASHBOARD
-   One engine. Levers in, everything out.
+   LIVE DATA LAYER
+   Fetches the three published model tabs (Cockpit, Calculations,
+   Top Clients) as CSV and maps them into the DATA object the
+   dashboard renders from. CAC actuals + target both come from
+   the Cockpit tab's section 9 for now (a dedicated CAC sheet can
+   be swapped in later by changing SOURCES.cac).
    ============================================================ */
 "use strict";
 
+const SOURCES = {
+  cockpit:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTujtpMU-nFDgWbHpJ3JX4Fv5HmQpKlioUQClOMXaaWhFiDyFQMSJdcyHLDCLnYO6Cw_t8qPpiShhSn/pub?gid=1971085519&single=true&output=csv",
+  topClients: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTujtpMU-nFDgWbHpJ3JX4Fv5HmQpKlioUQClOMXaaWhFiDyFQMSJdcyHLDCLnYO6Cw_t8qPpiShhSn/pub?gid=264907211&single=true&output=csv",
+  calc:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTujtpMU-nFDgWbHpJ3JX4Fv5HmQpKlioUQClOMXaaWhFiDyFQMSJdcyHLDCLnYO6Cw_t8qPpiShhSn/pub?gid=78154279&single=true&output=csv"
+};
+
+/* ---------- CSV parse (handles quoted fields with commas) ---------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (inQuotes){
+      if (c === '"'){
+        if (text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r'){ /* skip */ }
+      else field += c;
+    }
+  }
+  if (field !== '' || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+/* ---------- value cleaners ---------- */
+function num(s){
+  if (s === null || s === undefined) return null;
+  s = String(s).trim();
+  if (s === '' || s === '-' || s === 'N/A' || s === 'n/a') return null;
+  const neg = /^\(.*\)$/.test(s);
+  s = s.replace(/[$,%()]/g, '').replace(/x/gi, '').replace(/months?/gi, '').trim();
+  if (s === '' || s === '-') return null;
+  const v = parseFloat(s);
+  if (isNaN(v)) return null;
+  return neg ? -v : v;
+}
+function pct(s){ const v = num(s); return v === null ? null : v / 100; }  // "20%" -> 0.20
+
+/* ---------- row lookup by first-cell label (case/space-insensitive) ---------- */
+function makeSheet(rows){
+  const norm = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return {
+    rows,
+    // find the first row whose col-0 label matches
+    find(label){
+      const t = norm(label);
+      return rows.find(r => r.length && norm(r[0]) === t) || null;
+    },
+    // 12 monthly cells (cols D..O = indices 3..14) for a labelled row
+    months(label, cast = num){
+      const r = this.find(label);
+      if (!r) return null;
+      const out = [];
+      for (let i = 3; i <= 14; i++) out.push(i < r.length ? cast(r[i]) : null);
+      return out;
+    },
+    // the Full-Year / summary cell (col B = index 1)
+    fy(label, cast = num){
+      const r = this.find(label);
+      return r ? (1 < r.length ? cast(r[1]) : null) : null;
+    },
+    // raw cell text
+    cell(label, colIdx = 1){
+      const r = this.find(label);
+      return r && colIdx < r.length ? r[colIdx] : null;
+    },
+    // find a row whose col-1 label matches (used for the unit-econ summary block), return col-0 value
+    byLabelCol1(label, cast = num){
+      const t = norm(label);
+      const r = rows.find(x => x.length > 1 && norm(x[1]) === t);
+      return r ? cast(r[0]) : null;
+    }
+  };
+}
+
+/* ---------- fetch one CSV ---------- */
+async function fetchSheet(url){
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  return makeSheet(parseCSV(text));
+}
+
+/* ---------- map the three tabs into the DATA shape ---------- */
+function buildData(ck, ca, tc){
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // latest closed month = count of filled Actual Revenue cells - 1
+  const actualRevenue = ck.months('Actual Revenue');
+  const li = actualRevenue.reduce((acc, v, i) => v != null ? i : acc, -1);
+
+  // CAC section 9
+  const mCost = ck.months('Total Merchant Acquisition Cost');
+  const mCount = ck.months('# Acquired Merchants');
+  const cCost = ck.months('Total Creator Acquisition Cost');
+  const cCount = ck.months('# Acquired Creators');
+  // targets: the "Target" row directly under each side's header — first Target after merchant, first after creator
+  // find both "Target" rows by position relative to the acquisition-cost rows
+  const mTargetRow = findRowAfter(ck.rows, 'Total Merchant Acquisition Cost', 'target');
+  const cTargetRow = findRowAfter(ck.rows, 'Total Creator Acquisition Cost', 'target');
+  const mActualRow = findRowAfter(ck.rows, 'Total Merchant Acquisition Cost', 'actual');
+  const cActualRow = findRowAfter(ck.rows, 'Total Creator Acquisition Cost', 'actual');
+
+  const data = {
+    meta: { currency:'USD', year:2026, latestClosedIdx: li, asOf: (ck.cell('Latest Month') || '').trim() || months[li] + ' 2026', live:true },
+    months,
+    targetARR: ck.fy('Target ARR ($)'),
+    latestARR: ck.fy('Latest Month ARR'),
+    yeARR: ck.fy('Projected Year End ARR ($)'),
+    // revenue
+    actualRevenue,
+    arrPath: ck.months('ARR ($)'),
+    monthlyRevPlan: ck.months('Monthly Revenue ($)'),
+    cumRevenue: ck.months('Cumulative Revenue ($)'),
+    adjustments: ck.months('Monthly revenue adjustment ($)'),
+    addlClients: ck.fy('Additional clients needed from adjustment'),
+    // customer-equivalents
+    custEqTarget: ck.months('Target customer-equivalents'),
+    custEqActual: ck.months('Actual customer-equivalents'),
+    custEqFY: ck.fy('Target customer-equivalents'),
+    // new clients
+    signedTarget: ck.months('Target New clients signed (count)'),
+    actualNewClients: ck.months('Actual New clients signed'),
+    signedTargetFY: ck.fy('Target New clients signed (count)'),
+    // returning clients
+    returningClients: ck.months('Active returning clients (from 2025)'),
+    roasActiveCum: ck.months('Active ROAS clients (cumulative)'),
+    totalActive: ck.months('Total active clients'),
+    // existing revenue share
+    existingShareTarget: ck.months('Existing client revenue % - target', pct),
+    existingShareActual: ck.months('Existing client revenue % - actual', pct),
+    // top-client concentration (from cockpit section — % rows)
+    // influencers
+    influActive: ck.months('Active influencers each month'),
+    influNew: ck.months('New active influencers each month'),
+    ads: ck.months('Number of ads'),
+    // CAC
+    cac: {   // fy = the sheet's own full-year cells (headline follows the sheet)
+      merchant: { cost: mCost, count: mCount, target: mTargetRow ? num(mTargetRow[1]) : null,
+                  fy: { cost: ck.fy('Total Merchant Acquisition Cost'), count: ck.fy('# Acquired Merchants'), cac: mActualRow ? num(mActualRow[1]) : null } },
+      creator:  { cost: cCost, count: cCount, target: cTargetRow ? num(cTargetRow[1]) : null,
+                  fy: { cost: ck.fy('Total Creator Acquisition Cost'), count: ck.fy('# Acquired Creators'), cac: cActualRow ? num(cActualRow[1]) : null } }
+    },
+    // ----- Calculations tab: inputs for the engine + unit economics -----
+    prior2025: ca.months('Prior year revenue: 2025 actual ($)'),
+    seasonality: null,   // set below: best-precision source (see resolveSeasonality)
+    distribution: ca.months('New clients distribution %', pct),
+    existingActualRev: ca.months('Existing Client revenue'),
+    existingPlanRev: ca.months('Existing client revenue ($)'),
+    newClientRevPlan: ca.months('New client revenue ($)'),
+    totalPlanRev: ca.months('= Total platform revenue ($)'),
+    totalPlanRevFY: ca.fy('= Total platform revenue ($)'),
+    existingPlanRevFY: ca.fy('Existing client revenue ($)'),
+    newClientRevPlanFY: ca.fy('New client revenue ($)'),
+    signedPlanFY: ca.fy('New clients signed (count)'),
+    signedPlan: ca.months('New clients signed (count)'),
+    cumSignedPlan: ca.months('Cumulative clients signed'),
+    unit: {
+      nrr: ca.byLabelCol1('Net Revenue Retention (Existing Clients)', pct),
+      ltv: ca.byLabelCol1('LTV (New Clients)'),
+      ltvcac: ca.byLabelCol1('LTV:CAC (New Clients)'),
+      payback: ca.byLabelCol1('Payback (New Clients)'),
+      gm: ca.byLabelCol1('Gross Margin (Blended)', pct)
+    },
+    defaults: {
+      growth: ca.fy('Existing Client Growth', pct),
+      newClients: ca.fy('Total new clients'),
+      arpa: ca.fy('ARPA Annual ($)'),
+      dropout: ca.fy('3-month dropout rate (%)', pct),
+      cac: ca.fy('CAC'),
+      churn: ca.fy('Annual Churn', pct),
+      gm: ca.fy('GP margin (%)', pct) || ca.byLabelCol1('Gross Margin (Blended)', pct),
+      influPerClient: ca.fy('Influencers per client equivalent'),
+      adsPerInflu: ca.fy('Ads per influencer'),
+      targetARR: ck.fy('Target ARR ($)')
+    },
+    // ----- Top Clients tab -----
+    topClients: parseTopClients(tc)
+  };
+  const seasRes = resolveSeasonality(ca, ck, data);
+  data.seasonality = seasRes.values; data.seasonalitySource = seasRes.source;
+  return data;
+}
+
+/* The published CSV carries seasonality only as displayed (e.g. 7.6% for 0.0763). That
+   rounding alone moves a re-computed year-end ARR by ~$10K. So we pick the most precise
+   source available, in this order:
+   1. the CSV itself, when its cells are formatted to 2+ decimals (then it is exact);
+   2. back-solved from the sheet's own "New client revenue" row, which is a linear function
+      of seasonality (recovers ~4-decimal precision, within $1/month of the sheet's plan);
+   3. the Cockpit "Target ARPA Annual" monthly row ÷ ARPA;
+   4. the rounded CSV values. */
+function resolveSeasonality(ca, ck, d){
+  const csv = ca.months('Seasonality weight (%)', pct);
+  const valid = a => Array.isArray(a) && a.length === 12 && a.every(v => v != null && v > 0 && v < 1) && Math.abs(a.reduce((x,y)=>x+y,0) - 1) < 0.02;
+  const finer = valid(csv) && csv.some(v => Math.abs(v*1000 - Math.round(v*1000)) > 1e-9);   // more than 0.1% precision present
+  if (finer) return { values: csv, source: 'sheet cells (exact)' };
+  const L = d.defaults, dist = d.distribution, nr = d.newClientRevPlan;
+  if (valid(dist) && Array.isArray(nr) && L.arpa && L.newClients != null && L.dropout != null){
+    const sg = dist.map(x => Math.round(x * L.newClients)); const cum = []; sg.reduce((a,b,i)=>(cum[i]=a+b,cum[i]),0);
+    const derived = nr.map((v,m) => { if (v == null) return null; const mat = m>=3 ? cum[m-3] : 0; const ramp = sg[m]+(sg[m-1]||0)+(sg[m-2]||0); const div = mat + ramp*(1-L.dropout); return div > 0 ? v/div/L.arpa : null; });
+    if (valid(derived)) return { values: derived, source: 'back-solved from the sheet\'s new-client revenue row' };
+  }
+  const sa = ck.months('Target ARPA Annual ($)');
+  if (Array.isArray(sa) && L.arpa){ const fromRow = sa.map(v => v == null ? null : v / L.arpa); if (valid(fromRow)) return { values: fromRow, source: 'seasonal ARPA row ÷ ARPA' }; }
+  return { values: csv, source: 'sheet cells (rounded to 0.1%)' };
+}
+
+// the first row labelled `label` within 6 rows after a given anchor row
+function findRowAfter(rows, afterLabel, label){
+  const norm = s => String(s || '').trim().toLowerCase();
+  const idx = rows.findIndex(r => r.length && norm(r[0]) === norm(afterLabel));
+  if (idx < 0) return null;
+  for (let i = idx + 1; i < Math.min(idx + 7, rows.length); i++){
+    if (rows[i].length && norm(rows[i][0]) === norm(label)) return rows[i];
+  }
+  return null;
+}
+
+function parseTopClients(tc){
+  const out = [];
+  const norm = s => String(s || '').trim().toLowerCase();
+  for (const r of tc.rows){
+    const name = (r[0] || '').trim();
+    if (!name || norm(name) === 'total' || name.startsWith('2026')) continue;
+    // monthly grid starts at col E (index 4)
+    const monthly = [];
+    for (let i = 4; i <= 15; i++) monthly.push(i < r.length ? num(r[i]) : null);
+    const ytd = num(r[1]);
+    if (ytd == null && monthly.every(v => v == null)) continue;
+    out.push({ name, ytd, monthly });
+  }
+  return out.slice(0, 5);
+}
+
+/* ---------- load everything ---------- */
+async function loadLiveData(){
+  const [ck, ca, tc] = await Promise.all([
+    fetchSheet(SOURCES.cockpit),
+    fetchSheet(SOURCES.calc),
+    fetchSheet(SOURCES.topClients)
+  ]);
+  return buildData(ck, ca, tc);
+}
+
+/* ============================================================
+   LIVE ROAS LADDER
+   Source: receivables sheet (invoices) + ROAS tracker (churn).
+   Everything keys off PAID invoices and PAYMENT dates:
+   activation, milestone movement, monthly grid, annualisation.
+   ============================================================ */
+"use strict";
+
+const LADDER_SOURCES = {
+  receivables: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTN4F4HrbFaylUihY5v3JQ6cG8nFwpkQgpfn-zndurG2WGEKAY011cll7OwYJGuR3_wqV76pjSkG14x/pub?gid=634629514&single=true&output=csv",
+  tracker:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSEEEIegwsvOyMt4ZKFffwcOyCaPVJhftkr8Wyns6u_32dUbyudrArqFFB3Ac6CjTsaEV3ui1RPoDg8/pub?gid=793116860&single=true&output=csv"
+};
+const AED_PER_USD = 3.6725;
+const VAT_RATE = 0.05;
+const ARPA_INCLUDE_BRANDS = ["Jetour"];          // CPL brands explicitly counted
+const ACTIVE_ARPA_GATE = 24000;                    // sheet formula: J >= 24000 -> Active
+const GRID_START = { y: 2025, m: 11 };            // Nov-25 = first grid month (sheet $L$1)
+const DROPPED_KEY = 'mt_ladder_dropped_v1';       // localStorage key for manual drops
+
+/* ---------- helpers ---------- */
+const lNorm = s => String(s || '').trim().toLowerCase().replace(/[\s\-_]/g, '');
+const brandKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+function lMoney(s){
+  if (s == null) return null;
+  s = String(s).replace(/AED|\$|,/g, '').trim();
+  if (!s) return null;
+  const v = parseFloat(s); return isNaN(v) ? null : v;
+}
+function lDate(s){
+  s = String(s || '').trim();
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  let y = +m[3]; if (y < 100) y += 2000;
+  const d = new Date(Date.UTC(y, +m[1]-1, +m[2]));
+  return isNaN(d) ? null : d;
+}
+function lMilestone(s){
+  s = String(s || '');
+  if (/stage/i.test(s)) return null;                 // CPL, no ROAS milestone
+  const m = s.match(/(\d)/); return m ? +m[1] : null;
+}
+const ym = d => d.getUTCFullYear()*12 + d.getUTCMonth();  // month index for diffs
+const monthDiff = (a, b) => ym(b) - ym(a);
+
+/* column getter by header alias (case/space/hyphen-insensitive) */
+function colGetter(header){
+  const idx = {};
+  header.forEach((h, i) => { idx[lNorm(h)] = i; });
+  return (row, ...names) => {
+    for (const n of names){ const i = idx[lNorm(n)]; if (i != null && i < row.length) return row[i]; }
+    return '';
+  };
+}
+
+/* ---------- "today" from the receivables sheet header, else browser ---------- */
+function sheetToday(header, rows, get){
+  // 1) any header cell that parses as a date (the sheet's =TODAY() spills into the header row)
+  for (const h of header){ const d = lDate(h); if (d) return d; }
+  // 2) a "Todays Date" cell on any row
+  for (const r of rows){ const d = lDate(get(r, 'Todays Date')); if (d) return d; }
+  const n = new Date(); return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
+}
+
+/* ---------- month columns Nov-25 .. today's month ---------- */
+function gridMonths(today){
+  const out = [];
+  let y = GRID_START.y, m = GRID_START.m;
+  const endY = today.getUTCFullYear(), endM = today.getUTCMonth()+1;
+  while (y < endY || (y === endY && m <= endM)){
+    out.push({ y, m, label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1] + (y !== 2026 ? ' ' + String(y).slice(2) : '') });
+    m++; if (m > 12){ m = 1; y++; }
+  }
+  return out;
+}
+
+/* ---------- churn set from the tracker ---------- */
+function parseTracker(rows){
+  if (!rows.length) return { churned: new Map(), onHold: new Set() };
+  const get = colGetter(rows[0]);
+  const churned = new Map(), onHold = new Set();
+  for (const r of rows.slice(1)){
+    const b = String(get(r, 'Brand Name') || '').trim();
+    if (!b || brandKey(b) === 'average') continue;
+    const st = String(get(r, 'Status') || '');
+    if (/churn/i.test(st)) churned.set(brandKey(b), b);
+    else if (/on hold/i.test(st)) onHold.add(brandKey(b));
+  }
+  return { churned, onHold };
+}
+
+/* ---------- core: build the ladder from invoice rows ---------- */
+function buildLadder(recvRows, trackerRows, manualDropped){
+  const header = recvRows[0], get = colGetter(header);
+  const today = sheetToday(header, recvRows.slice(1), get);
+  const months = gridMonths(today);
+  const gridStartDate = new Date(Date.UTC(GRID_START.y, GRID_START.m-1, 1));
+  // sheet formula: ROUND((today - $L$1)/30, 0)
+  const elapsed = Math.round((today - gridStartDate) / 86400000 / 30);
+
+  // group invoices by brand
+  const brands = new Map(), allRecvKeys = new Set();
+  for (const r of recvRows.slice(1)){
+    const brand = String(get(r, 'Brand Name') || get(r, 'Client Name') || '').trim();
+    if (!brand) continue;
+    allRecvKeys.add(brandKey(brand));
+    const status = String(get(r, 'Invoice Status') || '').trim();
+    const msRaw = get(r, 'ROAS- Milestone', 'ROAS Milestone');
+    const ms = lMilestone(msRaw);
+    const cpl = /stage/i.test(String(msRaw||''));
+    const idate = lDate(get(r, 'Invoice Date'));
+    const pdt = lDate(get(r, 'Payment recepit date', 'Payment receipt date'));
+    const usd = lMoney(get(r, '$ Amount'));
+    const aed = lMoney(get(r, 'Total'));
+    const vat = String(get(r, 'VAT') || '');
+    const refund = lMoney(get(r, 'Refunds VAT Exclusive', 'Refunds')) || 0;
+    let gross = usd != null ? usd : (aed != null ? aed / AED_PER_USD : 0);
+    if (/included/i.test(vat)) gross = gross / (1 + VAT_RATE);
+    const net = Math.max(0, gross - refund);
+    if (!brands.has(brand)) brands.set(brand, []);
+    brands.get(brand).push({ status, ms, cpl, idate, pdt, net });
+  }
+
+  const { churned, onHold } = parseTracker(trackerRows);
+  const manual = new Set((manualDropped || []).map(brandKey));
+
+  const rowsOut = [];
+  for (const [brand, invs] of brands){
+    const paid = invs.filter(i => i.status === 'Paid');
+    if (!paid.length) continue;
+    const roas = paid.filter(i => i.ms != null);
+    const hasMs = roas.length > 0;
+    if (!hasMs && !ARPA_INCLUDE_BRANDS.includes(brand)) continue;   // pure influencer -> excluded
+    const basisSet = hasMs ? roas : paid;
+    const level = hasMs ? Math.max(...roas.map(i => i.ms)) : 0;
+
+    const pdates = basisSet.filter(i => i.pdt).map(i => i.pdt).sort((a,b)=>a-b);
+    const firstPay = pdates[0] || null, lastPay = pdates[pdates.length-1] || null;
+    const moActive = firstPay ? monthDiff(firstPay, today) + 1 : 0;          // sheet C: inclusive
+    // months at current level: from first PAYMENT at that level to today (sheet E)
+    const atLevelPays = roas.filter(i => i.ms === level && i.pdt).map(i => i.pdt).sort((a,b)=>a-b);
+    const moAtLevel = atLevelPays.length ? monthDiff(atLevelPays[0], today) : 0;
+
+    const key = brandKey(brand);
+    const isChurn = churned.has(key), isManual = manual.has(key);
+    const dropped = isChurn || isManual;
+
+    // ARPA — payment basis; dropped => total to date at ANY level
+    let arpa, basis;
+    const totalToDate = basisSet.reduce((a,i)=>a+i.net,0);
+    if (dropped){ arpa = totalToDate; basis = 'Dropped · total to date'; }
+    else if (!hasMs){ arpa = totalToDate; basis = 'Spend to date (CPL)'; }
+    else if (level <= 2){ arpa = totalToDate; basis = 'ROAS spend to date'; }
+    else {
+      const latest = roas.filter(i=>i.pdt).sort((a,b)=>b.pdt-a.pdt)[0] || roas[roas.length-1];
+      arpa = latest.net * 12; basis = 'Latest paid × 12';
+    }
+
+    // monthly grid by PAYMENT date
+    const grid = months.map(mm => {
+      const s = paid.filter(i => i.pdt && i.pdt.getUTCFullYear()===mm.y && i.pdt.getUTCMonth()+1===mm.m).reduce((a,i)=>a+i.net,0);
+      return s > 0 ? s : null;
+    });
+    // ramp: whole months between first PAYMENT at consecutive milestones
+    const firstPayAt = k => { const p = roas.filter(i=>i.ms===k && i.pdt).map(i=>i.pdt).sort((a,b)=>a-b); return p[0] || null; };
+    const step = (a,b) => { const pa=firstPayAt(a), pb=firstPayAt(b); if(!pa||!pb) return null; return Math.max(0, Math.round((pb-pa)/86400000/30)); };
+    const ramp = [step(1,2), step(2,3), step(3,4)];
+
+    // idle months G = elapsed - lastNonZeroPos + 1  (sheet: MATCH(2,1/(L:Z<>0),1))
+    let lastPos = 0; grid.forEach((v,i)=>{ if (v) lastPos = i+1; });
+    const G = lastPos ? elapsed - lastPos + 1 : 999;
+
+    // STATUS — replicate the sheet formula in order; dropped overrides to Inactive
+    let status;
+    if (dropped) status = 'Inactive';
+    else if (moActive <= 1) status = 'Too early';
+    else if (G >= 6) status = 'Inactive';
+    else if (G >= level && moActive > 2) status = 'At risk';
+    else if (level === 1 && G < level) status = 'Low spend';
+    else if (G >= level - 1) status = 'Watch';
+    else if (moAtLevel <= level - 2 && level < 5) status = 'Scaling';
+    else if (arpa >= ACTIVE_ARPA_GATE) status = 'Active';
+    else status = 'Low spend';
+
+    rowsOut.push({ brand, level, moActive, moAtLevel, ramp, grid, total: totalToDate, arpa, basis, status,
+      dropped, droppedBy: isManual ? 'manual' : (isChurn ? 'tracker' : null), onHold: onHold.has(key),
+      since: firstPay ? firstPay.getUTCFullYear() + '-' + String(firstPay.getUTCMonth()+1).padStart(2,'0') : '',
+      idleMonths: G === 999 ? null : G });
+  }
+
+  // churn warnings: churned in tracker but not present in receivables at all
+  const unmatchedChurn = [];
+  for (const [k, name] of churned){ if (!allRecvKeys.has(k)) unmatchedChurn.push(name); }
+
+  const qualifying = rowsOut;
+  const fleetARPA = qualifying.length ? qualifying.reduce((a,r)=>a+r.arpa,0) / qualifying.length : 0;
+  return { rows: rowsOut, months, today, fleetARPA, unmatchedChurn,
+    counts: { brands: rowsOut.length, dropped: rowsOut.filter(r=>r.dropped).length, churnedInTracker: churned.size } };
+}
+
+/* ---------- manual dropped persistence ---------- */
+function loadManualDropped(){
+  try { const v = JSON.parse(localStorage.getItem(DROPPED_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e){ return []; }
+}
+function saveManualDropped(list){
+  try { localStorage.setItem(DROPPED_KEY, JSON.stringify(list)); } catch(e){ /* storage unavailable: session-only */ }
+}
+
+/* ---------- fetch both sheets ---------- */
+async function fetchLadderSources(){
+  const [rv, tr] = await Promise.allSettled([ fetch(LADDER_SOURCES.receivables), fetch(LADDER_SOURCES.tracker) ]);
+  if (rv.status !== 'fulfilled' || !rv.value.ok) throw new Error('receivables ' + (rv.reason || rv.value.status));
+  const recvRows = parseCSV(await rv.value.text());
+  let trackerRows = [], trackerError = null;
+  if (tr.status === 'fulfilled' && tr.value.ok) trackerRows = parseCSV(await tr.value.text());
+  else trackerError = 'tracker unreachable — churn auto-drops not applied';
+  return { recvRows, trackerRows, trackerError };
+}
+
+/* ============================================================
+   MOONTECH UNIT ECONOMICS — LIVE DASHBOARD
+   Main pages mirror the model sheet (option B).
+   Scenario Planner recomputes in-browser from the sheet's inputs (option A).
+   ROAS Clients ladder is live from receivables + tracker.
+   ============================================================ */
+"use strict";
+
+let DATA = null;          // filled from the model sheet at boot
+let LADDER = null;        // filled from receivables + tracker at boot
+
 /* ---------- palette (mirrors CSS custom properties) ---------- */
 function cssv(name, fallback){
-  try{
-    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return v || fallback;
-  }catch(e){ return fallback; }
+  try{ const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v || fallback; }
+  catch(e){ return fallback; }
 }
 const C = {
-  accent: cssv('--accent', '#4F46E5'),
-  accentTint: cssv('--accent-tint', '#C2BEF3'),
-  accentSoft: cssv('--accent-soft', '#EAE9FC'),
-  dark: cssv('--ink', '#141821'),
-  good: cssv('--good', '#0E9F6E'),
-  bad: cssv('--bad', '#DC2F44'),
-  warn: cssv('--warn', '#C77A0F'),
-  grey: '#98A2B3',
-  grid: cssv('--grid', '#EEF1F6'),
-  muted: cssv('--text-3', '#8B94A6')
+  accent: cssv('--accent', '#4F46E5'), accentTint: cssv('--accent-tint', '#C2BEF3'), accentSoft: cssv('--accent-soft', '#EAE9FC'),
+  dark: cssv('--ink', '#12131A'), good: cssv('--good', '#0E9F6E'), bad: cssv('--bad', '#DC2F44'), warn: cssv('--warn', '#C77A0F'),
+  grey: '#98A2B3', grid: cssv('--grid', '#F0F0EE'), muted: cssv('--text-3', '#8E8F98')
 };
 
 /* ---------- formatters ---------- */
-const fmtMoney = v => (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+const fmtMoney = v => (v == null || isNaN(v)) ? '—' : (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
 const fK = v => {
+  if (v == null || isNaN(v)) return '—';
   const a = Math.abs(v), s = v < 0 ? '-' : '';
   if (a >= 1e6) return s + '$' + (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
   if (a >= 1e3) return s + '$' + Math.round(a/1e3) + 'K';
   return s + '$' + Math.round(a);
 };
-const fMshort = v => (v<0?'-':'') + '$' + (Math.abs(v)/1e6).toFixed(2) + 'M';
-const fPct = (v, dp=0) => (v*100).toFixed(dp) + '%';
-const fNum = v => Math.round(v).toLocaleString('en-US');
-const f1 = v => v.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
+const fMshort = v => (v == null || isNaN(v)) ? '—' : (v<0?'-':'') + '$' + (Math.abs(v)/1e6).toFixed(2) + 'M';
+const fPct = (v, dp=0) => (v == null || isNaN(v)) ? '—' : (v*100).toFixed(dp) + '%';
+const fNum = v => (v == null || isNaN(v)) ? '—' : Math.round(v).toLocaleString('en-US');
+const f1 = v => (v == null || isNaN(v)) ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
+const sum = a => a.reduce((x,y)=>x+(y||0),0);
+const padA = a => a.concat(Array(Math.max(0,12-a.length)).fill(null));
 
-/* Sign-aware delta span. goodPos=false flips semantics (e.g. cost overruns). */
+/* Sign-aware delta span. goodPos=true => positive is good. */
 function deltaSpan(v, opts){
-  const o = Object.assign({goodPos:true, fmt:fNum, prefix:''}, opts||{});
-  if (v === 0 || v === null || v === undefined || isNaN(v)) return '<span class="muted num">—</span>';
+  const o = Object.assign({goodPos:true, fmt:fNum}, opts||{});
+  if (v === 0 || v == null || isNaN(v)) return '<span class="muted num">—</span>';
   const good = o.goodPos ? v > 0 : v < 0;
-  const arrow = v > 0 ? '▲' : '▼';
   return '<span class="' + (good?'delta-good':'delta-bad') + ' num" data-v="' + v + '" data-goodpos="' + o.goodPos + '">' +
-    arrow + ' ' + o.prefix + o.fmt(Math.abs(v)) + '</span>';
+    (v > 0 ? '▲' : '▼') + ' ' + o.fmt(Math.abs(v)) + '</span>';
 }
 
 /* ============================================================
-   ENGINE — replicates the Excel model exactly.
-   Levers in, full result out. Every projected number displayed
-   anywhere comes from here; actuals come from DATA.
+   ENGINE — used ONLY by the Scenario Planner. Replicates the
+   sheet's projection math from its raw inputs.
    ============================================================ */
 function engine(L){
   const seas = DATA.seasonality, prior = DATA.prior2025, dist = DATA.distribution;
-  const li = DATA.meta.latestClosedIdx;               // last closed month (0-based)
-  const priorTotal = prior.reduce((a,b)=>a+b,0);
-
-  const seasARPA = seas.map(s => L.arpa * s);          // monthly ARPA at plan seasonality
+  const li = DATA.meta.latestClosedIdx;
+  const priorTotal = sum(prior);
+  const seasARPA = seas.map(s => L.arpa * s);
   const existingPlan = prior.map(p => p * (1 + L.growth));
-
-  // new-client build (plan)
   const signedPlan = dist.map(d => Math.round(d * L.newClients));
   const cumPlan = []; signedPlan.reduce((a,b,i)=> (cumPlan[i]=a+b, cumPlan[i]), 0);
   const newRevOf = (signed, cum) => signed.map((_, m) => {
-    const mature = m >= 3 ? cum[m-3] : 0;              // cohorts past their first 3 months
-    const ramp = signed[m] + (signed[m-1]||0) + (signed[m-2]||0); // newest 3 cohorts
+    const mature = m >= 3 ? cum[m-3] : 0;
+    const ramp = signed[m] + (signed[m-1]||0) + (signed[m-2]||0);
     return mature * seasARPA[m] + ramp * seasARPA[m] * (1 - L.dropout);
   });
   const newRevPlan = newRevOf(signedPlan, cumPlan);
   const planRev = existingPlan.map((e,m) => e + newRevPlan[m]);
-
-  // blended: actuals for closed months, plan forward
   const rev = planRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
-
-  // "signings stop" baseline: actual signings to date, zero new from next month
-  const signedStop = signedPlan.map((s,m) => m <= li ? DATA.actualNewClients[m] : 0);
+  const signedStop = signedPlan.map((s,m) => m <= li ? (DATA.actualNewClients[m]||0) : 0);
   const cumStop = []; signedStop.reduce((a,b,i)=> (cumStop[i]=a+b, cumStop[i]), 0);
   const stopRev = existingPlan.map((e,m) => e + newRevOf(signedStop, cumStop)[m]);
   const stopBlend = stopRev.map((p,m) => m <= li ? DATA.actualRevenue[m] : p);
-
-  // ARR: 3-month rolling average of de-seasonalised revenue (window truncated at start)
-  const arrOf = series => series.map((_,m) => {
-    const w = [];
-    for (let k = Math.max(0, m-2); k <= m; k++) w.push(series[k] / seas[k]);
-    return w.reduce((a,b)=>a+b,0) / w.length;
-  });
-  const arr = arrOf(rev);
-  const arrStop = arrOf(stopBlend);
-
-  // customer-equivalents
+  const arrOf = series => series.map((_,m) => { const w=[]; for (let k=Math.max(0,m-2); k<=m; k++) w.push(series[k]/seas[k]); return sum(w)/w.length; });
+  const arr = arrOf(rev), arrStop = arrOf(stopBlend);
   const custEqTarget = cumPlan.map(c => Math.round(priorTotal / L.arpa + c));
-  const custEqActual = DATA.actualRevenue.map((r,m) => Math.round(r / seasARPA[m]));
-  const custEqFY = Math.round(L.targetARR / L.arpa);
-
-  // unit economics
   const ltv = L.arpa * (1 - L.dropout) / L.churn;
-  const ltvcac = ltv / L.cac;
-  const payback = L.cac / (L.arpa * L.gm / 12);
-  const nrr = existingPlan.reduce((a,b)=>a+b,0) / priorTotal;
-
-  // shortfall adjustment → additional clients needed (Excel Cockpit!B13)
-  const adjSum = DATA.adjustments.reduce((a,b)=>a+b,0);
-  const remaining = 12 - (li + 1);
-  const addlClients = adjSum < 0 ? Math.ceil(Math.abs(adjSum) / remaining / (L.arpa/12)) : 0;
-
-  // influencer capacity forecast (future months from target cust-eq)
-  const influForecast = custEqTarget.map((c,m) => m <= li ? DATA.influActive[m] : Math.round(c * L.influPerClient));
-  const adsForecast = influForecast.map((f,m) => m <= li ? DATA.ads[m] : Math.round(f * L.adsPerInflu));
-
-  const ytdActual = DATA.actualRevenue.reduce((a,b)=>a+b,0);
-  const ytdPlan = planRev.slice(0, li+1).reduce((a,b)=>a+b,0);
-  const cumRev = []; rev.reduce((a,b,i)=> (cumRev[i]=a+b, cumRev[i]), 0);
-
-  return { seasARPA, existingPlan, signedPlan, cumPlan, newRevPlan, planRev, rev, stopBlend,
-    arr, arrStop, custEqTarget, custEqActual, custEqFY,
-    ltv, ltvcac, payback, nrr, addlClients, adjSum,
-    influForecast, adsForecast, ytdActual, ytdPlan, cumRev,
-    yeARR: arr[11], latestARR: arr[li], fyPlanRevenue: planRev.reduce((a,b)=>a+b,0) };
+  return { seasARPA, existingPlan, signedPlan, cumPlan, newRevPlan, planRev, rev, stopBlend, arr, arrStop, custEqTarget,
+    ltv, ltvcac: ltv / L.cac, payback: L.cac / (L.arpa * L.gm / 12), nrr: sum(existingPlan) / priorTotal,
+    yeARR: arr[11], latestARR: arr[li], fyPlanRevenue: sum(planRev), ytdPlan: sum(planRev.slice(0, li+1)) };
 }
 
 /* ---------- state ---------- */
-const state = { levers: Object.assign({ targetARR: DATA.targetARR }, DATA.defaults) };
-window.__state = state;                 // exposed for tests / console debugging
-window.__engine = engine;
+const state = { levers: null, ladderSort: 'arpa', manualDropped: [] };
+window.__state = state; window.__engine = engine;
 
-/* ---------- scenario presets ---------- */
 const SCENARIOS = [
-  { name: 'Plan of record', desc: 'The model as agreed: 20% existing growth, 205 new clients, 25% early dropout.', set: {} },
-  { name: 'Signings slip 25%', desc: 'Same growth and dropout, but only 154 new clients land.', set: { newClients: 154 } },
-  { name: 'Dropout worsens', desc: '205 signings but 40% quit inside 3 months.', set: { dropout: 0.40 } },
-  { name: 'Existing book flat', desc: 'No growth from returning clients; new-client plan holds.', set: { growth: 0 } },
-  { name: 'Stretch', desc: '240 new clients and dropout improved to 20%.', set: { newClients: 240, dropout: 0.20 } }
+  { name: 'Plan of record', desc: 'The sheet\'s current assumptions, unchanged.', set: {} },
+  { name: 'Signings slip 25%', desc: 'Same growth and dropout, but only 75% of the planned new clients land.', set: L => ({ newClients: Math.round(L.newClients * 0.75) }) },
+  { name: 'Stretch', desc: 'New-client target up 15% and early dropout improved by 5 points.', set: L => ({ newClients: Math.round(L.newClients * 1.15), dropout: Math.max(0, L.dropout - 0.05) }) }
 ];
 
 /* ============================================================
    PAGE SKELETONS
    ============================================================ */
 function buildPages(){
-  const el = document.getElementById('content');
-  el.innerHTML = `
+  document.getElementById('content').innerHTML = `
+  <div id="load-banner" class="load-banner">Loading live data from the model sheet, receivables and tracker…</div>
+  <div id="model-error" class="callout warn" style="display:none"></div>
+
   <!-- ================= COCKPIT ================= -->
   <section class="page active" id="page-cockpit">
     <div class="page-head"><h1>Cockpit</h1>
-    <div class="page-sub">Moontech platform revenue, annualised run-rate and the path to the year-end target. Actuals closed through August 2026; September onward is the model at current lever settings.</div></div>
+    <div class="page-sub" id="cockpit-sub">Moontech platform revenue, annualised run-rate and the path to the year-end target — live from the model sheet.</div></div>
     <div class="grid">
-      <div class="card kpi span-3"><div class="kpi-label">ARR — Latest month <span class="tag">Jul, run-rate</span></div>
+      <div class="card kpi span-3"><div class="kpi-label">ARR — Latest month <span class="tag" id="tag-latest">run-rate</span></div>
         <div class="kpi-value num" id="k-latest-arr"></div><div class="kpi-note" id="k-latest-note"></div>
         <div class="kpi-spark"><canvas id="spark-arr"></canvas></div></div>
       <div class="card kpi span-3"><div class="kpi-label">Projected year-end ARR</div>
         <div class="kpi-value num" id="k-ye-arr"></div><div class="kpi-note" id="k-ye-note"></div>
         <div class="kpi-spark"><canvas id="spark-ye"></canvas></div></div>
-      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Revenue YTD <span class="tag">Jan–Aug actual</span></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Revenue YTD <span class="tag" id="tag-ytd">actual</span></div>
         <div class="kpi-value num" id="k-ytd"></div><div class="kpi-note" id="k-ytd-note"></div>
         <div class="kpi-spark"><canvas id="spark-rev"></canvas></div></div>
       <div class="card kpi kpi-plain span-3"><div class="kpi-label">New clients YTD <span class="tag">signed</span></div>
         <div class="kpi-value num" id="k-newc"></div><div class="kpi-note" id="k-newc-note"></div>
         <div class="kpi-spark"><canvas id="spark-newc"></canvas></div></div>
-
       <div class="card span-12"><h2>ARR path to year-end</h2>
-        <div class="card-sub">Annualised run-rate: 3-month rolling average of de-seasonalised monthly revenue. Solid dark = actuals · accent = model projection · dashed grey = if signings stop after July · dotted = target.</div>
+        <div class="card-sub">Annualised run-rate from the model sheet: 3-month rolling average of de-seasonalised monthly revenue. Solid dark = actuals · accent = sheet projection · dotted = target.</div>
         <div class="chart-box" style="height:300px"><canvas id="ch-arr"></canvas></div></div>
-
-      <div class="card span-8"><h2>Monthly platform revenue <span class="tag">operational, all clients</span></h2>
-        <div class="card-sub">Dark bars = actuals · light bars = model projection · accent line = full-year plan · dashed grey = if signings stop.</div>
+      <div class="card span-12"><h2>Monthly platform revenue <span class="tag">operational, all clients</span></h2>
+        <div class="card-sub">Dark bars = actuals · light bars = sheet projection · accent line = full-year plan.</div>
         <div class="chart-box" style="height:280px"><canvas id="ch-rev"></canvas></div></div>
-
-      <div class="card span-4"><h2>Model health</h2><div class="card-sub">Unit economics at current levers.</div>
-        <div id="health-tiles"></div></div>
-
       <div class="card span-12"><h2>Month by month — actual vs plan</h2>
-        <div class="card-sub">Plan = the model at current lever settings. Variance is actual minus plan for closed months.</div>
+        <div class="card-sub">Plan = the model sheet's revenue build. Variance is actual minus plan for closed months.</div>
         <div class="table-wrap" id="tbl-cockpit"></div></div>
     </div>
   </section>
@@ -1454,7 +864,7 @@ function buildPages(){
   <!-- ================= TARGETS ================= -->
   <section class="page" id="page-targets">
     <div class="page-head"><h1>Targets vs Actuals</h1>
-    <div class="page-sub">Where 2026 is landing against the plan, measured the way the model measures it: customer-equivalents at plan ARPA, signings, and the revenue mix between the existing book and new ROAS clients.</div></div>
+    <div class="page-sub">Where the year is landing against plan, measured the way the model measures it: customer-equivalents at plan ARPA, signings, and the revenue mix between the existing book and new ROAS clients.</div></div>
     <div class="grid">
       <div class="card span-6"><h2>Customer-equivalents <span class="tag">revenue ÷ seasonal ARPA</span></h2>
         <div class="card-sub" id="sub-custeq"></div>
@@ -1463,10 +873,10 @@ function buildPages(){
         <div class="card-sub">Actual signings vs the plan's signing schedule.</div>
         <div class="chart-box" style="height:260px"><canvas id="ch-signed"></canvas></div></div>
       <div class="card span-6"><h2>Revenue mix — existing vs new <span class="tag">share of monthly revenue</span></h2>
-        <div class="card-sub">The plan expects new ROAS clients to carry a rising share. Actual existing-book share, Jan–Aug.</div>
+        <div class="card-sub">The plan expects new ROAS clients to carry a rising share. Existing-book share as recorded in the sheet.</div>
         <div class="chart-box" style="height:250px"><canvas id="ch-mix"></canvas></div></div>
       <div class="card span-6"><h2>Client counts</h2>
-        <div class="card-sub">Returning clients (from 2025) plus cumulative new ROAS clients — actuals.</div>
+        <div class="card-sub">Returning clients (from 2025) plus cumulative active ROAS clients — from the sheet.</div>
         <div class="table-wrap" id="tbl-counts"></div></div>
       <div class="card span-12"><h2>Detail</h2><div class="table-wrap" id="tbl-targets"></div></div>
     </div>
@@ -1475,7 +885,7 @@ function buildPages(){
   <!-- ================= TOP CLIENTS ================= -->
   <section class="page" id="page-topclients">
     <div class="page-head"><h1>Top Clients</h1>
-    <div class="page-sub">Concentration in the existing book, Jan–Aug 2026 actuals.</div></div>
+    <div class="page-sub" id="top-sub">Concentration in the existing book — actuals from the model sheet.</div></div>
     <div class="grid">
       <div class="card kpi span-4"><div class="kpi-label">Top client share <span class="tag">YTD</span></div>
         <div class="kpi-value num" id="k-top1"></div><div class="kpi-note" id="k-top1-note"></div></div>
@@ -1488,116 +898,114 @@ function buildPages(){
         <div class="chart-box" style="height:280px"><canvas id="ch-top"></canvas></div></div>
       <div class="card span-12"><h2>Monthly revenue by client <span class="tag">$ actual</span></h2>
         <div class="table-wrap" id="tbl-top"></div></div>
+      <div class="card span-12"><h2>Client concentration <span class="tag">% of month's revenue</span></h2>
+        <div class="card-sub">Each top client's share of that month's total platform revenue.</div>
+        <div class="table-wrap" id="tbl-concentration"></div></div>
     </div>
   </section>
 
   <!-- ================= CAC ================= -->
   <section class="page" id="page-cac">
     <div class="page-head"><h1>CAC</h1>
-    <div class="page-sub">Acquisition cost on both sides of the marketplace: merchants (ROAS clients) and creators. Jan–Aug 2026 actuals from the acquisition-cost section of the model workbook.</div></div>
+    <div class="page-sub">Acquisition cost on both sides of the marketplace. Targets and actuals from the model sheet's CAC section (a dedicated CAC sheet can be connected later).</div></div>
     <div class="grid">
-      <div class="card kpi span-3"><div class="kpi-label">Merchant CAC <span class="tag">blended YTD</span></div>
+      <div class="card kpi span-3"><div class="kpi-label">Merchant CAC <span class="tag">sheet · full year</span></div>
         <div class="kpi-value num" id="k-mcac"></div><div class="kpi-note" id="k-mcac-note"></div></div>
-      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Merchants acquired <span class="tag">YTD</span></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Merchants acquired <span class="tag">sheet · full year</span></div>
         <div class="kpi-value num" id="k-mcount"></div><div class="kpi-note" id="k-mspend"></div></div>
-      <div class="card kpi span-3"><div class="kpi-label">Creator CAC <span class="tag">blended YTD</span></div>
+      <div class="card kpi span-3"><div class="kpi-label">Creator CAC <span class="tag">sheet · full year</span></div>
         <div class="kpi-value num" id="k-ccac"></div><div class="kpi-note" id="k-ccac-note"></div></div>
-      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Creators acquired <span class="tag">YTD</span></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Creators acquired <span class="tag">sheet · full year</span></div>
         <div class="kpi-value num" id="k-ccount"></div><div class="kpi-note" id="k-cspend"></div></div>
-
       <div class="card span-6"><h2>Merchant CAC by month</h2>
-        <div class="card-sub">Cost per acquired merchant vs the target used in the LTV:CAC model. Bars turn red when a month runs over target.</div>
+        <div class="card-sub">Cost per acquired merchant vs target. Bars turn red when a month runs over target.</div>
         <div class="chart-box" style="height:250px"><canvas id="ch-mcac"></canvas></div></div>
       <div class="card span-6"><h2>Creator CAC by month</h2>
         <div class="card-sub">Cost per newly activated creator vs target.</div>
         <div class="chart-box" style="height:250px"><canvas id="ch-ccac"></canvas></div></div>
-
       <div class="card span-6"><h2>Merchant CAC — detail</h2><div class="table-wrap" id="tbl-mcac"></div></div>
       <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
-
-      <div class="card span-12"><h2>Acquisition-cost breakdown <span class="tag">both sides, by month</span></h2>
-        <div class="card-sub">Full merchant and creator acquisition cost and count for every closed month, with blended CAC on each side.</div>
-        <div class="table-wrap" id="tbl-cac-breakdown"></div>
-        <div class="legend-note" id="cac-note"></div></div>
     </div>
   </section>
 
-  <!-- ================= LEVERS ================= -->
+  <!-- ================= LEVERS (read-only) ================= -->
   <section class="page" id="page-levers">
     <div class="page-head"><h1>Levers</h1>
-    <div class="page-sub">Every projected number on this dashboard is computed from the levers below — change one and everything downstream moves. Closed months (Jan–Aug) are actuals and never move.</div></div>
-    <div class="live-heading" id="live-heading"></div>
+    <div class="page-sub">The model sheet's current assumptions, read-only. To test alternatives, use the Scenario Planner.</div></div>
+    <div class="live-heading" id="levers-heading"></div>
     <div class="grid">
-      <div class="card span-4"><h2>Growth levers</h2><div class="card-sub">The demand side of the plan.</div>
-        <div class="lever"><label>Existing-client growth vs 2025 <span class="hint">%</span></label>
-          <input type="number" step="1" id="lv-growth"></div>
-        <div class="lever"><label>New clients signed in 2026 <span class="hint">count, full year</span></label>
-          <input type="number" step="1" id="lv-newClients"></div>
-        <div class="lever"><label>ARPA — new clients <span class="hint">$ / year</span></label>
-          <input type="number" step="500" id="lv-arpa"></div>
-        <div class="lever"><label>3-month dropout <span class="hint">% of new clients quitting early</span></label>
-          <input type="number" step="1" id="lv-dropout"></div>
-      </div>
-      <div class="card span-4"><h2>Unit-economics levers</h2><div class="card-sub">Feed LTV, LTV:CAC and payback.</div>
-        <div class="lever"><label>Annual churn <span class="hint">%</span></label>
-          <input type="number" step="1" id="lv-churn"></div>
-        <div class="lever"><label>Merchant CAC <span class="hint">$ per new client (plan)</span></label>
-          <input type="number" step="100" id="lv-cac"></div>
-        <div class="lever"><label>Gross margin <span class="hint">% blended</span></label>
-          <input type="number" step="1" id="lv-gm"></div>
-        <div class="lever"><label>Target ARR <span class="hint">$ — the goal line</span></label>
-          <input type="number" step="100000" id="lv-targetARR"></div>
-      </div>
-      <div class="card span-4"><h2>Fixed references</h2><div class="card-sub">Facts, not levers — shown locked.</div>
-        <div class="locked"><span>2025 platform revenue</span><b class="num" id="lk-2025"></b></div>
-        <div class="locked"><span>Seasonality shape</span><b>2025 monthly mix</b></div>
-        <div class="locked"><span>Signing schedule</span><b>1%→14% ramp over 12&nbsp;mo</b></div>
-        <div class="locked"><span>Influencers / client-equivalent</span><b class="num" id="lk-influ"></b></div>
-        <div class="locked"><span>Ads / influencer / month</span><b class="num" id="lk-ads"></b></div>
-        <div class="callout" id="adj-callout"></div>
-      </div>
-
-      <div class="card span-12"><h2>Output — unit economics</h2><div id="lever-outputs" class="grid" style="grid-template-columns:repeat(6,1fr); gap:12px"></div></div>
-
+      <div class="card span-4"><h2>Growth assumptions</h2><div class="card-sub">The demand side of the plan.</div><div id="lk-growth"></div></div>
+      <div class="card span-4"><h2>Unit-economics assumptions</h2><div class="card-sub">Feed LTV, LTV:CAC and payback.</div><div id="lk-unit"></div></div>
+      <div class="card span-4"><h2>Fixed references</h2><div class="card-sub">Facts, not levers.</div><div id="lk-fixed"></div><div class="callout" id="adj-callout"></div></div>
+      <div class="card span-12"><h2>Output — unit economics <span class="tag">from the sheet</span></h2><div id="lever-outputs" class="grid" style="grid-template-columns:repeat(6,1fr); gap:12px"></div></div>
       <div class="card span-12"><h2>Revenue build — how the year stacks up</h2>
-        <div class="card-sub">Each month = existing book (growing vs 2025) + new clients still in their first 3 months (discounted for dropout) + new clients past month 3 (paying full seasonal ARPA). This is where the back-loaded shape comes from: cohorts signed in H1 only mature in H2, and November carries the seasonal peak.</div>
+        <div class="card-sub">The sheet's revenue build: existing book (growing vs 2025) plus new-client revenue as cohorts ramp. November carries the seasonal peak.</div>
         <div class="chart-box" style="height:290px"><canvas id="ch-build"></canvas></div>
         <div class="table-wrap" style="margin-top:14px" id="tbl-build"></div></div>
     </div>
   </section>
 
-  <!-- ================= SCENARIOS ================= -->
-  <section class="page" id="page-scenarios">
-    <div class="page-head"><h1>Path to $8.2M</h1>
-    <div class="page-sub">Five lever sets, each priced through the same engine. History (Jan–Aug) is shared by every scenario; lines only diverge from September.</div></div>
+  <!-- ================= SCENARIO PLANNER ================= -->
+  <section class="page" id="page-planner">
+    <div class="page-head"><h1>Scenario Planner</h1>
+    <div class="page-sub">A what-if sandbox. Levers start at the sheet's current assumptions and recompute the projection in your browser. Closed months are actuals and never move; nothing here writes back to the sheet.</div></div>
+    <div class="live-heading" id="live-heading"></div>
+    <div class="legend-note" id="calib-note" style="margin:-10px 0 14px"></div>
     <div class="scen-banner" id="scen-banner"></div>
-    <div class="scen-grid" id="scen-cards"></div>
-    <div class="card" style="margin-top:14px"><h2>ARR by scenario</h2>
-      <div class="card-sub">One shared history, branching forward. Scenarios that miss the target are dashed. Dotted horizontal line = target ARR.</div>
-      <div class="chart-box" style="height:300px"><canvas id="ch-scen"></canvas></div></div>
+    <div class="grid">
+      <div class="card span-4"><h2>Growth levers</h2>
+        <div class="lever"><label>Existing-client growth vs 2025 <span class="hint">%</span></label><input type="number" step="1" id="lv-growth"></div>
+        <div class="lever"><label>New clients signed this year <span class="hint">count</span></label><input type="number" step="1" id="lv-newClients"></div>
+        <div class="lever"><label>ARPA — new clients <span class="hint">$ / year</span></label><input type="number" step="500" id="lv-arpa"></div>
+        <div class="lever"><label>3-month dropout <span class="hint">%</span></label><input type="number" step="1" id="lv-dropout"></div>
+      </div>
+      <div class="card span-4"><h2>Unit-economics levers</h2>
+        <div class="lever"><label>Annual churn <span class="hint">%</span></label><input type="number" step="1" id="lv-churn"></div>
+        <div class="lever"><label>Merchant CAC <span class="hint">$ per new client</span></label><input type="number" step="100" id="lv-cac"></div>
+        <div class="lever"><label>Gross margin <span class="hint">%</span></label><input type="number" step="1" id="lv-gm"></div>
+        <div class="lever"><label>Target ARR <span class="hint">$</span></label><input type="number" step="100000" id="lv-targetARR"></div>
+        <button class="apply-btn" id="btn-reset">Reset to sheet assumptions</button>
+      </div>
+      <div class="card span-4"><h2>Outcome</h2><div id="planner-outputs"></div></div>
+      <div class="card span-12"><h2>ARR path — this scenario</h2>
+        <div class="card-sub">One shared history; the projection branches from the latest closed month. Dashed grey = if signings stop now. Dotted = target.</div>
+        <div class="chart-box" style="height:300px"><canvas id="ch-plan-arr"></canvas></div></div>
+      <div class="card span-12"><h2>Preset scenarios</h2>
+        <div class="card-sub">Three lever sets priced through the same engine. Apply one to load it into the levers above.</div>
+        <div class="scen-grid" id="scen-cards"></div></div>
+    </div>
   </section>
 
-  <!-- ================= ROAS CLIENTS ================= -->
+  <!-- ================= ROAS CLIENTS (live ladder) ================= -->
   <section class="page" id="page-roas">
     <div class="page-head"><h1>ROAS Clients</h1>
-    <div class="page-sub">Every new ROAS client and where they sit on the spend ladder. Clients start at Level 1 ($1K/month test budget) and are meant to climb: L2 ≈ $2K, L3 ≈ $3K, L4 ≈ $5K, L5 ≈ $7.5K. Level is set by the highest monthly spend reached.</div></div>
+    <div class="page-sub">Every ROAS brand on the spend ladder — live from the receivables sheet, with churn from the ROAS tracker. Only <b>paid</b> invoices count: payment is activation, payment moves a brand up a milestone, and payment date is what the grid and annualisation key off.</div></div>
+    <div id="ladder-error" class="callout warn" style="display:none"></div>
+    <div id="ladder-warn" class="callout warn" style="display:none"></div>
     <div class="grid">
-      <div class="card span-8"><h2>Book health</h2><div class="card-sub">Status of all signed ROAS clients as of July.</div>
-        <div id="roas-chips" style="display:flex; flex-wrap:wrap; gap:8px"></div>
-        <div class="callout warn" id="roas-arpa-callout" style="margin-top:14px"></div></div>
-      <div class="card kpi span-4"><div class="kpi-label">Current ROAS book ARPA</div>
-        <div class="kpi-value num" id="k-roas-arpa"></div>
-        <div class="kpi-note">Average across all signed ROAS clients. Level 3+ = latest spend annualised; below L3 = spend to date.</div></div>
-      <div class="card span-12"><h2>Client ladder <span class="tag">spend by month, $</span></h2>
+      <div class="card kpi span-3"><div class="kpi-label">Fleet ARPA <span class="tag">avg per brand</span></div>
+        <div class="kpi-value num" id="k-fleet-arpa"></div><div class="kpi-note" id="k-fleet-note"></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Brands on ladder</div>
+        <div class="kpi-value num" id="k-brands"></div><div class="kpi-note" id="k-brands-note"></div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Level 3+ <span class="tag">annualised</span></div>
+        <div class="kpi-value num" id="k-l3"></div><div class="kpi-note">brands paying at M3 or above</div></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Dropped</div>
+        <div class="kpi-value num" id="k-dropped"></div><div class="kpi-note" id="k-dropped-note"></div></div>
+      <div class="card span-12">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px">
+          <div><h2 style="margin:0">Client ladder <span class="tag">net $ paid, by payment month</span></h2></div>
+          <div class="seg" id="sort-toggle"><button data-sort="arpa" class="on">Sort: ARPA</button><button data-sort="level">Sort: Level → ARPA</button></div>
+        </div>
+        <div id="roas-chips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px"></div>
         <div class="table-wrap" id="tbl-roas"></div>
-        <div class="legend-note">Level transitions (L1→L2 etc.) show months taken to step up; “–” = hasn't stepped. Spend cells shade with size.</div></div>
+        <div class="legend-note">Level = highest <b>paid</b> milestone. Ramp columns = whole months between first payments at consecutive milestones. ARPA: M1–M2 = ROAS spend to date; M3+ = latest paid invoice × 12; Dropped = total paid to date at any level. Use the Drop / Undrop button to mark a brand churned on this device.</div>
+      </div>
     </div>
   </section>
 
   <!-- ================= METHOD ================= -->
   <section class="page" id="page-method">
-    <div class="page-head"><h1>Method</h1>
-    <div class="page-sub">How every number on this dashboard is produced — in plain language, with every assumption stated.</div></div>
+    <div class="page-head"><h1>Method</h1><div class="page-sub">How every number is produced — in plain language, with every source and assumption stated.</div></div>
     <div class="card method" id="method-body"></div>
   </section>`;
 }
@@ -1607,16 +1015,14 @@ function buildPages(){
    ============================================================ */
 const charts = {};
 function mkChart(id, cfg){
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (charts[id]) { charts[id].destroy(); }
+  const el = document.getElementById(id); if (!el) return;
+  if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(el.getContext('2d'), cfg);
 }
 function setChartDefaults(){
   Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
   Chart.defaults.font.size = 11.5;
   Chart.defaults.color = C.muted;
-  // crisp on retina / high-DPI monitors — was the "pixelated" look
   Chart.defaults.devicePixelRatio = Math.max(2, (window.devicePixelRatio || 1));
   Chart.defaults.plugins.legend.labels.boxWidth = 10;
   Chart.defaults.plugins.legend.labels.boxHeight = 10;
@@ -1624,474 +1030,383 @@ function setChartDefaults(){
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
   Chart.defaults.plugins.legend.labels.font = { size: 11.5, weight: '500' };
   if (Chart.defaults.elements && Chart.defaults.elements.point) Chart.defaults.elements.point.hoverRadius = 5;
-  if (Chart.defaults.elements && Chart.defaults.elements.line) Chart.defaults.elements.line.capBezierPoints = true;
 }
-const darkTooltip = {
-  backgroundColor: '#1E2530', titleColor: '#fff', bodyColor: '#D7DCE3',
-  padding: 10, cornerRadius: 8, displayColors: true, boxPadding: 4,
-  callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fK(ctx.parsed.y)) }
-};
-const baseScalesMoney = {
-  x: { grid: { display:false }, ticks: { color: C.muted } },
-  y: { beginAtZero:true, grid: { color: C.grid }, border:{display:false}, ticks: { color: C.muted, callback: v => fK(v) } }
-};
-function sparkline(id, values, color, fill){
-  mkChart(id, { type:'line',
-    data:{ labels: values.map((_,i)=>i), datasets:[{ data: values, borderColor: color, borderWidth:1.6,
-      pointRadius:0, fill:true, backgroundColor: fill, tension:.35 }]},
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}},
-      scales:{ x:{display:false}, y:{display:false} }, animation:false } });
+const darkTooltip = { backgroundColor:'#1E2530', titleColor:'#fff', bodyColor:'#D7DCE3', padding:10, cornerRadius:8, displayColors:true, boxPadding:4,
+  callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fK(ctx.parsed.y)) } };
+const xScale = { grid:{display:false}, ticks:{color:C.muted} };
+const yMoney = extra => Object.assign({ beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fK(v)} }, extra||{});
+const yCount = { beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)} };
+const lineOpts = (tooltipFmt) => ({ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
+  plugins:{ tooltip: tooltipFmt ? {...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':tooltipFmt(c.parsed.y))}} : darkTooltip, legend:{position:'bottom'} } });
+function sparkline(id, values, color){
+  const vals = values.filter(v=>v!=null);
+  mkChart(id, { type:'line', data:{ labels: vals.map((_,i)=>i), datasets:[{ data: vals, borderColor:color, borderWidth:1.6, pointRadius:0, fill:true, backgroundColor: color+'22', tension:.35 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, scales:{x:{display:false}, y:{display:false}}, animation:false } });
 }
+const floorMillion = vals => { const v = vals.filter(x=>x!=null); return v.length ? Math.max(0, Math.floor(Math.min(...v)/1e6)*1e6) : 0; };
 
 /* ============================================================
-   RENDER
+   RENDER — model pages (mirror the sheet)
    ============================================================ */
-function render(){
-  const L = state.levers;
-  const R = engine(L);
-  state.result = R;
-  const li = DATA.meta.latestClosedIdx;
-  const M = DATA.months;
+function renderModel(){
+  const D = DATA, li = D.meta.latestClosedIdx, M = D.months;
+  const closedLabel = M[li];
+  document.getElementById('cockpit-sub').textContent = 'Moontech platform revenue, annualised run-rate and the path to the year-end target — live from the model sheet. Actuals closed through ' + closedLabel + ' 2026; later months are the sheet\'s projection.';
+  document.getElementById('tag-latest').textContent = closedLabel + ', run-rate';
+  document.getElementById('tag-ytd').textContent = 'Jan–' + closedLabel + ' actual';
 
   /* ---------- COCKPIT ---------- */
-  document.getElementById('k-latest-arr').textContent = fMshort(R.latestARR);
-  const latestDelta = R.arr[li] - R.arr[li-1];
-  document.getElementById('k-latest-note').innerHTML = deltaSpan(latestDelta, {fmt:fK}) + ' vs June';
-  document.getElementById('k-ye-arr').textContent = fMshort(R.yeARR);
-  const yeGap = R.yeARR - L.targetARR;
-  document.getElementById('k-ye-note').innerHTML = (yeGap >= 0
-    ? '<span class="chip chip-good">hits target</span>' : '<span class="chip chip-bad">misses target</span>')
-    + ' ' + deltaSpan(yeGap, {fmt:fK}) + ' vs ' + fK(L.targetARR);
-  document.getElementById('k-ytd').textContent = fK(R.ytdActual);
-  document.getElementById('k-ytd-note').innerHTML = deltaSpan(R.ytdActual - R.ytdPlan, {fmt:fK}) + ' vs plan YTD (' + fK(R.ytdPlan) + ')';
-  const newcYTD = DATA.actualNewClients.reduce((a,b)=>a+b,0);
-  const newcTgt = R.signedPlan.slice(0, li+1).reduce((a,b)=>a+b,0);
+  const ytdActual = sum(D.actualRevenue), ytdPlan = sum(D.totalPlanRev.slice(0, li+1));
+  const yeGap = D.yeARR - D.targetARR;
+  document.getElementById('k-latest-arr').textContent = fMshort(D.latestARR);
+  const latestDelta = D.arrPath[li] - D.arrPath[li-1];
+  document.getElementById('k-latest-note').innerHTML = deltaSpan(latestDelta, {fmt:fK}) + ' vs ' + M[li-1];
+  document.getElementById('k-ye-arr').textContent = fMshort(D.yeARR);
+  document.getElementById('k-ye-note').innerHTML = (yeGap >= 0 ? '<span class="chip chip-good">hits target</span>' : '<span class="chip chip-bad">misses target</span>') + ' ' + deltaSpan(yeGap, {fmt:fK}) + ' vs ' + fK(D.targetARR);
+  document.getElementById('k-ytd').textContent = fK(ytdActual);
+  document.getElementById('k-ytd-note').innerHTML = deltaSpan(ytdActual - ytdPlan, {fmt:fK}) + ' vs plan YTD (' + fK(ytdPlan) + ')';
+  const newcYTD = sum(D.actualNewClients), newcTgt = sum(D.signedTarget.slice(0, li+1));
   document.getElementById('k-newc').textContent = newcYTD;
   document.getElementById('k-newc-note').innerHTML = deltaSpan(newcYTD - newcTgt) + ' vs plan of ' + newcTgt;
 
-  const sparkFill = (c) => c + '22';
-  sparkline('spark-arr', R.arr.slice(0, li+1), latestDelta>=0?C.good:C.bad, sparkFill(latestDelta>=0?C.good:C.bad));
-  const yeCol = yeGap>=0?C.good:C.warn;
-  sparkline('spark-ye', R.arr.slice(li), yeCol, sparkFill(yeCol));
-  const revDelta = DATA.actualRevenue[li] - DATA.actualRevenue[li-1];
-  sparkline('spark-rev', DATA.actualRevenue, revDelta>=0?C.good:C.bad, sparkFill(revDelta>=0?C.good:C.bad));
-  const ncDelta = DATA.actualNewClients[li] - DATA.actualNewClients[li-1];
-  sparkline('spark-newc', DATA.actualNewClients, ncDelta>=0?C.good:C.bad, sparkFill(ncDelta>=0?C.good:C.bad));
+  sparkline('spark-arr', D.arrPath.slice(0, li+1), latestDelta>=0?C.good:C.bad);
+  sparkline('spark-ye', D.arrPath.slice(li), yeGap>=0?C.good:C.warn);
+  const revDelta = D.actualRevenue[li] - D.actualRevenue[li-1];
+  sparkline('spark-rev', D.actualRevenue, revDelta>=0?C.good:C.bad);
+  const ncDelta = (D.actualNewClients[li]||0) - (D.actualNewClients[li-1]||0);
+  sparkline('spark-newc', D.actualNewClients, ncDelta>=0?C.good:C.bad);
 
-  // ARR hero chart
-  mkChart('ch-arr', { type:'line', data:{ labels: M, datasets:[
-    { label:'Actual ARR', data: R.arr.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
-    { label:'Projected (levers)', data: R.arr.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
-    { label:'If signings stop', data: R.arrStop.map((v,m)=> m>=li ? v : null), borderColor:C.grey, borderWidth:1.6, pointRadius:0, borderDash:[5,4], tension:.3 },
-    { label:'Target ARR', data: M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
-    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+  mkChart('ch-arr', { type:'line', data:{ labels:M, datasets:[
+    { label:'Actual ARR', data: D.arrPath.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'Projected (sheet)', data: D.arrPath.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'Target ARR', data: M.map(()=>D.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y: yMoney({ beginAtZero:false, min: floorMillion(D.arrPath) }) } }});
 
-  // monthly revenue chart
-  mkChart('ch-rev', { type:'bar', data:{ labels: M, datasets:[
-    { label:'Actual', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.62, order:3 },
-    { label:'Projected (levers)', data: R.planRev.map((v,m)=> m>li ? v : null), backgroundColor:C.accentTint, borderRadius:4, barPercentage:.62, order:3 },
-    { label:'Full-year plan', data: R.planRev, type:'line', borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.3, order:1 },
-    { label:'If signings stop', data: R.stopBlend.map((v,m)=> m>=li ? v : null), type:'line', borderColor:C.grey, borderWidth:1.4, borderDash:[5,4], pointRadius:0, tension:.3, order:2 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
-    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+  mkChart('ch-rev', { type:'bar', data:{ labels:M, datasets:[
+    { label:'Actual', data: padA(D.actualRevenue), backgroundColor:C.dark, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Projected (sheet)', data: D.monthlyRevPlan.map((v,m)=> m>li ? v : null), backgroundColor:C.accentTint, borderRadius:4, barPercentage:.62, order:3 },
+    { label:'Full-year plan', data: D.totalPlanRev, type:'line', borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.3, order:1 }
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney() } }});
 
-  // health tiles — color classes strictly follow the pass/fail sign
-  const health = [
-    { l:'LTV : CAC', v: R.ltvcac.toFixed(1) + 'x', ok: R.ltvcac >= 3, note: 'LTV ' + fK(R.ltv) + ' vs CAC ' + fK(L.cac) },
-    { l:'Payback', v: f1(R.payback) + ' mo', ok: R.payback <= 12, note: 'CAC ÷ monthly gross profit per client' },
-    { l:'NRR — existing book', v: fPct(R.nrr), ok: R.nrr >= 1, note: 'planned growth of the 2025 base' },
-    { l:'ROAS book ARPA today', v: fK(DATA.roasARPA), warn: DATA.roasARPA < L.arpa, note: 'vs ' + fK(L.arpa) + ' assumed for new clients' }
-  ];
-  document.getElementById('health-tiles').innerHTML = health.map(h => {
-    let cls = '', style = '';
-    if (h.ok === true) cls = 'delta-good';
-    else if (h.ok === false) cls = 'delta-bad';
-    else if (h.warn) style = 'style="color:var(--warn)"';
-    return '<div class="health-tile"><div><div class="h-l">' + h.l + '</div><div class="h-n">' + h.note + '</div></div>' +
-      '<div class="h-v num ' + cls + '" ' + style + ' data-static="1">' + h.v + '</div></div>';
-  }).join('');
-
-  // cockpit table
   let ct = '<table><tr><th class="txt">Month</th><th>Actual</th><th>Plan</th><th>Variance</th><th>ARR</th><th>Cumulative revenue</th></tr>';
   for (let m=0; m<12; m++){
     const closed = m <= li;
     ct += '<tr><td class="txt">' + M[m] + (closed?'':' <span class="tag">proj</span>') + '</td>' +
-      '<td class="num">' + (closed ? fmtMoney(DATA.actualRevenue[m]) : '<span class="muted">—</span>') + '</td>' +
-      '<td class="num muted">' + fmtMoney(R.planRev[m]) + '</td>' +
-      '<td class="num">' + (closed ? deltaSpan(DATA.actualRevenue[m]-R.planRev[m], {fmt:fK}) : '<span class="muted">—</span>') + '</td>' +
-      '<td class="num">' + fK(R.arr[m]) + '</td><td class="num">' + fmtMoney(R.cumRev[m]) + '</td></tr>';
+      '<td class="num">' + (closed ? fmtMoney(D.actualRevenue[m]) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num muted">' + fmtMoney(D.totalPlanRev[m]) + '</td>' +
+      '<td class="num">' + (closed ? deltaSpan(D.actualRevenue[m]-D.totalPlanRev[m], {fmt:fK}) : '<span class="muted">—</span>') + '</td>' +
+      '<td class="num">' + fK(D.arrPath[m]) + '</td><td class="num">' + fmtMoney(D.cumRevenue[m]) + '</td></tr>';
   }
-  const ytdVar = R.ytdActual - R.ytdPlan;
-  ct += '<tr class="total"><td class="txt">Full year</td><td class="num">' + fmtMoney(R.ytdActual) + ' <span class="tag">YTD</span></td>' +
-    '<td class="num">' + fmtMoney(R.fyPlanRevenue) + '</td><td class="num">' + deltaSpan(ytdVar,{fmt:fK}) + ' <span class="tag">YTD</span></td>' +
-    '<td class="num">' + fK(R.yeARR) + ' <span class="tag">YE</span></td><td class="num">' + fmtMoney(R.cumRev[11]) + '</td></tr></table>';
+  ct += '<tr class="total"><td class="txt">Full year</td><td class="num">' + fmtMoney(ytdActual) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fmtMoney(D.totalPlanRevFY) + '</td><td class="num">' + deltaSpan(ytdActual - ytdPlan,{fmt:fK}) + ' <span class="tag">YTD</span></td>' +
+    '<td class="num">' + fK(D.yeARR) + ' <span class="tag">YE</span></td><td class="num">' + fmtMoney(D.cumRevenue[11]) + '</td></tr></table>';
   document.getElementById('tbl-cockpit').innerHTML = ct;
 
   /* ---------- TARGETS ---------- */
-  document.getElementById('sub-custeq').textContent =
-    'One customer-equivalent = ' + fK(L.arpa) + ' of annual revenue. Full-year target: ' + R.custEqFY + ' equivalents for ' + fK(L.targetARR) + ' ARR.';
+  document.getElementById('sub-custeq').textContent = 'One customer-equivalent = ' + fK(D.defaults.arpa) + ' of annual revenue. Full-year target: ' + fNum(D.custEqFY) + ' equivalents for ' + fK(D.targetARR) + ' ARR.';
   mkChart('ch-custeq', { type:'bar', data:{ labels:M, datasets:[
-    { label:'Actual', data: R.custEqActual.concat(Array(12-(li+1)).fill(null)), backgroundColor:C.dark, borderRadius:4, barPercentage:.6 },
-    { label:'Target', data: R.custEqTarget, type:'line', borderColor:C.accent, borderWidth:1.8, pointRadius:2, tension:.25 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
-    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
-
-  const cumActualSigned = []; DATA.actualNewClients.reduce((a,b,i)=>(cumActualSigned[i]=a+b, cumActualSigned[i]),0);
+    { label:'Actual', data: padA(D.custEqActual), backgroundColor:C.dark, borderRadius:4, barPercentage:.6 },
+    { label:'Target', data: D.custEqTarget, type:'line', borderColor:C.accent, borderWidth:1.8, pointRadius:2, tension:.25 }
+  ]}, options:{ ...lineOpts(fNum), scales:{ x:xScale, y:yCount } }});
+  const cumActualSigned = []; D.actualNewClients.forEach((v,i)=>{ cumActualSigned[i] = (cumActualSigned[i-1]||0) + (v||0); });
+  const cumActualPadded = padA(cumActualSigned.slice(0, li+1));
   mkChart('ch-signed', { type:'line', data:{ labels:M, datasets:[
-    { label:'Actual cumulative', data: cumActualSigned.concat(Array(12-(li+1)).fill(null)), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:.15 },
-    { label:'Plan cumulative', data: R.cumPlan, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.25 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip:{...darkTooltip, callbacks:{label: c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fNum(c.parsed.y))}}, legend:{position:'bottom'} },
-    scales:{ x:baseScalesMoney.x, y:{beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)}} }}});
-
-  const mixTarget = R.existingPlan.map((e,m)=> e / R.planRev[m]);
-  const mixActual = DATA.existingActualRev.map((e,m)=> (e!=null && DATA.actualRevenue[m]) ? e / DATA.actualRevenue[m] : null);
-  // existing-share can nudge just above 100% in some months (split computed independently),
-  // so lift the ceiling above the real max — otherwise those points clip at the axis and the line looks broken
-  const mixMax = Math.max(1.05, ...mixActual.filter(v=>v!=null), ...mixTarget.filter(v=>v!=null)) + 0.03;
+    { label:'Actual cumulative', data: cumActualPadded, borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:.15 },
+    { label:'Plan cumulative', data: D.cumSignedPlan, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.25 }
+  ]}, options:{ ...lineOpts(fNum), scales:{ x:xScale, y:yCount } }});
+  const mixAll = D.existingShareActual.concat(D.existingShareTarget).filter(v=>v!=null);
   mkChart('ch-mix', { type:'line', data:{ labels:M, datasets:[
-    { label:'Existing share — actual', data: mixActual.concat(Array(12-mixActual.length).fill(null)), borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0 },
-    { label:'Existing share — plan', data: mixTarget, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.3 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fPct(c.parsed.y,1))}}, legend:{position:'bottom'} },
-    scales:{ x:baseScalesMoney.x, y:{min:0.3, max:mixMax, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
+    { label:'Existing share — actual', data: D.existingShareActual, borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0 },
+    { label:'Existing share — plan', data: D.existingShareTarget, borderColor:C.accent, borderWidth:1.8, pointRadius:0, tension:.3 }
+  ]}, options:{ ...lineOpts(v=>fPct(v,1)), scales:{ x:xScale, y:{ min:Math.max(0, Math.floor((Math.min(...mixAll)-0.05)*10)/10), max:Math.max(...mixAll)+0.03, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)} } } }});
 
-  let tc2 = '<table><tr><th class="txt">Month</th><th>Returning (2025)</th><th>New ROAS (cum.)</th><th>Total active</th><th>Returning %</th></tr>';
+  let tc2 = '<table><tr><th class="txt">Month</th><th>Returning (2025)</th><th>Active ROAS (cum.)</th><th>Total active</th><th>Returning %</th></tr>';
   for (let m=0; m<=li; m++){
-    const tot = DATA.returningClients[m] + cumActualSigned[m];
-    tc2 += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+DATA.returningClients[m]+'</td><td class="num">'+cumActualSigned[m]+'</td>' +
-      '<td class="num">'+tot+'</td><td class="num">'+fPct(DATA.returningClients[m]/tot)+'</td></tr>';
+    const ret = D.returningClients[m], roas = D.roasActiveCum[m], tot = D.totalActive[m] != null ? D.totalActive[m] : (ret||0)+(roas||0);
+    tc2 += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+fNum(ret)+'</td><td class="num">'+fNum(roas)+'</td><td class="num">'+fNum(tot)+'</td><td class="num">'+(tot?fPct(ret/tot):'—')+'</td></tr>';
   }
-  tc2 += '</table>';
-  document.getElementById('tbl-counts').innerHTML = tc2;
+  document.getElementById('tbl-counts').innerHTML = tc2 + '</table>';
 
-  const rowT = (label, arr2, fmt, fy) => '<tr><td class="txt">'+label+'</td>' +
-    arr2.map(v => '<td class="num">' + (v==null?'<span class="muted">—</span>':fmt(v)) + '</td>').join('') +
-    '<td class="num"><b>' + (fy==null?'—':fmt(fy)) + '</b></td></tr>';
-  const padA = a => a.concat(Array(12-a.length).fill(null));
+  const rowT = (label, arr, fmt, fy) => '<tr><td class="txt">'+label+'</td>' + arr.map(v => '<td class="num">' + (v==null?'<span class="muted">—</span>':fmt(v)) + '</td>').join('') + '<td class="num"><b>' + (fy==null?'—':fmt(fy)) + '</b></td></tr>';
+  const rowVar = (t, a, fmt, fyVar) => {
+    let cells = '';
+    for (let m=0; m<12; m++){ cells += (t[m]==null || a[m]==null) ? '<td class="num muted">—</td>' : '<td class="num">' + deltaSpan(a[m]-t[m], {fmt}) + '</td>'; }
+    return '<tr class="var-row"><td class="txt">Variance</td>' + cells + '<td class="num">' + (fyVar==null?'—':deltaSpan(fyVar,{fmt})) + '</td></tr>';
+  };
+  const ceA = padA(D.custEqActual), naA = padA(D.actualNewClients), arA = padA(D.actualRevenue);
   let tt = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
-  tt += rowT('Target customer-equivalents', R.custEqTarget, fNum, R.custEqFY);
-  tt += rowT('Actual customer-equivalents', padA(R.custEqActual), fNum, null);
-  tt += rowT('Target new clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
-  tt += rowT('Actual new clients signed', padA(DATA.actualNewClients), fNum, newcYTD);
-  tt += rowT('Plan revenue', R.planRev, fK, R.fyPlanRevenue);
-  tt += rowT('Actual revenue', padA(DATA.actualRevenue), fK, R.ytdActual);
-  tt += '</table>';
-  document.getElementById('tbl-targets').innerHTML = tt;
+  tt += rowT('Target customer-equivalents', D.custEqTarget, fNum, D.custEqFY);
+  tt += rowT('Actual customer-equivalents', ceA, fNum, null);
+  tt += rowVar(D.custEqTarget, ceA, fNum, null);
+  tt += rowT('Target new clients signed', D.signedTarget, fNum, sum(D.signedTarget));
+  tt += rowT('Actual new clients signed', naA, fNum, newcYTD);
+  tt += rowVar(D.signedTarget, naA, fNum, newcYTD - newcTgt);
+  tt += rowT('Plan revenue', D.totalPlanRev, fK, D.totalPlanRevFY);
+  tt += rowT('Actual revenue', arA, fK, ytdActual);
+  tt += rowVar(D.totalPlanRev, arA, fK, ytdActual - ytdPlan);
+  document.getElementById('tbl-targets').innerHTML = tt + '</table>';
 
   /* ---------- TOP CLIENTS ---------- */
-  const ytdByClient = DATA.topClients.map(c => ({ name:c.name, ytd: c.monthly.reduce((a,b)=>a+(b||0),0), monthly:c.monthly }));
-  const top1 = ytdByClient[0];
-  const top5ytd = ytdByClient.reduce((a,c)=>a+c.ytd,0);
-  document.getElementById('k-top1').textContent = fPct(top1.ytd / R.ytdActual, 1);
+  document.getElementById('top-sub').textContent = 'Concentration in the existing book, Jan–' + closedLabel + ' 2026 actuals from the model sheet.';
+  const tcs = D.topClients.map(c => ({ name:c.name, monthly:c.monthly.slice(0, li+1), ytd: c.ytd != null ? c.ytd : sum(c.monthly) }));
+  const top1 = tcs[0], top5ytd = sum(tcs.map(c=>c.ytd));
+  document.getElementById('k-top1').textContent = fPct(top1.ytd / ytdActual, 1);
   document.getElementById('k-top1-note').textContent = top1.name + ' · ' + fK(top1.ytd) + ' YTD';
-  document.getElementById('k-top5').textContent = fPct(top5ytd / R.ytdActual, 1);
-  document.getElementById('k-rest').textContent = fPct(1 - top5ytd / R.ytdActual, 1);
-  document.getElementById('k-rest-note').textContent = fK(R.ytdActual - top5ytd) + ' across the rest of the book';
-
+  document.getElementById('k-top5').textContent = fPct(top5ytd / ytdActual, 1);
+  document.getElementById('k-rest').textContent = fPct(1 - top5ytd / ytdActual, 1);
+  document.getElementById('k-rest-note').textContent = fK(ytdActual - top5ytd) + ' across the rest of the book';
   const topColors = [C.accent, '#8B83EC', C.accentTint, '#DEDBF9', '#EEEDFB'];
-  mkChart('ch-top', { type:'bar', data:{ labels:M.slice(0,li+1), datasets:
-    ytdByClient.map((c,i)=>({ label:c.name, data:c.monthly.map((v,m)=> (v||0)/DATA.actualRevenue[m]), backgroundColor: topColors[i], stack:'s', borderRadius:2, barPercentage:.62 }))
-    .concat([{ label:'Rest of book', data: M.slice(0,li+1).map((_,m)=> Math.max(0, 1 - ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0)/DATA.actualRevenue[m])), backgroundColor:'#E4E7EC', stack:'s', borderRadius:2, barPercentage:.62 }])
-  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+fPct(c.parsed.y,1)}}, legend:{position:'bottom'} },
-    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{stacked:true, min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)}} }}});
-
-  let tp = '<table><tr><th class="txt">Client</th>' + M.slice(0,li+1).map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
-  ytdByClient.forEach(c => {
-    tp += '<tr><td class="txt">'+c.name+'</td>' + c.monthly.map(v=>'<td class="num">'+(v?fK(v):'<span class="muted">—</span>')+'</td>').join('') +
-      '<td class="num"><b>'+fK(c.ytd)+'</b></td><td class="num">'+fPct(c.ytd/R.ytdActual,1)+'</td></tr>';
-  });
-  tp += '<tr class="total"><td class="txt">Top 5</td>' + M.slice(0,li+1).map((_,m)=>'<td class="num">'+fK(ytdByClient.reduce((a,c)=>a+(c.monthly[m]||0),0))+'</td>').join('') +
-    '<td class="num">'+fK(top5ytd)+'</td><td class="num">'+fPct(top5ytd/R.ytdActual,1)+'</td></tr></table>';
+  const monthsClosed = M.slice(0, li+1);
+  mkChart('ch-top', { type:'bar', data:{ labels:monthsClosed, datasets:
+    tcs.map((c,i)=>({ label:c.name, data:c.monthly.map((v,m)=> (v||0)/D.actualRevenue[m]), backgroundColor:topColors[i], stack:'s', borderRadius:2, barPercentage:.62 }))
+    .concat([{ label:'Rest of book', data: monthsClosed.map((_,m)=> Math.max(0, 1 - sum(tcs.map(c=>c.monthly[m]))/D.actualRevenue[m])), backgroundColor:'#E7E6E3', stack:'s', borderRadius:2, barPercentage:.62 }])
+  }, options:{ ...lineOpts(v=>fPct(v,1)), scales:{ x:{...xScale, stacked:true}, y:{ stacked:true, min:0, max:1, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fPct(v)} } } }});
+  let tp = '<table><tr><th class="txt">Client</th>' + monthsClosed.map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
+  tcs.forEach(c => { tp += '<tr><td class="txt">'+c.name+'</td>' + c.monthly.map(v=>'<td class="num">'+(v?fK(v):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(c.ytd)+'</b></td><td class="num">'+fPct(c.ytd/ytdActual,1)+'</td></tr>'; });
+  tp += '<tr class="total"><td class="txt">Top 5</td>' + monthsClosed.map((_,m)=>'<td class="num">'+fK(sum(tcs.map(c=>c.monthly[m])))+'</td>').join('') + '<td class="num">'+fK(top5ytd)+'</td><td class="num">'+fPct(top5ytd/ytdActual,1)+'</td></tr></table>';
   document.getElementById('tbl-top').innerHTML = tp;
+  let tconc = '<table><tr><th class="txt">Client</th>' + monthsClosed.map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th></tr>';
+  tcs.forEach(c => { tconc += '<tr><td class="txt">'+c.name+'</td>' + c.monthly.map((v,m)=>'<td class="num">'+(v?fPct(v/D.actualRevenue[m],1):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fPct(c.ytd/ytdActual,1)+'</b></td></tr>'; });
+  tconc += '<tr class="total"><td class="txt">Top 5 combined</td>' + monthsClosed.map((_,m)=>'<td class="num">'+fPct(sum(tcs.map(c=>c.monthly[m]))/D.actualRevenue[m],1)+'</td>').join('') + '<td class="num">'+fPct(top5ytd/ytdActual,1)+'</td></tr></table>';
+  document.getElementById('tbl-concentration').innerHTML = tconc;
 
   /* ---------- CAC ---------- */
-  const mc = DATA.cac.merchant, cc = DATA.cac.creator;
-  // a month counts toward blended CAC only if it has both a cost and a non-zero count
-  const valid = (src, m) => src.cost[m] != null && src.count[m] != null && src.count[m] > 0;
-  const blended = src => {
-    let cost = 0, n = 0;
-    for (let m = 0; m <= li; m++) if (valid(src, m)) { cost += src.cost[m]; n += src.count[m]; }
-    return { cost, n, cac: n ? cost / n : null };
-  };
-  const mB = blended(mc), cB = blended(cc);
+  const mc = D.cac.merchant, cc = D.cac.creator;
+  const hasCount = (src,m) => src.count[m] != null && src.count[m] > 0;
+  // headline follows the sheet's own full-year cells (its "Actual" = average of the monthly CACs)
+  const mB = { cost: mc.fy.cost, n: mc.fy.count, cac: mc.fy.cac }, cB = { cost: cc.fy.cost, n: cc.fy.count, cac: cc.fy.cac };
   document.getElementById('k-mcac').textContent = fmtMoney(mB.cac);
-  document.getElementById('k-mcac-note').innerHTML = deltaSpan(mc.target - mB.cac, {fmt:fmtMoney, goodPos:true}) + ' vs ' + fmtMoney(mc.target) + ' target';
-  document.getElementById('k-mcount').textContent = mB.n;
+  document.getElementById('k-mcac-note').innerHTML = deltaSpan(mc.target - mB.cac, {fmt:fmtMoney}) + ' vs ' + fmtMoney(mc.target) + ' target';
+  document.getElementById('k-mcount').textContent = fNum(mB.n);
   document.getElementById('k-mspend').textContent = fmtMoney(mB.cost) + ' acquisition cost';
   document.getElementById('k-ccac').textContent = fmtMoney(cB.cac);
-  document.getElementById('k-ccac-note').innerHTML = deltaSpan(cc.target - cB.cac, {fmt:fmtMoney, goodPos:true}) + ' vs ' + fmtMoney(cc.target) + ' target';
-  document.getElementById('k-ccount').textContent = cB.n;
+  document.getElementById('k-ccac-note').innerHTML = deltaSpan(cc.target - cB.cac, {fmt:fmtMoney}) + ' vs ' + fmtMoney(cc.target) + ' target';
+  document.getElementById('k-ccount').textContent = fNum(cB.n);
   document.getElementById('k-cspend').textContent = fmtMoney(cB.cost) + ' acquisition cost';
-
-  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:M.slice(0,li+1), datasets:[
-    { label:'Actual CAC', data: M.slice(0,li+1).map((_,m)=> valid(src,m) ? src.cost[m]/src.count[m] : null),
-      backgroundColor: M.slice(0,li+1).map((_,m)=> valid(src,m) ? (src.cost[m]/src.count[m] <= src.target ? C.dark : '#D08A93') : 'transparent'), borderRadius:4, barPercentage:.62 },
-    { label:'Target', data: M.slice(0,li+1).map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip:{...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':fmtMoney(c.parsed.y))}}, legend:{position:'bottom'} }, scales: baseScalesMoney }});
+  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:monthsClosed, datasets:[
+    { label:'Actual CAC', data: monthsClosed.map((_,m)=> hasCount(src,m) ? src.cost[m]/src.count[m] : null),
+      backgroundColor: monthsClosed.map((_,m)=> hasCount(src,m) ? (src.cost[m]/src.count[m] <= src.target ? C.dark : '#D08A93') : 'transparent'), borderRadius:4, barPercentage:.62 },
+    { label:'Target', data: monthsClosed.map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0 }
+  ]}, options:{ ...lineOpts(fmtMoney), scales:{ x:xScale, y:yMoney() } }});
   cacChart('ch-mcac', mc); cacChart('ch-ccac', cc);
-
   const cacTable = (src, unit, B) => {
     let t = '<table><tr><th class="txt">Month</th><th>Acq. cost</th><th>'+unit+'</th><th>CAC</th><th>vs target</th></tr>';
     for (let m=0; m<=li; m++){
-      const has = src.cost[m] != null;
-      const canCac = valid(src, m);
-      const cacV = canCac ? src.cost[m]/src.count[m] : null;
-      t += '<tr><td class="txt">'+M[m]+'</td>' +
-        '<td class="num">'+(has?fmtMoney(src.cost[m]):'<span class="muted">—</span>')+'</td>' +
-        '<td class="num">'+(src.count[m]!=null?src.count[m]:'<span class="muted">—</span>')+'</td>' +
-        '<td class="num">'+(cacV!=null?fmtMoney(cacV):'<span class="muted">n/a</span>')+'</td>' +
-        '<td class="num">'+(cacV!=null?deltaSpan(src.target-cacV,{fmt:fmtMoney}):'<span class="muted">—</span>')+'</td></tr>';
+      const v = hasCount(src,m) ? src.cost[m]/src.count[m] : null;
+      t += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+(src.cost[m]!=null?fmtMoney(src.cost[m]):'<span class="muted">—</span>')+'</td>' +
+        '<td class="num">'+(src.count[m]!=null?fNum(src.count[m]):'<span class="muted">—</span>')+'</td>' +
+        '<td class="num">'+(v!=null?fmtMoney(v):'<span class="muted">n/a</span>')+'</td>' +
+        '<td class="num">'+(v!=null?deltaSpan(src.target-v,{fmt:fmtMoney}):'<span class="muted">—</span>')+'</td></tr>';
     }
-    t += '<tr class="total"><td class="txt">Blended YTD</td><td class="num">'+fmtMoney(B.cost)+'</td><td class="num">'+B.n+'</td>' +
-      '<td class="num">'+(B.cac!=null?fmtMoney(B.cac):'—')+'</td><td class="num">'+(B.cac!=null?deltaSpan(src.target-B.cac,{fmt:fmtMoney}):'—')+'</td></tr></table>';
+    t += '<tr class="total"><td class="txt">Full year <span class="tag">sheet</span></td><td class="num">'+fmtMoney(B.cost)+'</td><td class="num">'+fNum(B.n)+'</td><td class="num">'+fmtMoney(B.cac)+'</td><td class="num">'+(B.cac!=null?deltaSpan(src.target-B.cac,{fmt:fmtMoney}):'—')+'</td></tr></table>';
     return t;
   };
   document.getElementById('tbl-mcac').innerHTML = cacTable(mc, 'Merchants', mB);
   document.getElementById('tbl-ccac').innerHTML = cacTable(cc, 'Creators', cB);
 
-  // combined acquisition-cost breakdown (both sides, per month) — replaces the old placeholder
-  const bothMonths = [];
-  for (let m=0; m<=li; m++){
-    const mCacV = valid(mc,m) ? mc.cost[m]/mc.count[m] : null;
-    const cCacV = valid(cc,m) ? cc.cost[m]/cc.count[m] : null;
-    bothMonths.push({ m, mCost:mc.cost[m], mN:mc.count[m], mCac:mCacV, cCost:cc.cost[m], cN:cc.count[m], cCac:cCacV });
-  }
-  let bt = '<table><tr><th class="txt">Month</th>' +
-    '<th>Merchant cost</th><th>Merchants</th><th>Merchant CAC</th>' +
-    '<th>Creator cost</th><th>Creators</th><th>Creator CAC</th><th>Total spend</th></tr>';
-  let tMcost=0, tCcost=0;
-  bothMonths.forEach(b => {
-    const tot = (b.mCost||0) + (b.cCost||0); tMcost += b.mCost||0; tCcost += b.cCost||0;
-    bt += '<tr><td class="txt">'+M[b.m]+'</td>' +
-      '<td class="num">'+(b.mCost!=null?fmtMoney(b.mCost):'—')+'</td><td class="num">'+(b.mN!=null?b.mN:'—')+'</td>' +
-      '<td class="num">'+(b.mCac!=null?fmtMoney(b.mCac):'<span class="muted">n/a</span>')+'</td>' +
-      '<td class="num">'+(b.cCost!=null?fmtMoney(b.cCost):'—')+'</td><td class="num">'+(b.cN!=null?b.cN:'<span class="muted">—</span>')+'</td>' +
-      '<td class="num">'+(b.cCac!=null?fmtMoney(b.cCac):'<span class="muted">n/a</span>')+'</td>' +
-      '<td class="num tot">'+fmtMoney(tot)+'</td></tr>';
-  });
-  bt += '<tr class="total"><td class="txt">YTD total</td>' +
-    '<td class="num">'+fmtMoney(tMcost)+'</td><td class="num">'+mB.n+'</td><td class="num">'+(mB.cac!=null?fmtMoney(mB.cac):'—')+'</td>' +
-    '<td class="num">'+fmtMoney(tCcost)+'</td><td class="num">'+cB.n+'</td><td class="num">'+(cB.cac!=null?fmtMoney(cB.cac):'—')+'</td>' +
-    '<td class="num tot">'+fmtMoney(tMcost+tCcost)+'</td></tr></table>';
-  document.getElementById('tbl-cac-breakdown').innerHTML = bt;
-  // note any month excluded for a missing count
-  const missing = [];
-  for (let m=0; m<=li; m++){ if (cc.cost[m]!=null && (cc.count[m]==null||cc.count[m]===0)) missing.push(M[m]+' (creator count)'); if (mc.cost[m]!=null && (mc.count[m]==null||mc.count[m]===0)) missing.push(M[m]+' (merchant count)'); }
-  document.getElementById('cac-note').innerHTML = missing.length
-    ? '<b>Note:</b> ' + missing.join(', ') + ' had acquisition spend recorded but no acquisition count in the workbook, so that month is included in total spend but excluded from the blended CAC (dividing by zero). Blended CAC uses only months with both figures.'
-    : 'Blended CAC = total acquisition cost ÷ total acquisitions across all months shown.';
-
-  /* ---------- LEVERS ---------- */
-  document.getElementById('live-heading').innerHTML =
-    'At <span class="v">' + fPct(L.growth) + '</span> existing-book growth, <span class="v">' + L.newClients +
-    '</span> new clients at <span class="v">' + fK(L.arpa) + '</span> ARPA with <span class="v">' + fPct(L.dropout) +
-    '</span> early dropout → year-end ARR <span class="v num">' + fMshort(R.yeARR) + '</span> against a <span class="v num">' +
-    fK(L.targetARR) + '</span> target — ' + (yeGap>=0
-      ? '<span class="delta-good" data-v="'+yeGap+'" data-goodpos="true">on target, ▲ ' + fK(yeGap) + ' of headroom</span>'
-      : '<span class="delta-bad" data-v="'+yeGap+'" data-goodpos="true">▼ short by ' + fK(Math.abs(yeGap)) + '</span>') + '.';
-
-  document.getElementById('lk-2025').textContent = fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0));
-  document.getElementById('lk-influ').textContent = L.influPerClient;
-  document.getElementById('lk-ads').textContent = L.adsPerInflu;
-  document.getElementById('adj-callout').innerHTML = '<b>Shortfall check:</b> the workbook models ' + fK(Math.abs(R.adjSum)) +
-    ' of revenue at risk over Aug–Dec; covering it at ' + fK(L.arpa) + ' ARPA would take <b>' + R.addlClients +
-    ' additional clients</b> on top of the plan.';
-
+  /* ---------- LEVERS (read-only) ---------- */
+  const L = D.defaults;
+  document.getElementById('levers-heading').innerHTML = 'The sheet assumes <span class="v">' + fPct(L.growth) + '</span> existing-book growth, <span class="v">' + fNum(L.newClients) + '</span> new clients at <span class="v">' + fK(L.arpa) + '</span> ARPA with <span class="v">' + fPct(L.dropout) + '</span> early dropout → year-end ARR <span class="v num">' + fMshort(D.yeARR) + '</span> against a <span class="v num">' + fK(D.targetARR) + '</span> target.';
+  const lock = (l, v) => '<div class="locked"><span>'+l+'</span><b class="num">'+v+'</b></div>';
+  document.getElementById('lk-growth').innerHTML = lock('Existing-client growth vs 2025', fPct(L.growth)) + lock('New clients signed this year', fNum(L.newClients)) + lock('ARPA — new clients', fmtMoney(L.arpa)) + lock('3-month dropout', fPct(L.dropout));
+  document.getElementById('lk-unit').innerHTML = lock('Annual churn', fPct(L.churn)) + lock('Merchant CAC (plan)', fmtMoney(L.cac)) + lock('Gross margin', fPct(L.gm)) + lock('Target ARR', fmtMoney(D.targetARR));
+  document.getElementById('lk-fixed').innerHTML = lock('2025 platform revenue', fmtMoney(sum(D.prior2025))) + lock('Seasonality shape', '2025 monthly mix') + lock('Signing schedule', '1%→14% ramp over 12&nbsp;mo') + lock('Influencers / client-equivalent', fNum(L.influPerClient)) + lock('Ads / influencer / month', L.adsPerInflu);
+  const adjSum = sum(D.adjustments);
+  document.getElementById('adj-callout').innerHTML = adjSum < 0
+    ? '<b>Shortfall check:</b> the sheet models ' + fK(Math.abs(adjSum)) + ' of revenue at risk over the remaining months; covering it at ' + fK(L.arpa) + ' ARPA would take <b>' + fNum(D.addlClients) + ' additional clients</b> on top of the plan.'
+    : '<b>Shortfall check:</b> no revenue adjustment entered in the sheet.';
+  const U = D.unit;
   const outs = [
-    { l:'Year-end ARR', v:fMshort(R.yeARR), n:(yeGap>=0?'▲ ':'▼ ') + fK(Math.abs(yeGap)) + ' vs target', ok: yeGap>=0 },
-    { l:'FY plan revenue', v:fK(R.fyPlanRevenue), n:'existing ' + fK(R.existingPlan.reduce((a,b)=>a+b,0)) + ' + new ' + fK(R.newRevPlan.reduce((a,b)=>a+b,0)) },
-    { l:'LTV (new clients)', v:fK(R.ltv), n:'ARPA × (1−dropout) ÷ churn' },
-    { l:'LTV : CAC', v:R.ltvcac.toFixed(1)+'x', n: R.ltvcac>=3 ? 'above the 3x rule of thumb' : 'below the 3x rule of thumb', ok:R.ltvcac>=3 },
-    { l:'Payback', v:f1(R.payback)+' mo', n:'months of gross profit to repay CAC', ok:R.payback<=12 },
-    { l:'NRR (existing)', v:fPct(R.nrr), n:'net revenue retention of 2025 base', ok:R.nrr>=1 }
+    { l:'Year-end ARR', v:fMshort(D.yeARR), n:(yeGap>=0?'▲ ':'▼ ') + fK(Math.abs(yeGap)) + ' vs target', ok:yeGap>=0 },
+    { l:'FY plan revenue', v:fK(D.totalPlanRevFY), n:'existing ' + fK(D.existingPlanRevFY) + ' + new ' + fK(D.newClientRevPlanFY) },
+    { l:'LTV (new clients)', v:fK(U.ltv), n:'ARPA × (1−dropout) ÷ churn' },
+    { l:'LTV : CAC', v: U.ltvcac != null ? U.ltvcac.toFixed(1)+'x' : '—', n: U.ltvcac>=3 ? 'above the 3x rule of thumb' : 'below the 3x rule of thumb', ok:U.ltvcac>=3 },
+    { l:'Payback', v: U.payback != null ? f1(U.payback)+' mo' : '—', n:'months of gross profit to repay CAC', ok:U.payback<=12 },
+    { l:'NRR (existing)', v:fPct(U.nrr), n:'net revenue retention of 2025 base', ok:U.nrr>=1 }
   ];
-  document.getElementById('lever-outputs').innerHTML = outs.map(o =>
-    '<div><div class="kpi-label">'+o.l+'</div><div class="kpi-value num" style="font-size:19px">'+o.v+'</div>' +
-    '<div class="kpi-note' + (o.ok===true?' delta-good':(o.ok===false?' delta-bad':'')) + '" data-static="1">'+o.n+'</div></div>').join('');
-
-  // revenue build stacked chart
-  const rampRev = R.signedPlan.map((_,m)=>{
-    const ramp = R.signedPlan[m] + (R.signedPlan[m-1]||0) + (R.signedPlan[m-2]||0);
-    return ramp * R.seasARPA[m] * (1 - L.dropout);
-  });
-  const matureRev = R.newRevPlan.map((v,m)=> v - rampRev[m]);
+  document.getElementById('lever-outputs').innerHTML = outs.map(o => '<div><div class="kpi-label">'+o.l+'</div><div class="kpi-value num" style="font-size:19px">'+o.v+'</div><div class="kpi-note' + (o.ok===true?' delta-good':(o.ok===false?' delta-bad':'')) + '" data-static="1">'+o.n+'</div></div>').join('');
   mkChart('ch-build', { type:'bar', data:{ labels:M, datasets:[
-    { label:'Existing book', data:R.existingPlan, backgroundColor:'#2A2740', stack:'b', borderRadius:2, barPercentage:.62 },
-    { label:'New — first 3 months (ramping)', data:rampRev, backgroundColor:C.accentTint, stack:'b', borderRadius:2, barPercentage:.62 },
-    { label:'New — matured (month 4+)', data:matureRev, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
-    { label:'Actual revenue', data: DATA.actualRevenue.concat(Array(12-(li+1)).fill(null)), type:'line', borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0, order:0 }
-  ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} },
-    scales:{ x:{...baseScalesMoney.x, stacked:true}, y:{...baseScalesMoney.y, stacked:true} }}});
-
+    { label:'Existing book', data:D.existingPlanRev, backgroundColor:'#2A2740', stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'New-client revenue', data:D.newClientRevPlan, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
+    { label:'Actual revenue', data: padA(D.actualRevenue), type:'line', borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0, order:0 }
+  ]}, options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
   let tb = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
-  tb += rowT('New clients signed', R.signedPlan, fNum, R.signedPlan.reduce((a,b)=>a+b,0));
-  tb += rowT('Cumulative signed', R.cumPlan, fNum, R.cumPlan[11]);
-  tb += rowT('Existing revenue', R.existingPlan, fK, R.existingPlan.reduce((a,b)=>a+b,0));
-  tb += rowT('New-client revenue', R.newRevPlan, fK, R.newRevPlan.reduce((a,b)=>a+b,0));
-  tb += rowT('Total plan', R.planRev, fK, R.fyPlanRevenue);
-  tb += '</table>';
-  document.getElementById('tbl-build').innerHTML = tb;
+  tb += rowT('New clients signed', D.signedPlan, fNum, D.signedPlanFY);
+  tb += rowT('Cumulative signed', D.cumSignedPlan, fNum, D.cumSignedPlan[11]);
+  tb += rowT('Existing revenue', D.existingPlanRev, fK, D.existingPlanRevFY);
+  tb += rowT('New-client revenue', D.newClientRevPlan, fK, D.newClientRevPlanFY);
+  tb += rowT('Total plan', D.totalPlanRev, fK, D.totalPlanRevFY);
+  document.getElementById('tbl-build').innerHTML = tb + '</table>';
 
-  /* ---------- SCENARIOS ---------- */
-  const scenResults = SCENARIOS.map(s => {
-    const lv = Object.assign({}, state.levers, s.set);
-    return { s, lv, r: engine(lv) };
-  });
-  const hits = scenResults.filter(x => x.r.yeARR >= L.targetARR).length;
+  renderMethod();
+}
+
+/* ============================================================
+   RENDER — Scenario Planner (engine)
+   ============================================================ */
+function renderPlanner(){
+  const D = DATA, li = D.meta.latestClosedIdx, M = D.months, L = state.levers;
+  // calibration: the engine at the sheet's own assumptions vs the sheet's plan row
+  const R_ref = engine(D.defaults);
+  const maxDev = Math.max(...D.totalPlanRev.map((v,m)=> v==null ? 0 : Math.abs(R_ref.planRev[m]-v)));
+  const yeDev = Math.abs(R_ref.yeARR - D.yeARR);
+  state.calibration = { maxDev, yeDev };
+  document.getElementById('calib-note').innerHTML = 'Engine check: at the sheet\'s own assumptions this engine reproduces the sheet\'s monthly plan to within ' + fmtMoney(maxDev) + ' and year-end ARR to within ' + fmtMoney(yeDev) + ' (seasonality source: ' + D.seasonalitySource + ').';
+  const R = engine(L); state.result = R;
+  const yeGap = R.yeARR - L.targetARR;
+  document.getElementById('live-heading').innerHTML =
+    'At <span class="v">' + fPct(L.growth) + '</span> existing-book growth, <span class="v">' + fNum(L.newClients) + '</span> new clients at <span class="v">' + fK(L.arpa) + '</span> ARPA with <span class="v">' + fPct(L.dropout) + '</span> early dropout → year-end ARR <span class="v num">' + fMshort(R.yeARR) + '</span> against a <span class="v num">' + fK(L.targetARR) + '</span> target — ' +
+    (yeGap>=0 ? '<span class="delta-good" data-v="'+yeGap+'" data-goodpos="true">on target, ▲ ' + fK(yeGap) + ' of headroom</span>' : '<span class="delta-bad" data-v="'+yeGap+'" data-goodpos="true">▼ short by ' + fK(Math.abs(yeGap)) + '</span>') + '.';
+  const outs = [
+    { l:'Year-end ARR', v:fMshort(R.yeARR), n:(yeGap>=0?'▲ ':'▼ ') + fK(Math.abs(yeGap)) + ' vs target', ok:yeGap>=0 },
+    { l:'If signings stop now', v:fMshort(R.arrStop[11]), n:'year-end ARR with zero new signings' },
+    { l:'FY plan revenue', v:fK(R.fyPlanRevenue), n:'existing ' + fK(sum(R.existingPlan)) + ' + new ' + fK(sum(R.newRevPlan)) },
+    { l:'LTV : CAC', v:R.ltvcac.toFixed(1)+'x', n:'LTV ' + fK(R.ltv), ok:R.ltvcac>=3 },
+    { l:'Payback', v:f1(R.payback)+' mo', n:'months of gross profit to repay CAC', ok:R.payback<=12 },
+    { l:'NRR (existing)', v:fPct(R.nrr), n:'of the 2025 base', ok:R.nrr>=1 }
+  ];
+  document.getElementById('planner-outputs').innerHTML = outs.map(o => '<div class="locked" style="border-style:solid"><span>'+o.l+'<br><span class="muted" style="font-size:10.5px">'+o.n+'</span></span><b class="num ' + (o.ok===true?'delta-good':(o.ok===false?'delta-bad':'')) + '" data-static="1">'+o.v+'</b></div>').join('');
+  mkChart('ch-plan-arr', { type:'line', data:{ labels:M, datasets:[
+    { label:'Actual ARR', data: R.arr.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'Projected (levers)', data: R.arr.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
+    { label:'If signings stop', data: R.arrStop.map((v,m)=> m>=li ? v : null), borderColor:C.grey, borderWidth:1.6, pointRadius:0, borderDash:[5,4], tension:.3 },
+    { label:'Target ARR', data: M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney({ beginAtZero:false, min: floorMillion(R.arr.concat(R.arrStop)) }) } }});
+  const scen = SCENARIOS.map(s => { const set = typeof s.set === 'function' ? s.set(D.defaults) : s.set; const lv = Object.assign({}, D.defaults, { targetARR: L.targetARR }, set); return { s, lv, r: engine(lv) }; });
+  const hits = scen.filter(x => x.r.yeARR >= L.targetARR).length;
   const banner = document.getElementById('scen-banner');
   banner.className = 'scen-banner ' + (hits >= 1 ? 'ok' : 'warn');
-  banner.textContent = hits + ' of ' + SCENARIOS.length + ' scenarios reach the ' + fK(L.targetARR) + ' year-end ARR target.';
-  document.getElementById('scen-cards').innerHTML = scenResults.map((x,i) => {
+  banner.textContent = hits + ' of ' + scen.length + ' preset scenarios reach the ' + fK(L.targetARR) + ' year-end ARR target.';
+  document.getElementById('scen-cards').innerHTML = scen.map((x,i) => {
     const hit = x.r.yeARR >= L.targetARR;
-    return '<div class="scen-card' + (hit?' hit':'') + '"><h3>' + x.s.name + '</h3>' +
-      '<span class="chip ' + (hit?'chip-good':'chip-bad') + '">' + (hit ? 'hits ' : 'misses ') + fK(L.targetARR) + '</span>' +
-      '<div class="assum">' + x.s.desc + '</div>' +
+    return '<div class="scen-card' + (hit?' hit':'') + '"><h3>' + x.s.name + '</h3><span class="chip ' + (hit?'chip-good':'chip-bad') + '">' + (hit?'hits ':'misses ') + fK(L.targetARR) + '</span>' +
+      '<div class="assum">' + x.s.desc + '<br><span class="muted">' + fPct(x.lv.growth) + ' growth · ' + fNum(x.lv.newClients) + ' clients · ' + fPct(x.lv.dropout) + ' dropout</span></div>' +
       '<div class="scen-out"><span>Year-end ARR</span><b class="num">' + fMshort(x.r.yeARR) + '</b></div>' +
       '<div class="scen-out"><span>Gap to target</span>' + deltaSpan(x.r.yeARR - L.targetARR, {fmt:fK}) + '</div>' +
       '<div class="scen-out"><span>FY plan revenue</span><b class="num">' + fK(x.r.fyPlanRevenue) + '</b></div>' +
-      '<div class="scen-out"><span>LTV : CAC</span><b class="num">' + x.r.ltvcac.toFixed(1) + 'x</b></div>' +
       '<button class="apply-btn" data-scen="' + i + '">Apply to levers</button></div>';
   }).join('');
   document.querySelectorAll('#scen-cards .apply-btn').forEach(btn => btn.addEventListener('click', () => {
-    const s = SCENARIOS[+btn.dataset.scen];
-    state.levers = Object.assign({}, state.levers, s.set);
-    syncInputs(); render(); showPage('levers');
+    state.levers = Object.assign({}, scen[+btn.dataset.scen].lv); syncInputs(); renderPlanner();
   }));
-
-  const scenColors = [C.accent, '#D08770', '#B48EAD', '#8FA1B3', C.good];
-  mkChart('ch-scen', { type:'line', data:{ labels:M, datasets:
-    [{ label:'Actual', data: (function(){ const base = engine(state.levers); return base.arr.map((v,m)=> m<=li ? v : null); })(), borderColor:C.dark, borderWidth:2.6, pointRadius:2.5, tension:.3 }]
-    .concat(scenResults.map((x,i)=>({ label:x.s.name, data: x.r.arr.map((v,m)=> m>=li ? v : null),
-      borderColor: scenColors[i], borderWidth:1.8, pointRadius:0, tension:.3, borderDash: x.r.yeARR>=L.targetARR?[0]:[6,4] })))
-    .concat([{ label:'Target', data:M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, borderDash:[2,3], pointRadius:0 }])
-  }, options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
-    plugins:{ tooltip: darkTooltip, legend:{position:'bottom'} }, scales: baseScalesMoney }});
-
-  /* ---------- ROAS ---------- */
-  const statusMap = {
-    '✓ Active': 'chip-good', '↑ Scaling': 'chip-accent', '~ Low spend': 'chip-warn',
-    '→ Watch': 'chip-warn', '— Too early': 'chip-neutral', '✗ At risk': 'chip-bad', '⬛ Inactive': 'chip-neutral'
-  };
-  const norm = s => s === 'Inactive' ? '⬛ Inactive' : s;
-  const counts = {};
-  DATA.roasClients.forEach(c => { const k = norm(c.status); counts[k] = (counts[k]||0)+1; });
-  const order = ['✓ Active','↑ Scaling','~ Low spend','→ Watch','— Too early','✗ At risk','⬛ Inactive'];
-  const stClass2 = {
-    '✓ Active':'st-active', '↑ Scaling':'st-scaling', '~ Low spend':'st-low', '→ Watch':'st-watch',
-    '— Too early':'st-early', '✗ At risk':'st-risk', '⬛ Inactive':'st-inactive'
-  };
-  const stLbl2 = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
-    '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
-  document.getElementById('roas-chips').innerHTML = order.filter(k=>counts[k]).map(k =>
-    '<span class="st ' + stClass2[k] + '" style="font-size:12px; padding:5px 12px 5px 10px"><span class="dot"></span>' + stLbl2[k] + ' · ' + counts[k] + '</span>').join('') +
-    '<span class="st st-inactive" style="font-size:12px; padding:5px 12px 5px 10px; background:var(--neutral-chip); color:var(--text-2)"><span class="dot" style="background:var(--text-3)"></span>Total · ' + DATA.roasClients.length + '</span>';
-  document.getElementById('k-roas-arpa').textContent = fK(DATA.roasARPA);
-  document.getElementById('roas-arpa-callout').innerHTML =
-    '<b>Watch this gap:</b> the growth plan assumes new clients are worth <b>' + fK(L.arpa) + '</b> a year, but the current ROAS book averages <b>' +
-    fK(DATA.roasARPA) + '</b> — most clients are still sitting at the $1K test level. The plan only works if clients climb the ladder the way Right Bite and Golden Scent did.';
-
-  const stClass = {
-    '✓ Active':'st-active', '↑ Scaling':'st-scaling', '~ Low spend':'st-low', '→ Watch':'st-watch',
-    '— Too early':'st-early', '✗ At risk':'st-risk', '⬛ Inactive':'st-inactive'
-  };
-  const stLabel = { '✓ Active':'Active', '↑ Scaling':'Scaling', '~ Low spend':'Low spend', '→ Watch':'Watch',
-    '— Too early':'Too early', '✗ At risk':'At risk', '⬛ Inactive':'Inactive' };
-  // deterministic monogram color from the client name (self-contained, no external logos)
-  const AV_COLORS = ['#4F46E5','#1B9E4B','#C77A0F','#2563EB','#DB2777','#0E7490','#0891B2','#CA8A04','#DC2626','#059669','#4F7CAC','#B45309'];
-  const avatar = name => {
-    let h = 0; for (let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
-    const col = AV_COLORS[h % AV_COLORS.length];
-    const initials = name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
-    return '<span class="avatar" style="background:'+col+'">'+initials+'</span>';
-  };
-  // spend tier → chip class (uniform size, color carries magnitude; aligned to the L1–L5 ladder)
-  const tierOf = v => v>=4500?5 : v>=3600?4 : v>=2700?3 : v>=1800?2 : 1;
-  const sorted = DATA.roasClients.map((c,i)=>({c,i}))
-    .sort((a,b)=> (b.c.level - a.c.level) || (b.c.totalSpend - a.c.totalSpend));
-  let tr2 = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th>' +
-    '<th>1→2</th><th>2→3</th><th>3→4</th>' +
-    DATA.roasMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>Total</th><th>ARPA</th><th class="txt">Status</th></tr></thead><tbody>';
-  sorted.forEach(({c}) => {
-    const lvl = Math.round(c.level);
-    const step = v => (v==='-'||v==null) ? '<span class="step none">–</span>' : '<span class="step">'+v+'mo</span>';
-    tr2 += '<tr>' +
-      '<td class="txt"><div class="cwrap">'+avatar(c.name)+'<div><div class="cname">'+c.name+'</div><div class="cstart">since '+c.start+'</div></div></div></td>' +
-      '<td class="num">'+c.moActive+'</td>' +
-      '<td><span class="lvl lvl'+lvl+'">L'+lvl+'</span></td>' +
-      '<td>'+step(c.l12)+'</td><td>'+step(c.l23)+'</td><td>'+step(c.l34)+'</td>' +
-      c.spend.map(v => {
-        if (v == null) return '<td class="spend-cell"></td>';
-        return '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(v)+'</span></td>';
-      }).join('') +
-      '<td class="num tot">'+fmtMoney(c.totalSpend)+'</td>' +
-      '<td class="num arpa-big">'+fmtMoney(c.arpa)+'</td>' +
-      '<td class="txt"><span class="st '+(stClass[norm(c.status)]||'st-inactive')+'"><span class="dot"></span>'+(stLabel[norm(c.status)]||norm(c.status))+'</span></td>' +
-      '</tr>';
-  });
-  tr2 += '</tbody></table>';
-  document.getElementById('tbl-roas').innerHTML = tr2;
-
-  /* ---------- METHOD ---------- */
-  document.getElementById('method-body').innerHTML = `
-    <h2>What this dashboard is</h2>
-    <p>A live version of the Moontech 2026 unit-economics model. Actuals are closed through <b>August 2026</b>; everything after that is computed by one engine from the levers on the Levers page. When a lever changes, every projected number on every page changes with it — there are no separately typed targets.</p>
-    <h2>How revenue is built</h2>
-    <ul>
-      <li><b>Existing book:</b> each month of 2025 actual revenue, grown by the existing-client growth lever (currently ${fPct(L.growth)}). Full-year 2025 was ${fmtMoney(DATA.prior2025.reduce((a,b)=>a+b,0))}.</li>
-      <li><b>New clients:</b> the full-year signing count (currently ${L.newClients}) is spread across the year on a fixed ramp — 1% of signings in January rising to 14% in November and December. A client's revenue in any month is the plan ARPA shaped by that month's seasonality weight.</li>
-      <li><b>Early dropout:</b> clients in their first three months are discounted by the dropout lever (currently ${fPct(L.dropout)}), reflecting ROAS clients that quit after the test phase. From month four a cohort pays full seasonal ARPA.</li>
-      <li><b>Seasonality:</b> the 2025 monthly revenue shape (November peaks at ~16% of the year). Seasonality is treated as a fact, not a lever.</li>
-    </ul>
-    <h2>How ARR is measured</h2>
-    <p>Monthly revenue is de-seasonalised (divided by that month's seasonality weight) and averaged over a rolling three months, giving an annualised run-rate that isn't distorted by strong or weak seasonal months. July's ARR of ${fMshort(R.latestARR)} is the May–July average run-rate. Moving forward, actuals roll out of the window as projections enter it.</p>
-    <h2>Unit economics</h2>
-    <ul>
-      <li><b>LTV</b> = ARPA × (1 − 3-month dropout) ÷ annual churn.</li>
-      <li><b>Payback</b> = CAC ÷ (ARPA × gross margin ÷ 12) — months of gross profit to recover acquisition cost.</li>
-      <li><b>Customer-equivalent</b> = ${fK(L.arpa)} of annual revenue, so one large client can count as several equivalents.</li>
-    </ul>
-    <h2>Basis and scope of the numbers</h2>
-    <ul>
-      <li>Revenue is Moontech platform revenue on an operational basis, in USD, as recorded in the model workbook.</li>
-      <li><b>Merchant CAC</b> and <b>Creator CAC</b> are total acquisition cost ÷ acquisitions, blended across every closed month that has both a cost and a count. Where the workbook records spend for a month but no acquisition count (e.g. August creator count), that month is kept in total spend but left out of the blended CAC so the average is not divided by zero.</li>
-      <li>The <b>“if signings stop”</b> line keeps the existing book growing at the growth lever and lets already-signed clients play out, but adds zero new signings from August.</li>
-      <li>July's existing-vs-new revenue split isn't in the source workbook yet, so the revenue-mix chart shows actuals through June only.</li>
-    </ul>
-    <h2>Known data notes</h2>
-    <ul>
-      <li>Izil shows $8,169 spend in May but is recorded at Level 1 in the workbook — worth confirming at source.</li>
-      <li>August creator acquisitions have a cost recorded but no count yet, so August is excluded from blended creator CAC (see the CAC page note).</li>
-      <li>The 30 ROAS clients here reconcile 1:1 with the workbook's client list.</li>
-    </ul>
-    <div class="footer-note">Built from Unit_Economics_Model (1).xlsx · actuals through July 2026 · monthly update = replace the DATA block at the top of this file and commit.</div>`;
 }
 
-/* ---------- lever inputs ---------- */
 const PCT_LEVERS = ['growth','dropout','churn','gm'];
 function syncInputs(){
-  Object.keys(state.levers).forEach(k => {
-    const el = document.getElementById('lv-' + k);
-    if (!el) return;
-    el.value = PCT_LEVERS.includes(k) ? Math.round(state.levers[k]*1000)/10 : state.levers[k];
-  });
+  Object.keys(state.levers).forEach(k => { const el = document.getElementById('lv-' + k); if (el) el.value = PCT_LEVERS.includes(k) ? Math.round(state.levers[k]*1000)/10 : state.levers[k]; });
 }
 function bindInputs(){
   ['growth','newClients','arpa','dropout','churn','cac','gm','targetARR'].forEach(k => {
-    const el = document.getElementById('lv-' + k);
-    if (!el) return;
-    el.addEventListener('input', () => {
-      const raw = parseFloat(el.value);
-      if (isNaN(raw)) return;
-      state.levers[k] = PCT_LEVERS.includes(k) ? raw/100 : raw;
-      render();
-    });
+    const el = document.getElementById('lv-' + k); if (!el) return;
+    el.addEventListener('input', () => { const raw = parseFloat(el.value); if (isNaN(raw)) return; state.levers[k] = PCT_LEVERS.includes(k) ? raw/100 : raw; renderPlanner(); });
   });
+  const rs = document.getElementById('btn-reset');
+  if (rs) rs.addEventListener('click', () => { state.levers = Object.assign({}, DATA.defaults); syncInputs(); renderPlanner(); });
+}
+
+/* ============================================================
+   RENDER — ROAS ladder (live)
+   ============================================================ */
+const ST_CLASS = { 'Active':'st-active', 'Scaling':'st-scaling', 'Low spend':'st-low', 'Watch':'st-watch', 'Too early':'st-early', 'At risk':'st-risk', 'Inactive':'st-inactive' };
+const AV_COLORS = ['#4F46E5','#0E9F6E','#C77A0F','#2563EB','#DB2777','#7C3AED','#0891B2','#CA8A04','#DC2626','#059669','#6366F1','#B45309'];
+const avatar = name => { let h=0; for (let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; const initials = name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); return '<span class="avatar" style="background:'+AV_COLORS[h%AV_COLORS.length]+'">'+initials+'</span>'; };
+const tierOf = v => v>=4500?5 : v>=3600?4 : v>=2700?3 : v>=1800?2 : 1;
+
+function renderLadder(){
+  if (!LADDER || !LADDER.src) return;
+  const built = buildLadder(LADDER.src.recvRows, LADDER.src.trackerRows, state.manualDropped);
+  LADDER.built = built;
+  const rows = built.rows.slice();
+  if (state.ladderSort === 'level') rows.sort((a,b)=> (b.level-a.level) || (b.arpa-a.arpa)); else rows.sort((a,b)=> b.arpa-a.arpa);
+  document.getElementById('k-fleet-arpa').textContent = fmtMoney(built.fleetARPA);
+  document.getElementById('k-fleet-note').textContent = 'across ' + built.counts.brands + ' qualifying brands · as of ' + built.today.toISOString().slice(0,10);
+  document.getElementById('k-brands').textContent = built.counts.brands;
+  document.getElementById('k-brands-note').textContent = 'with ≥1 paid ROAS invoice (or on the include list)';
+  document.getElementById('k-l3').textContent = built.rows.filter(r=>r.level>=3 && !r.dropped).length;
+  document.getElementById('k-dropped').textContent = built.counts.dropped;
+  document.getElementById('k-dropped-note').textContent = built.rows.filter(r=>r.droppedBy==='tracker').length + ' churned in tracker · ' + built.rows.filter(r=>r.droppedBy==='manual').length + ' marked here';
+  const warn = document.getElementById('ladder-warn');
+  const warns = [];
+  if (LADDER.src.trackerError) warns.push(LADDER.src.trackerError);
+  if (built.unmatchedChurn.length) warns.push('Churn match warning: ' + built.unmatchedChurn.join(', ') + ' — churned in the tracker but no matching brand found in receivables, so NOT auto-dropped. Check the spelling in both sheets.');
+  warn.style.display = warns.length ? 'block' : 'none'; warn.innerHTML = warns.join('<br>');
+  const counts = {}; built.rows.forEach(r => { counts[r.status] = (counts[r.status]||0)+1; });
+  const order = ['Active','Scaling','Watch','Low spend','Too early','At risk','Inactive'];
+  document.getElementById('roas-chips').innerHTML = order.filter(k=>counts[k]).map(k => '<span class="st '+ST_CLASS[k]+'" style="font-size:12px; padding:5px 12px 5px 10px"><span class="dot"></span>'+k+' · '+counts[k]+'</span>').join('');
+  const mCols = built.months;
+  let t = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th><th>1→2</th><th>2→3</th><th>3→4</th>' + mCols.map(m=>'<th>'+m.label+'</th>').join('') + '<th>Total</th><th>ARPA</th><th class="txt">Status</th><th></th></tr></thead><tbody>';
+  const step = v => v==null ? '<span class="step none">–</span>' : '<span class="step">'+v+'mo</span>';
+  rows.forEach(r => {
+    t += '<tr' + (r.dropped ? ' class="dropped-row"' : '') + '>' +
+      '<td class="txt"><div class="cwrap">'+avatar(r.brand)+'<div><div class="cname">'+r.brand+(r.onHold?' <span class="tag">on hold</span>':'')+'</div><div class="cstart">since '+r.since+'</div></div></div></td>' +
+      '<td class="num">'+r.moActive+'</td><td><span class="lvl lvl'+r.level+'">'+(r.level?'L'+r.level:'CPL')+'</span></td>' +
+      '<td>'+step(r.ramp[0])+'</td><td>'+step(r.ramp[1])+'</td><td>'+step(r.ramp[2])+'</td>' +
+      r.grid.map(v => v==null ? '<td class="spend-cell"></td>' : '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(v)+'</span></td>').join('') +
+      '<td class="num tot">'+fmtMoney(r.total)+'</td><td class="num arpa-big" title="'+r.basis+'">'+fmtMoney(r.arpa)+'</td>' +
+      '<td class="txt"><span class="st '+ST_CLASS[r.status]+'"><span class="dot"></span>'+r.status+'</span>' + (r.dropped ? ' <span class="tag">dropped' + (r.droppedBy==='tracker'?' · tracker':'') + '</span>' : '') + '</td>' +
+      '<td><button class="drop-btn" data-brand="'+r.brand.replace(/"/g,'&quot;')+'"' + (r.droppedBy==='tracker' ? ' disabled title="Churned in the ROAS tracker — change it there"' : '') + '>' + (r.dropped ? 'Undrop' : 'Drop') + '</button></td></tr>';
+  });
+  document.getElementById('tbl-roas').innerHTML = t + '</tbody></table>';
+  document.querySelectorAll('#tbl-roas .drop-btn').forEach(b => b.addEventListener('click', () => {
+    const name = b.dataset.brand, k = name.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const i = state.manualDropped.findIndex(x => x.toLowerCase().replace(/[^a-z0-9]/g,'') === k);
+    if (i >= 0) state.manualDropped.splice(i,1); else state.manualDropped.push(name);
+    saveManualDropped(state.manualDropped); renderLadder();
+  }));
+  document.querySelectorAll('#sort-toggle button').forEach(b => b.classList.toggle('on', b.dataset.sort === state.ladderSort));
+  updateFooter();
+}
+function bindLadderControls(){
+  document.querySelectorAll('#sort-toggle button').forEach(b => b.addEventListener('click', () => { state.ladderSort = b.dataset.sort; renderLadder(); }));
+}
+
+/* ============================================================
+   METHOD
+   ============================================================ */
+function renderMethod(){
+  const D = DATA;
+  document.getElementById('method-body').innerHTML = `
+    <h2>Sources — everything on this page is live</h2>
+    <ul>
+      <li><b>Model sheet</b> (three published tabs: Cockpit, Calculations, Top Clients) → Cockpit, Targets vs Actuals, Top Clients, CAC and Levers. Numbers are shown exactly as the sheet computes them.</li>
+      <li><b>Receivables sheet</b> + <b>ROAS tracker</b> → the ROAS Clients ladder. Recomputed from raw paid invoices on every load.</li>
+      <li><b>Scenario Planner</b> → reads the sheet's inputs (2025 actuals, seasonality, signing schedule, lever defaults) and recomputes projections in your browser. It never writes back.</li>
+    </ul>
+    <h2>How the model builds revenue</h2>
+    <ul>
+      <li><b>Existing book:</b> each month of 2025 actual revenue grown by the existing-client growth assumption (currently ${fPct(D.defaults.growth)}). Full-year 2025 was ${fmtMoney(sum(D.prior2025))}.</li>
+      <li><b>New clients:</b> the full-year signing count (${fNum(D.defaults.newClients)}) spread on a fixed ramp (1% in January rising to 14% in Nov/Dec). Revenue per client = plan ARPA shaped by that month's seasonality weight.</li>
+      <li><b>Early dropout:</b> cohorts in their first three months are discounted by ${fPct(D.defaults.dropout)}; from month four they pay full seasonal ARPA.</li>
+      <li><b>ARR:</b> de-seasonalised monthly revenue, averaged over a rolling three months. Latest month ARR ${fMshort(D.latestARR)} is the ${D.months[D.meta.latestClosedIdx-2]}–${D.months[D.meta.latestClosedIdx]} average run-rate.</li>
+      <li><b>Unit economics:</b> LTV = ARPA × (1 − dropout) ÷ churn · Payback = CAC ÷ (ARPA × GM ÷ 12) · Customer-equivalent = ${fK(D.defaults.arpa)} of annual revenue.</li>
+    </ul>
+    <h2>ROAS ladder — the rules, applied literally</h2>
+    <ul>
+      <li>Only invoices with status exactly <b>Paid</b> count. Unconfirmed and cancelled never do. Level = highest paid milestone; brands with no ROAS milestone are excluded unless on the include list (Jetour, a CPL client).</li>
+      <li>Net value per invoice = $ amount (or AED ÷ 3.6725), less 5% VAT where the invoice is VAT-included, less any refund.</li>
+      <li><b>ARPA:</b> M1–M2 = ROAS spend to date. M3+ = latest <b>paid</b> invoice × 12. Dropped (churned in the tracker, or marked here) = total paid to date at any level. Fleet ARPA = simple average across qualifying brands.</li>
+      <li><b>Grid and timing</b> use payment date: a May invoice paid in July sits in July. "Since" = first payment month. Months active counts the start month (a brand first paid in Dec is 1 month active in Dec).</li>
+      <li><b>Status</b> replicates the tracking sheet's formula. Idle months = months since the last month with paid spend (the current month counts as 1). In order: ≤1 month active → Too early · idle ≥6 → Inactive · idle ≥ level and active >2 → At risk · idle ≥ level−1 → Watch · stepped up recently (months at level ≤ level−2, below L5) → Scaling · ARPA ≥ $24,000 → Active · else Low spend. Dropped brands always show Inactive.</li>
+      <li>The tracker's <b>On Hold</b> is not churn — those brands stay in ARPA and are tagged "on hold". A brand churned in the tracker cannot be un-dropped here; change it in the tracker.</li>
+      <li>Manual Drop/Undrop marks are saved in this browser only (they are not shared and don't write to any sheet).</li>
+    </ul>
+    <h2>Basis notes</h2>
+    <ul>
+      <li>CAC headline figures (full-year cost, acquisitions and CAC) are the sheet's own full-year cells, shown as-is; monthly CACs are cost ÷ acquisitions for that month, and a month with spend but no acquisitions shows "n/a".</li>
+      <li>Existing-book share can exceed 100% in months where the existing/total split is computed independently in the sheet; it is shown as recorded.</li>
+      <li>CAC target and actuals both come from the model sheet's CAC section for now; a dedicated CAC sheet can be connected without changing anything else.</li>
+      <li><b>Scenario Planner precision:</b> a published CSV carries cell values only as displayed. The sheet's seasonality row is formatted to two decimals, which is its full precision, so the planner reads it exactly and reproduces the sheet's plan (the source and calibration are shown on the planner; if that row's format were ever reduced, the planner falls back to back-solving seasonality from the new-client revenue row).</li>
+    </ul>
+    <div class="footer-note">Live dashboard · model as of ${D.meta.asOf} · no numbers are stored in this file — every load re-reads the sheets.</div>`;
+}
+
+/* ---------- footer self-check ---------- */
+function updateFooter(){
+  const f = document.getElementById('side-foot'); if (!f) return;
+  const parts = [];
+  if (DATA) parts.push('Model · as of <b>' + DATA.meta.asOf + '</b>'); else parts.push('<b style="color:var(--bad)">Model failed to load</b>');
+  if (LADDER && LADDER.built) parts.push('Ladder · <b>' + LADDER.built.counts.brands + ' brands</b> · ' + LADDER.built.today.toISOString().slice(0,10)); else if (LADDER && LADDER.error) parts.push('<b style="color:var(--bad)">Ladder failed to load</b>');
+  f.innerHTML = parts.join('<br>');
 }
 
 /* ---------- navigation ---------- */
@@ -2099,21 +1414,41 @@ function showPage(name){
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.page === name));
 }
-function bindNav(){
-  document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => showPage(a.dataset.page)));
-}
+function bindNav(){ document.querySelectorAll('#nav a').forEach(a => a.addEventListener('click', () => showPage(a.dataset.page))); }
 
-/* ---------- boot ---------- */
-function boot(){
-  setChartDefaults();
-  buildPages();
-  bindNav();
-  syncInputs();
-  bindInputs();
-  render();
+/* ============================================================
+   BOOT — fetch everything, then render
+   ============================================================ */
+async function boot(){
+  setChartDefaults(); buildPages(); bindNav(); bindLadderControls();
+  state.manualDropped = loadManualDropped();
+  const banner = document.getElementById('load-banner');
+  const [modelRes, ladderRes] = await Promise.allSettled([ loadLiveData(), fetchLadderSources() ]);
+
+  if (modelRes.status === 'fulfilled'){
+    DATA = modelRes.value; window.__data = DATA;
+    state.levers = Object.assign({}, DATA.defaults);
+    try { renderModel(); } catch(e){ showModelError('Model data loaded but a page failed to render: ' + e.message); console.error(e); }
+    try { syncInputs(); bindInputs(); renderPlanner(); } catch(e){ console.error(e); }
+  } else {
+    showModelError('Could not load the model sheet (' + (modelRes.reason && modelRes.reason.message || modelRes.reason) + '). Check that the Cockpit, Calculations and Top Clients tabs are still published to the web as CSV. Nothing is cached in this file, so no stale numbers are shown.');
+  }
+  if (ladderRes.status === 'fulfilled'){
+    LADDER = { src: ladderRes.value };
+    try { renderLadder(); } catch(e){ showLadderError('Ladder data loaded but failed to render: ' + e.message); console.error(e); }
+  } else {
+    LADDER = { error: String(ladderRes.reason && ladderRes.reason.message || ladderRes.reason) };
+    showLadderError('Could not load the receivables sheet (' + LADDER.error + '). The ladder is not shown rather than shown stale.');
+  }
+  banner.style.display = 'none';
+  updateFooter();
+  window.__ready = true;
+  document.dispatchEvent(new Event('app-ready'));
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
+function showModelError(msg){ const e = document.getElementById('model-error'); e.style.display = 'block'; e.innerHTML = '<b>Live data problem.</b> ' + msg; }
+function showLadderError(msg){ const e = document.getElementById('ladder-error'); e.style.display = 'block'; e.innerHTML = '<b>Live data problem.</b> ' + msg; }
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
 </script>
 </body>
