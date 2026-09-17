@@ -735,6 +735,98 @@ async function fetchLadderSources(){
 }
 
 /* ============================================================
+   LIVE CAC SHEET
+   Actuals (cost by category, monthly totals, acquisitions) come
+   from the dedicated CAC sheet. Targets come from the model sheet.
+   Variance = target − actual CAC (positive = under target = good).
+   ============================================================ */
+"use strict";
+
+const CAC_SOURCE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbBasF2SSMyuhYTfUswU3fh1szd4L0lnUGhD1BGhdNJ-06lFp-MFwcdQeL2ZS5LQ/pub?gid=1652171622&single=true&output=csv";
+const CAC_AED_PER_USD = 3.6725;
+const MON = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+
+function parseMonthHeader(s){                 // "Oct-25" / "Jan-26" -> {y, m}
+  const m = String(s || '').trim().match(/^([A-Za-z]{3})-(\d{2,4})$/);
+  if (!m || !MON[m[1].toLowerCase()]) return null;
+  let y = +m[2]; if (y < 100) y += 2000;
+  return { y, m: MON[m[1].toLowerCase()] };
+}
+function cnum(s){                               // "$16,309.85" / "39,200" / "-" / "" -> number|null
+  if (s == null) return null;
+  s = String(s).trim();
+  if (s === '' || s === '-' || s === '—') return null;
+  const neg = /^\(.*\)$/.test(s);
+  const v = parseFloat(s.replace(/[$,()]/g, ''));
+  if (isNaN(v)) return null;
+  return neg ? -v : v;
+}
+
+/* Build: { year, months:[{y,m}], merchant:{cats:[{name, usd:[…]}], costUSD:[…], count:[…]}, creator:{…} }
+   All arrays are aligned to the sheet's month columns; get2026() maps them onto Jan..Dec 2026. */
+function parseCacSheet(rows){
+  const norm = s => String(s || '').trim().toLowerCase().replace(/\s+/g,' ');
+  const hIdx = rows.findIndex(r => r.length && norm(r[0]) === 'category');
+  if (hIdx < 0) throw new Error('CAC sheet: header row ("Category") not found');
+  const header = rows[hIdx];
+  const monthCols = [];                         // [{col, y, m}]
+  header.forEach((h, i) => { const pm = parseMonthHeader(h); if (pm) monthCols.push({ col:i, ...pm }); });
+  if (!monthCols.length) throw new Error('CAC sheet: no month columns found');
+  const months = monthCols.map(c => ({ y:c.y, m:c.m }));
+  const vals = r => monthCols.map(c => c.col < r.length ? cnum(r[c.col]) : null);
+  const findRow = label => rows.find(r => r.length && norm(r[0]) === norm(label)) || null;
+
+  function section(startLabel, totalUsdLabel, totalAedLabel){
+    const start = rows.findIndex(r => r.length && norm(r[0]) === norm(startLabel));
+    const end = rows.findIndex((r, i) => i > start && r.length && norm(r[0]) === norm(totalAedLabel));
+    if (start < 0 || end < 0) throw new Error('CAC sheet: section ' + startLabel + ' not found');
+    const cats = [];
+    for (let i = start + 1; i < end; i++){
+      const r = rows[i]; const name = String(r[0] || '').trim();
+      if (!name) continue;
+      const aed = vals(r);
+      cats.push({ name, usd: aed.map(v => v == null ? null : v / CAC_AED_PER_USD), subTotalUSD: cnum(r[1]) });
+    }
+    const usdRow = findRow(totalUsdLabel), aedRow = findRow(totalAedLabel);
+    const costUSD = usdRow ? vals(usdRow) : (aedRow ? vals(aedRow).map(v => v == null ? null : v / CAC_AED_PER_USD) : months.map(() => null));
+    return { cats, costUSD, subTotalUSD: aedRow ? cnum(aedRow[1]) : null };
+  }
+  const merchant = section('MERCHANT CAC', 'Total Merchant Cost — USD', 'Total Merchant Cost — AED');
+  const creator  = section('CREATOR CAC',  'Total Creator Cost — USD',  'Total Creator Cost — AED');
+  const nc = findRow('New Clients'), ncr = findRow('New Creators');
+  merchant.count = nc ? vals(nc) : months.map(() => null);
+  creator.count  = ncr ? vals(ncr) : months.map(() => null);
+  // the sheet's own per-month CAC rows, kept for cross-checking
+  const mcac = findRow('CAC per New Client (USD)'), ccac = findRow('CAC per New Creator (USD)');
+  merchant.sheetCAC = mcac ? vals(mcac) : null; creator.sheetCAC = ccac ? vals(ccac) : null;
+  return { months, merchant, creator, title: rows[0] && rows[0][0] || '', subtitle: rows[1] && rows[1][0] || '' };
+}
+
+/* Map a sheet-aligned array onto Jan..Dec of `year` (null where the sheet has no column). */
+function onYear(parsed, arr, year){
+  const out = Array(12).fill(null);
+  parsed.months.forEach((mm, i) => { if (mm.y === year) out[mm.m - 1] = arr[i]; });
+  return out;
+}
+function cacFor2026(parsed, year){
+  const side = s => ({
+    cost: onYear(parsed, s.costUSD, year),
+    count: onYear(parsed, s.count, year),
+    cats: s.cats.map(c => ({ name: c.name, usd: onYear(parsed, c.usd, year) })),
+    sheetCAC: s.sheetCAC ? onYear(parsed, s.sheetCAC, year) : null,
+    priorYear: parsed.months.filter(mm => mm.y < year).map((mm, k) => ({ y:mm.y, m:mm.m }))  // for the Method note
+  });
+  return { merchant: side(parsed.merchant), creator: side(parsed.creator), source: 'cac-sheet', asOf: parsed.subtitle };
+}
+
+async function fetchCacSheet(year){
+  const res = await fetch(CAC_SOURCE);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const parsed = parseCacSheet(parseCSV(await res.text()));
+  return cacFor2026(parsed, year);
+}
+
+/* ============================================================
    MOONTECH UNIT ECONOMICS — LIVE DASHBOARD
    Main pages mirror the model sheet (option B).
    Scenario Planner recomputes in-browser from the sheet's inputs (option A).
@@ -907,15 +999,16 @@ function buildPages(){
   <!-- ================= CAC ================= -->
   <section class="page" id="page-cac">
     <div class="page-head"><h1>CAC</h1>
-    <div class="page-sub">Acquisition cost on both sides of the marketplace. Targets and actuals from the model sheet's CAC section (a dedicated CAC sheet can be connected later).</div></div>
+    <div class="page-sub" id="cac-sub">Acquisition cost on both sides of the marketplace. Actuals (cost by category, acquisitions) live from the CAC sheet; targets from the model sheet; variance = target − actual CAC.</div></div>
+    <div id="cac-warn" class="callout warn" style="display:none"></div>
     <div class="grid">
-      <div class="card kpi span-3"><div class="kpi-label">Merchant CAC <span class="tag">sheet · full year</span></div>
+      <div class="card kpi span-3"><div class="kpi-label">Merchant CAC <span class="tag" id="tag-mcac">blended YTD</span></div>
         <div class="kpi-value num" id="k-mcac"></div><div class="kpi-note" id="k-mcac-note"></div></div>
-      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Merchants acquired <span class="tag">sheet · full year</span></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Merchants acquired <span class="tag" id="tag-mcount">YTD</span></div>
         <div class="kpi-value num" id="k-mcount"></div><div class="kpi-note" id="k-mspend"></div></div>
-      <div class="card kpi span-3"><div class="kpi-label">Creator CAC <span class="tag">sheet · full year</span></div>
+      <div class="card kpi span-3"><div class="kpi-label">Creator CAC <span class="tag" id="tag-ccac">blended YTD</span></div>
         <div class="kpi-value num" id="k-ccac"></div><div class="kpi-note" id="k-ccac-note"></div></div>
-      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Creators acquired <span class="tag">sheet · full year</span></div>
+      <div class="card kpi kpi-plain span-3"><div class="kpi-label">Creators acquired <span class="tag" id="tag-ccount">YTD</span></div>
         <div class="kpi-value num" id="k-ccount"></div><div class="kpi-note" id="k-cspend"></div></div>
       <div class="card span-6"><h2>Merchant CAC by month</h2>
         <div class="card-sub">Cost per acquired merchant vs target. Bars turn red when a month runs over target.</div>
@@ -925,6 +1018,14 @@ function buildPages(){
         <div class="chart-box" style="height:250px"><canvas id="ch-ccac"></canvas></div></div>
       <div class="card span-6"><h2>Merchant CAC — detail</h2><div class="table-wrap" id="tbl-mcac"></div></div>
       <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
+      <div class="card span-6" id="card-mcat"><h2>Merchant cost by category <span class="tag">USD</span></h2>
+        <div class="card-sub">Where merchant acquisition spend goes each month — from the CAC sheet, converted at 3.6725 AED/USD.</div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-mcat"></canvas></div>
+        <div class="table-wrap" style="margin-top:12px" id="tbl-mcat"></div></div>
+      <div class="card span-6" id="card-ccat"><h2>Creator cost by category <span class="tag">USD</span></h2>
+        <div class="card-sub">Where creator acquisition spend goes each month.</div>
+        <div class="chart-box" style="height:260px"><canvas id="ch-ccat"></canvas></div>
+        <div class="table-wrap" style="margin-top:12px" id="tbl-ccat"></div></div>
     </div>
   </section>
 
@@ -1172,9 +1273,22 @@ function renderModel(){
 
   /* ---------- CAC ---------- */
   const mc = D.cac.merchant, cc = D.cac.creator;
+  const liveCac = D.cac.source === 'cac-sheet';
   const hasCount = (src,m) => src.count[m] != null && src.count[m] > 0;
-  // headline follows the sheet's own full-year cells (its "Actual" = average of the monthly CACs)
-  const mB = { cost: mc.fy.cost, n: mc.fy.count, cac: mc.fy.cac }, cB = { cost: cc.fy.cost, n: cc.fy.count, cac: cc.fy.cac };
+  // closed CAC months = months with a cost recorded (from the CAC sheet), capped to the model's closed month
+  const cacLi = Math.min(li, mc.cost.reduce((acc,v,i)=> v!=null ? i : acc, -1));
+  const cacMonths = M.slice(0, cacLi+1);
+  // headline: blended YTD = 2026 cost ÷ 2026 acquisitions (the CAC sheet's own Total/Avg cell is not reproducible from its monthlies, so it is not shown)
+  const blended = src => { let cost=0, n=0; for (let m=0; m<=cacLi; m++){ if (src.cost[m]!=null) cost+=src.cost[m]; if (src.count[m]!=null) n+=src.count[m]; } return { cost, n, cac: n ? cost/n : null }; };
+  let mB, cB;
+  if (liveCac){ mB = blended(mc); cB = blended(cc); }
+  else { mB = { cost: mc.fy.cost, n: mc.fy.count, cac: mc.fy.cac }; cB = { cost: cc.fy.cost, n: cc.fy.count, cac: cc.fy.cac }; }
+  const cw = document.getElementById('cac-warn');
+  cw.style.display = liveCac ? 'none' : 'block';
+  cw.innerHTML = liveCac ? '' : '<b>CAC sheet unreachable</b> (' + (D.cac.error || 'fetch failed') + ') — showing the model sheet\'s CAC section instead. Category breakdown is unavailable until the CAC sheet loads.';
+  const basisTag = liveCac ? 'blended · Jan–' + M[cacLi] : 'model sheet · full year';
+  document.getElementById('tag-mcac').textContent = basisTag; document.getElementById('tag-ccac').textContent = basisTag;
+  document.getElementById('tag-mcount').textContent = liveCac ? 'Jan–' + M[cacLi] : 'model sheet'; document.getElementById('tag-ccount').textContent = liveCac ? 'Jan–' + M[cacLi] : 'model sheet';
   document.getElementById('k-mcac').textContent = fmtMoney(mB.cac);
   document.getElementById('k-mcac-note').innerHTML = deltaSpan(mc.target - mB.cac, {fmt:fmtMoney}) + ' vs ' + fmtMoney(mc.target) + ' target';
   document.getElementById('k-mcount').textContent = fNum(mB.n);
@@ -1183,26 +1297,44 @@ function renderModel(){
   document.getElementById('k-ccac-note').innerHTML = deltaSpan(cc.target - cB.cac, {fmt:fmtMoney}) + ' vs ' + fmtMoney(cc.target) + ' target';
   document.getElementById('k-ccount').textContent = fNum(cB.n);
   document.getElementById('k-cspend').textContent = fmtMoney(cB.cost) + ' acquisition cost';
-  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:monthsClosed, datasets:[
-    { label:'Actual CAC', data: monthsClosed.map((_,m)=> hasCount(src,m) ? src.cost[m]/src.count[m] : null),
-      backgroundColor: monthsClosed.map((_,m)=> hasCount(src,m) ? (src.cost[m]/src.count[m] <= src.target ? C.dark : '#D08A93') : 'transparent'), borderRadius:4, barPercentage:.62 },
-    { label:'Target', data: monthsClosed.map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0 }
+  const cacChart = (id, src) => mkChart(id, { type:'bar', data:{ labels:cacMonths, datasets:[
+    { label:'Actual CAC', data: cacMonths.map((_,m)=> hasCount(src,m) ? src.cost[m]/src.count[m] : null),
+      backgroundColor: cacMonths.map((_,m)=> hasCount(src,m) ? (src.cost[m]/src.count[m] <= src.target ? C.dark : '#D08A93') : 'transparent'), borderRadius:4, barPercentage:.62 },
+    { label:'Target (model)', data: cacMonths.map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0 }
   ]}, options:{ ...lineOpts(fmtMoney), scales:{ x:xScale, y:yMoney() } }});
   cacChart('ch-mcac', mc); cacChart('ch-ccac', cc);
   const cacTable = (src, unit, B) => {
     let t = '<table><tr><th class="txt">Month</th><th>Acq. cost</th><th>'+unit+'</th><th>CAC</th><th>vs target</th></tr>';
-    for (let m=0; m<=li; m++){
+    for (let m=0; m<=cacLi; m++){
       const v = hasCount(src,m) ? src.cost[m]/src.count[m] : null;
       t += '<tr><td class="txt">'+M[m]+'</td><td class="num">'+(src.cost[m]!=null?fmtMoney(src.cost[m]):'<span class="muted">—</span>')+'</td>' +
         '<td class="num">'+(src.count[m]!=null?fNum(src.count[m]):'<span class="muted">—</span>')+'</td>' +
         '<td class="num">'+(v!=null?fmtMoney(v):'<span class="muted">n/a</span>')+'</td>' +
         '<td class="num">'+(v!=null?deltaSpan(src.target-v,{fmt:fmtMoney}):'<span class="muted">—</span>')+'</td></tr>';
     }
-    t += '<tr class="total"><td class="txt">Full year <span class="tag">sheet</span></td><td class="num">'+fmtMoney(B.cost)+'</td><td class="num">'+fNum(B.n)+'</td><td class="num">'+fmtMoney(B.cac)+'</td><td class="num">'+(B.cac!=null?deltaSpan(src.target-B.cac,{fmt:fmtMoney}):'—')+'</td></tr></table>';
+    t += '<tr class="total"><td class="txt">' + (liveCac ? 'Blended YTD' : 'Full year <span class="tag">model sheet</span>') + '</td><td class="num">'+fmtMoney(B.cost)+'</td><td class="num">'+fNum(B.n)+'</td><td class="num">'+fmtMoney(B.cac)+'</td><td class="num">'+(B.cac!=null?deltaSpan(src.target-B.cac,{fmt:fmtMoney}):'—')+'</td></tr></table>';
     return t;
   };
   document.getElementById('tbl-mcac').innerHTML = cacTable(mc, 'Merchants', mB);
   document.getElementById('tbl-ccac').innerHTML = cacTable(cc, 'Creators', cB);
+
+  // category breakdown (CAC sheet only)
+  const CAT_COLORS = [C.accent, '#8B83EC', '#2A2740', C.accentTint, '#C77A0F', '#0E9F6E', '#98A2B3'];
+  const catBlock = (side, chartId, tblId, cardId) => {
+    const card = document.getElementById(cardId);
+    if (!liveCac || !side.cats || !side.cats.length){ card.style.display = 'none'; return; }
+    card.style.display = '';
+    const cats = side.cats.filter(k => k.usd.some(v => v));
+    mkChart(chartId, { type:'bar', data:{ labels:cacMonths, datasets: cats.map((k,i)=>({ label:k.name, data:cacMonths.map((_,m)=>k.usd[m]||0), backgroundColor:CAT_COLORS[i%CAT_COLORS.length], stack:'c', borderRadius:2, barPercentage:.62 })) },
+      options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
+    let t = '<table><tr><th class="txt">Category</th>' + cacMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
+    const ytdTotal = sum(cacMonths.map((_,m)=>side.cost[m]));
+    cats.forEach(k => { const y = sum(cacMonths.map((_,m)=>k.usd[m])); t += '<tr><td class="txt">'+k.name+'</td>' + cacMonths.map((_,m)=>'<td class="num">'+(k.usd[m]?fK(k.usd[m]):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(y)+'</b></td><td class="num">'+fPct(y/ytdTotal,1)+'</td></tr>'; });
+    t += '<tr class="total"><td class="txt">Total</td>' + cacMonths.map((_,m)=>'<td class="num">'+fK(side.cost[m])+'</td>').join('') + '<td class="num">'+fK(ytdTotal)+'</td><td class="num">100%</td></tr></table>';
+    document.getElementById(tblId).innerHTML = t;
+  };
+  catBlock(mc, 'ch-mcat', 'tbl-mcat', 'card-mcat');
+  catBlock(cc, 'ch-ccat', 'tbl-ccat', 'card-ccat');
 
   /* ---------- LEVERS (read-only) ---------- */
   const L = D.defaults;
@@ -1368,7 +1500,8 @@ function renderMethod(){
   document.getElementById('method-body').innerHTML = `
     <h2>Sources — everything on this page is live</h2>
     <ul>
-      <li><b>Model sheet</b> (three published tabs: Cockpit, Calculations, Top Clients) → Cockpit, Targets vs Actuals, Top Clients, CAC and Levers. Numbers are shown exactly as the sheet computes them.</li>
+      <li><b>Model sheet</b> (three published tabs: Cockpit, Calculations, Top Clients) → Cockpit, Targets vs Actuals, Top Clients, Levers, and the CAC <b>targets</b>. Numbers are shown exactly as the sheet computes them.</li>
+      <li><b>CAC sheet</b> (KM Tool expenses, Oct-25 onward) → CAC <b>actuals</b>: cost by category, monthly totals and acquisitions. If it can't be reached, the page falls back to the model sheet's CAC section and says so.</li>
       <li><b>Receivables sheet</b> + <b>ROAS tracker</b> → the ROAS Clients ladder. Recomputed from raw paid invoices on every load.</li>
       <li><b>Scenario Planner</b> → reads the sheet's inputs (2025 actuals, seasonality, signing schedule, lever defaults) and recomputes projections in your browser. It never writes back.</li>
     </ul>
@@ -1392,9 +1525,9 @@ function renderMethod(){
     </ul>
     <h2>Basis notes</h2>
     <ul>
-      <li>CAC headline figures (full-year cost, acquisitions and CAC) are the sheet's own full-year cells, shown as-is; monthly CACs are cost ÷ acquisitions for that month, and a month with spend but no acquisitions shows "n/a".</li>
+      <li><b>CAC basis:</b> monthly CAC = that month's USD cost ÷ acquisitions (matches the CAC sheet's own per-month row); a month with spend but no acquisitions shows "n/a". Headline CAC = blended 2026 YTD (cost ÷ acquisitions, January to the latest closed month). Variance = model target − actual, so a positive (green) figure means under target. Category cells are converted from AED at 3.6725. The CAC sheet also carries Oct–Dec 2025, which sit outside the 2026 model year and are not shown. Its "Total/Avg" summary cells do not reconcile to its monthly figures under any basis, so they are not displayed.</li>
+      <li>The model sheet's own CAC section differs from the CAC sheet for Jan–Apr merchant costs and for creator counts; the CAC sheet is the designated source of actuals.</li>
       <li>Existing-book share can exceed 100% in months where the existing/total split is computed independently in the sheet; it is shown as recorded.</li>
-      <li>CAC target and actuals both come from the model sheet's CAC section for now; a dedicated CAC sheet can be connected without changing anything else.</li>
       <li><b>Scenario Planner precision:</b> a published CSV carries cell values only as displayed. The sheet's seasonality row is formatted to two decimals, which is its full precision, so the planner reads it exactly and reproduces the sheet's plan (the source and calibration are shown on the planner; if that row's format were ever reduced, the planner falls back to back-solving seasonality from the new-client revenue row).</li>
     </ul>
     <div class="footer-note">Live dashboard · model as of ${D.meta.asOf} · no numbers are stored in this file — every load re-reads the sheets.</div>`;
@@ -1404,7 +1537,7 @@ function renderMethod(){
 function updateFooter(){
   const f = document.getElementById('side-foot'); if (!f) return;
   const parts = [];
-  if (DATA) parts.push('Model · as of <b>' + DATA.meta.asOf + '</b>'); else parts.push('<b style="color:var(--bad)">Model failed to load</b>');
+  if (DATA) parts.push('Model · as of <b>' + DATA.meta.asOf + '</b>' + (DATA.cac && DATA.cac.source==='cac-sheet' ? ' · CAC sheet <b>live</b>' : ' · <b style="color:var(--warn)">CAC fallback</b>')); else parts.push('<b style="color:var(--bad)">Model failed to load</b>');
   if (LADDER && LADDER.built) parts.push('Ladder · <b>' + LADDER.built.counts.brands + ' brands</b> · ' + LADDER.built.today.toISOString().slice(0,10)); else if (LADDER && LADDER.error) parts.push('<b style="color:var(--bad)">Ladder failed to load</b>');
   f.innerHTML = parts.join('<br>');
 }
@@ -1423,10 +1556,19 @@ async function boot(){
   setChartDefaults(); buildPages(); bindNav(); bindLadderControls();
   state.manualDropped = loadManualDropped();
   const banner = document.getElementById('load-banner');
-  const [modelRes, ladderRes] = await Promise.allSettled([ loadLiveData(), fetchLadderSources() ]);
+  const [modelRes, ladderRes, cacRes] = await Promise.allSettled([ loadLiveData(), fetchLadderSources(), fetchCacSheet(2026) ]);
 
   if (modelRes.status === 'fulfilled'){
     DATA = modelRes.value; window.__data = DATA;
+    // CAC: actuals from the CAC sheet (targets stay from the model); fall back to the model's CAC section if it failed
+    if (cacRes.status === 'fulfilled'){
+      const live = cacRes.value;
+      DATA.cac = { source:'cac-sheet', asOf: live.asOf,
+        merchant: Object.assign({}, live.merchant, { target: DATA.cac.merchant.target, fy: DATA.cac.merchant.fy }),
+        creator:  Object.assign({}, live.creator,  { target: DATA.cac.creator.target,  fy: DATA.cac.creator.fy }) };
+    } else {
+      DATA.cac.source = 'model-fallback'; DATA.cac.error = String(cacRes.reason && cacRes.reason.message || cacRes.reason);
+    }
     state.levers = Object.assign({}, DATA.defaults);
     try { renderModel(); } catch(e){ showModelError('Model data loaded but a page failed to render: ' + e.message); console.error(e); }
     try { syncInputs(); bindInputs(); renderPlanner(); } catch(e){ console.error(e); }
