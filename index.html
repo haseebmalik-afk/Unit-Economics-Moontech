@@ -221,19 +221,8 @@ tr.var-row td.txt{color:var(--text-3); font-weight:600; text-transform:uppercase
 .seg{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:#fff}
 .seg button{border:0; background:transparent; font-family:inherit; font-size:11.5px; font-weight:600; color:var(--text-2); padding:6px 11px; cursor:pointer}
 .seg button.on{background:var(--accent); color:#fff}
-.drop-btn{border:1px solid var(--border); background:#fff; border-radius:6px; font-family:inherit; font-size:10.5px; font-weight:600;
-  color:var(--text-2); padding:3px 8px; cursor:pointer; white-space:nowrap}
-.drop-btn:hover:not([disabled]){border-color:var(--bad); color:var(--bad-deep)}
-.drop-btn[disabled]{opacity:.45; cursor:not-allowed}
 .lvl0{background:#F1F3F7; color:#A9B1BF}
 
-/* currency toggle (sidebar) */
-.cur-wrap{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0 20px 14px; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,.07)}
-.cur-label{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:#586173}
-.cur-seg{display:inline-flex; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:8px; overflow:hidden}
-.cur-seg button{border:0; background:transparent; color:var(--side-text); font-family:inherit; font-size:11.5px; font-weight:600; padding:5px 11px; cursor:pointer}
-.cur-seg button.on{background:var(--accent); color:#fff}
-.cur-seg button:not(.on):hover{color:#fff}
 /* export */
 .export-btn{border:1px solid var(--border); background:#fff; border-radius:8px; font-family:inherit; font-size:11.5px; font-weight:600; color:var(--text-2); padding:6px 12px; cursor:pointer}
 .export-btn:hover{border-color:var(--accent); color:var(--accent-600)}
@@ -257,8 +246,6 @@ tr.var-row td.txt{color:var(--text-3); font-weight:600; text-transform:uppercase
       <img class="brand-logo" src="data:image/png;base64,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" alt="Moon" />
       <div class="sub">Unit Economics · 2026</div>
     </div>
-    <div class="cur-wrap"><span class="cur-label">Currency</span>
-      <div class="cur-seg" id="cur-toggle"><button data-cur="USD" class="on">USD</button><button data-cur="AED">AED</button></div></div>
     <nav class="nav" id="nav">
       <div class="group">Report</div>
       <a data-page="cockpit" class="active">Overview</a>
@@ -554,7 +541,6 @@ const VAT_RATE = 0.05;
 const ARPA_INCLUDE_BRANDS = ["Jetour"];          // CPL brands explicitly counted
 const ACTIVE_ARPA_GATE = 24000;                    // sheet formula: J >= 24000 -> Active
 const GRID_START = { y: 2025, m: 11 };            // Nov-25 = first grid month (sheet $L$1)
-const DROPPED_KEY = 'mt_ladder_dropped_v1';       // localStorage key for manual drops
 
 /* ---------- helpers ---------- */
 const lNorm = s => String(s || '').trim().toLowerCase().replace(/[\s\-_]/g, '');
@@ -643,7 +629,7 @@ function parseTracker(rows){
 }
 
 /* ---------- core: build the ladder from invoice rows ---------- */
-function buildLadder(recvRows, trackerRows, manualDropped){
+function buildLadder(recvRows, trackerRows){
   const header = recvRows[0], get = colGetter(header);
   const today = sheetToday(header, recvRows.slice(1), get);
   const months = gridMonths(today);
@@ -675,7 +661,6 @@ function buildLadder(recvRows, trackerRows, manualDropped){
   }
 
   const { churned, onHold } = parseTracker(trackerRows);
-  const manual = new Set((manualDropped || []).map(brandKey));
 
   const rowsOut = [];
   for (const [brand, invs] of brands){
@@ -695,8 +680,8 @@ function buildLadder(recvRows, trackerRows, manualDropped){
     const moAtLevel = atLevelPays.length ? monthDiff(atLevelPays[0], today) : 0;
 
     const key = brandKey(brand);
-    const isChurn = churned.has(key), isManual = manual.has(key);
-    const dropped = isChurn || isManual;
+    const isChurn = churned.has(key);
+    const dropped = isChurn;                       // churn comes only from the ROAS tracker
 
     // ARPA — payment basis; dropped => total to date at ANY level
     let arpa, basis;
@@ -736,7 +721,7 @@ function buildLadder(recvRows, trackerRows, manualDropped){
     else status = 'Low spend';
 
     rowsOut.push({ brand, level, moActive, moAtLevel, ramp, grid, total: totalToDate, arpa, basis, status,
-      dropped, droppedBy: isChurn ? 'tracker' : (isManual ? 'manual' : null), onHold: onHold.has(key),
+      dropped, onHold: onHold.has(key),
       churnMonth: isChurn ? (churned.get(key).month ? churned.get(key).month.label : '') : '',
       churnMonthKey: isChurn && churned.get(key).month ? churned.get(key).month.key : null,
       since: firstPay ? firstPay.getUTCFullYear() + '-' + String(firstPay.getUTCMonth()+1).padStart(2,'0') : '',
@@ -751,14 +736,6 @@ function buildLadder(recvRows, trackerRows, manualDropped){
   const fleetARPA = qualifying.length ? qualifying.reduce((a,r)=>a+r.arpa,0) / qualifying.length : 0;
   return { rows: rowsOut, months, today, fleetARPA, unmatchedChurn,
     counts: { brands: rowsOut.length, dropped: rowsOut.filter(r=>r.dropped).length, churnedInTracker: churned.size } };
-}
-
-/* ---------- manual dropped persistence ---------- */
-function loadManualDropped(){
-  try { const v = JSON.parse(localStorage.getItem(DROPPED_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e){ return []; }
-}
-function saveManualDropped(list){
-  try { localStorage.setItem(DROPPED_KEY, JSON.stringify(list)); } catch(e){ /* storage unavailable: session-only */ }
 }
 
 /* ---------- fetch both sheets ---------- */
@@ -886,27 +863,16 @@ const C = {
   grey: '#98A2B3', grid: cssv('--grid', '#F0F0EE'), muted: cssv('--text-3', '#8E8F98')
 };
 
-/* ---------- display currency ----------
-   Every amount is held in USD. The sidebar toggle switches DISPLAY to AED at a fixed rate.
-   *R formatters take a value already in the display currency (chart axes/tooltips, whose
-   data mkChart has converted); the plain ones convert from USD first. */
-const FX_AED = 3.6725;                       // 1 USD = 3.6725 AED
-const CUR_KEY = 'mt_currency_v1';
-const CUR = { code: 'USD', rate: 1 };
-const cx = v => (v == null || isNaN(v)) ? v : v * CUR.rate;
-const curSym = () => CUR.code === 'USD' ? '$' : 'AED ';
-const fmtMoneyR = v => (v == null || isNaN(v)) ? '—' : (v < 0 ? '-' : '') + curSym() + Math.round(Math.abs(v)).toLocaleString('en-US');
-const fKR = v => {
+/* ---------- formatters (all amounts are USD) ---------- */
+const fmtMoney = v => (v == null || isNaN(v)) ? '—' : (v < 0 ? '-$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+const fK = v => {
   if (v == null || isNaN(v)) return '—';
   const a = Math.abs(v), s = v < 0 ? '-' : '';
-  if (a >= 1e6) return s + curSym() + (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
-  if (a >= 1e3) return s + curSym() + Math.round(a/1e3) + 'K';
-  return s + curSym() + Math.round(a);
+  if (a >= 1e6) return s + '$' + (a/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M';
+  if (a >= 1e3) return s + '$' + Math.round(a/1e3) + 'K';
+  return s + '$' + Math.round(a);
 };
-const fMshortR = v => (v == null || isNaN(v)) ? '—' : (v<0?'-':'') + curSym() + (Math.abs(v)/1e6).toFixed(2) + 'M';
-const fmtMoney = v => fmtMoneyR(cx(v));
-const fK = v => fKR(cx(v));
-const fMshort = v => fMshortR(cx(v));
+const fMshort = v => (v == null || isNaN(v)) ? '—' : (v<0?'-':'') + '$' + (Math.abs(v)/1e6).toFixed(2) + 'M';
 const fPct = (v, dp=0) => (v == null || isNaN(v)) ? '—' : (v*100).toFixed(dp) + '%';
 const fNum = v => (v == null || isNaN(v)) ? '—' : Math.round(v).toLocaleString('en-US');
 const f1 = v => (v == null || isNaN(v)) ? '—' : v.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
@@ -956,7 +922,7 @@ function engine(L){
 }
 
 /* ---------- state ---------- */
-const state = { levers: null, ladderSort: 'arpa', manualDropped: [] };
+const state = { levers: null, ladderSort: 'arpa' };
 window.__state = state; window.__engine = engine;
 // exposed for console checks / tests
 window.__ladderCSV = () => ladderCSV(); window.__parseChurnMonth = s => parseChurnMonth(s);
@@ -1039,7 +1005,7 @@ function buildPages(){
       <div class="card span-12"><h2>Share of monthly revenue</h2>
         <div class="card-sub">Stacked share of each month's actual platform revenue.</div>
         <div class="chart-box" style="height:280px"><canvas id="ch-top"></canvas></div></div>
-      <div class="card span-12"><h2>Monthly revenue by client <span class="tag"><span class="cur-code">USD</span> actual</span></h2>
+      <div class="card span-12"><h2>Monthly revenue by client <span class="tag">$ actual</span></h2>
         <div class="table-wrap" id="tbl-top"></div></div>
       <div class="card span-12"><h2>Client concentration <span class="tag">% of month's revenue</span></h2>
         <div class="card-sub">Each top client's share of that month's total platform revenue.</div>
@@ -1069,11 +1035,11 @@ function buildPages(){
         <div class="chart-box" style="height:250px"><canvas id="ch-ccac"></canvas></div></div>
       <div class="card span-6"><h2>Merchant CAC — detail</h2><div class="table-wrap" id="tbl-mcac"></div></div>
       <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
-      <div class="card span-6" id="card-mcat"><h2>Merchant cost by category <span class="tag cur-code">USD</span></h2>
+      <div class="card span-6" id="card-mcat"><h2>Merchant cost by category <span class="tag">USD</span></h2>
         <div class="card-sub">Where merchant acquisition spend goes each month — from the CAC sheet, converted at 3.6725 AED/USD.</div>
         <div class="chart-box" style="height:260px"><canvas id="ch-mcat"></canvas></div>
         <div class="table-wrap" style="margin-top:12px" id="tbl-mcat"></div></div>
-      <div class="card span-6" id="card-ccat"><h2>Creator cost by category <span class="tag cur-code">USD</span></h2>
+      <div class="card span-6" id="card-ccat"><h2>Creator cost by category <span class="tag">USD</span></h2>
         <div class="card-sub">Where creator acquisition spend goes each month.</div>
         <div class="chart-box" style="height:260px"><canvas id="ch-ccat"></canvas></div>
         <div class="table-wrap" style="margin-top:12px" id="tbl-ccat"></div></div>
@@ -1103,20 +1069,19 @@ function buildPages(){
     <div class="page-sub">A what-if sandbox. Levers start at the sheet's current assumptions and recompute the projection in your browser. Closed months are actuals and never move; nothing here writes back to the sheet.</div></div>
     <div class="live-heading" id="live-heading"></div>
     <div class="legend-note" id="calib-note" style="margin:-10px 0 14px"></div>
-    <div class="callout" id="planner-cur-note" style="display:none">Lever inputs are always entered in USD (they are the model's own units). Results on this page are shown in AED at 1 USD = 3.6725 AED.</div>
     <div class="scen-banner" id="scen-banner"></div>
     <div class="grid">
       <div class="card span-4"><h2>Growth levers</h2>
         <div class="lever"><label>Existing-client growth vs 2025 <span class="hint">%</span></label><input type="number" step="1" id="lv-growth"></div>
         <div class="lever"><label>New clients signed this year <span class="hint">count</span></label><input type="number" step="1" id="lv-newClients"></div>
-        <div class="lever"><label>ARPA — new clients <span class="hint">USD / year</span></label><input type="number" step="500" id="lv-arpa"></div>
+        <div class="lever"><label>ARPA — new clients <span class="hint">$ / year</span></label><input type="number" step="500" id="lv-arpa"></div>
         <div class="lever"><label>3-month dropout <span class="hint">%</span></label><input type="number" step="1" id="lv-dropout"></div>
       </div>
       <div class="card span-4"><h2>Unit-economics levers</h2>
         <div class="lever"><label>Annual churn <span class="hint">%</span></label><input type="number" step="1" id="lv-churn"></div>
-        <div class="lever"><label>Merchant CAC <span class="hint">USD per new client</span></label><input type="number" step="100" id="lv-cac"></div>
+        <div class="lever"><label>Merchant CAC <span class="hint">$ per new client</span></label><input type="number" step="100" id="lv-cac"></div>
         <div class="lever"><label>Gross margin <span class="hint">%</span></label><input type="number" step="1" id="lv-gm"></div>
-        <div class="lever"><label>Target ARR <span class="hint">USD</span></label><input type="number" step="100000" id="lv-targetARR"></div>
+        <div class="lever"><label>Target ARR <span class="hint">$</span></label><input type="number" step="100000" id="lv-targetARR"></div>
         <button class="apply-btn" id="btn-reset">Reset to sheet assumptions</button>
       </div>
       <div class="card span-4"><h2>Outcome</h2><div id="planner-outputs"></div></div>
@@ -1146,7 +1111,7 @@ function buildPages(){
         <div class="kpi-value num" id="k-dropped"></div><div class="kpi-note" id="k-dropped-note"></div></div>
       <div class="card span-12">
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px">
-          <div><h2 style="margin:0">Client ladder <span class="tag">net <span class="cur-code">USD</span> paid, by payment month</span></h2></div>
+          <div><h2 style="margin:0">Client ladder <span class="tag">net $ paid, by payment month</span></h2></div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
             <div class="seg" id="sort-toggle"><button data-sort="arpa" class="on">Sort: ARPA</button><button data-sort="level">Sort: Level → ARPA</button></div>
             <button class="export-btn" id="btn-export">Export CSV</button>
@@ -1154,7 +1119,7 @@ function buildPages(){
         </div>
         <div id="roas-chips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px"></div>
         <div class="table-wrap ladder-scroll" id="tbl-roas"></div>
-        <div class="legend-note">Level = highest <b>paid</b> milestone. Ramp columns = whole months between first payments at consecutive milestones. ARPA: M1–M2 = ROAS spend to date; M3+ = latest paid invoice × 12; Churned = total paid to date at any level. Status and churn month for churned brands come live from the ROAS tracker (Status + Churn Date columns). "Mark churned" flags a brand on this device only; tracker churn is shared with everyone.</div>
+        <div class="legend-note">Level = highest <b>paid</b> milestone. Ramp columns = whole months between first payments at consecutive milestones. ARPA: M1–M2 = ROAS spend to date; M3+ = latest paid invoice × 12; Churned = total paid to date at any level. Status and churn month for churned brands come live from the ROAS tracker (Status + Churn Date columns) — to churn or un-churn a brand, change it in the tracker.</div>
       </div>
     </div>
   </section>
@@ -1170,9 +1135,8 @@ function buildPages(){
    CHARTS
    ============================================================ */
 const charts = {};
-function mkChart(id, cfg, money){
+function mkChart(id, cfg){
   const el = document.getElementById(id); if (!el) return;
-  if (money && CUR.rate !== 1) cfg.data.datasets.forEach(ds => { ds.data = ds.data.map(v => (v == null || isNaN(v)) ? v : v * CUR.rate); });
   if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(el.getContext('2d'), cfg);
 }
@@ -1189,9 +1153,9 @@ function setChartDefaults(){
   if (Chart.defaults.elements && Chart.defaults.elements.point) Chart.defaults.elements.point.hoverRadius = 5;
 }
 const darkTooltip = { backgroundColor:'#1E2530', titleColor:'#fff', bodyColor:'#D7DCE3', padding:10, cornerRadius:8, displayColors:true, boxPadding:4,
-  callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fKR(ctx.parsed.y)) } };
+  callbacks:{ label: ctx => ' ' + ctx.dataset.label + ': ' + (ctx.parsed.y==null ? '—' : fK(ctx.parsed.y)) } };
 const xScale = { grid:{display:false}, ticks:{color:C.muted} };
-const yMoney = extra => Object.assign({ beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fKR(v)} }, extra||{});
+const yMoney = extra => Object.assign({ beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fK(v)} }, extra||{});
 const yCount = { beginAtZero:true, grid:{color:C.grid}, border:{display:false}, ticks:{color:C.muted, callback:v=>fNum(v)} };
 const lineOpts = (tooltipFmt) => ({ responsive:true, maintainAspectRatio:false, interaction:{intersect:false, mode:'index'},
   plugins:{ tooltip: tooltipFmt ? {...darkTooltip, callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y==null?'—':tooltipFmt(c.parsed.y))}} : darkTooltip, legend:{position:'bottom'} } });
@@ -1209,7 +1173,7 @@ function trendLine(vals){
   const b = sxy / sxx, a0 = my - b * mx, x0 = pts[0].x, x1 = pts[n-1].x;
   return { slope: b, line: vals.map((_,x) => (x >= x0 && x <= x1) ? a0 + b * x : null) };
 }
-const floorMillion = vals => { const v = vals.filter(x=>x!=null).map(cx); return v.length ? Math.max(0, Math.floor(Math.min(...v)/1e6)*1e6) : 0; };
+const floorMillion = vals => { const v = vals.filter(x=>x!=null); return v.length ? Math.max(0, Math.floor(Math.min(...v)/1e6)*1e6) : 0; };
 
 /* ============================================================
    RENDER — model pages (mirror the sheet)
@@ -1246,13 +1210,13 @@ function renderModel(){
     { label:'Actual ARR', data: D.arrPath.map((v,m)=> m<=li ? v : null), borderColor:C.dark, backgroundColor:C.dark, borderWidth:2.4, pointRadius:2.5, tension:.3 },
     { label:'Projected (sheet)', data: D.arrPath.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
     { label:'Target ARR', data: M.map(()=>D.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
-  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y: yMoney({ beginAtZero:false, min: floorMillion(D.arrPath) }) } }}, true);
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y: yMoney({ beginAtZero:false, min: floorMillion(D.arrPath) }) } }});
 
   mkChart('ch-rev', { type:'bar', data:{ labels:M, datasets:[
     { label:'Actual', data: padA(D.actualRevenue), backgroundColor:C.dark, borderRadius:4, barPercentage:.62, order:3 },
     { label:'Projected (sheet)', data: D.monthlyRevPlan.map((v,m)=> m>li ? v : null), backgroundColor:C.accentTint, borderRadius:4, barPercentage:.62, order:3 },
     { label:'Full-year plan', data: D.totalPlanRev, type:'line', borderColor:C.accent, borderWidth:1.6, pointRadius:0, tension:.3, order:1 }
-  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney() } }}, true);
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney() } }});
 
   let ct = '<table><tr><th class="txt">Month</th><th>Actual</th><th>Plan</th><th>Variance</th><th>ARR</th><th>Cumulative revenue</th></tr>';
   for (let m=0; m<12; m++){
@@ -1370,7 +1334,7 @@ function renderModel(){
       { label:'Target (model)', data: cacMonths.map(()=>src.target), type:'line', borderColor:C.warn, borderWidth:1.5, borderDash:[4,3], pointRadius:0, order:1 }
     ];
     if (tr) ds.push({ label:'Trend', data: tr.line, type:'line', borderColor:C.accent, borderWidth:2.2, pointRadius:0, tension:0, spanGaps:false, order:0 });
-    mkChart(id, { type:'bar', data:{ labels:cacMonths, datasets: ds }, options:{ ...lineOpts(fmtMoneyR), scales:{ x:xScale, y:yMoney() } }}, true);
+    mkChart(id, { type:'bar', data:{ labels:cacMonths, datasets: ds }, options:{ ...lineOpts(fmtMoney), scales:{ x:xScale, y:yMoney() } }});
     state.cacTrend = state.cacTrend || {}; state.cacTrend[id] = tr ? tr.slope : null;
     document.getElementById(subId).innerHTML = baseSub + (tr ? ' Trend line = least-squares fit through the monthly CAC: ' + deltaSpan(tr.slope, {fmt:fmtMoney, goodPos:false}) + ' per month.' : '');
   };
@@ -1399,7 +1363,7 @@ function renderModel(){
     card.style.display = '';
     const cats = side.cats.filter(k => k.usd.some(v => v));
     mkChart(chartId, { type:'bar', data:{ labels:cacMonths, datasets: cats.map((k,i)=>({ label:k.name, data:cacMonths.map((_,m)=>k.usd[m]||0), backgroundColor:CAT_COLORS[i%CAT_COLORS.length], stack:'c', borderRadius:2, barPercentage:.62 })) },
-      options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }}, true);
+      options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
     let t = '<table><tr><th class="txt">Category</th>' + cacMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
     const ytdTotal = sum(cacMonths.map((_,m)=>side.cost[m]));
     cats.forEach(k => { const y = sum(cacMonths.map((_,m)=>k.usd[m])); t += '<tr><td class="txt">'+k.name+'</td>' + cacMonths.map((_,m)=>'<td class="num">'+(k.usd[m]?fK(k.usd[m]):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(y)+'</b></td><td class="num">'+fPct(y/ytdTotal,1)+'</td></tr>'; });
@@ -1434,7 +1398,7 @@ function renderModel(){
     { label:'Existing book', data:D.existingPlanRev, backgroundColor:'#2A2740', stack:'b', borderRadius:2, barPercentage:.62 },
     { label:'New-client revenue', data:D.newClientRevPlan, backgroundColor:C.accent, stack:'b', borderRadius:2, barPercentage:.62 },
     { label:'Actual revenue', data: padA(D.actualRevenue), type:'line', borderColor:C.dark, borderWidth:2.4, pointRadius:2.6, pointBackgroundColor:C.dark, spanGaps:false, tension:0, order:0 }
-  ]}, options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }}, true);
+  ]}, options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
   let tb = '<table><tr><th class="txt"></th>' + M.map(m=>'<th>'+m+'</th>').join('') + '<th>FY</th></tr>';
   tb += rowT('New clients signed', D.signedPlan, fNum, D.signedPlanFY);
   tb += rowT('Cumulative signed', D.cumSignedPlan, fNum, D.cumSignedPlan[11]);
@@ -1476,7 +1440,7 @@ function renderPlanner(){
     { label:'Projected (levers)', data: R.arr.map((v,m)=> m>=li ? v : null), borderColor:C.accent, backgroundColor:C.accent, borderWidth:2.4, pointRadius:2.5, tension:.3 },
     { label:'If signings stop', data: R.arrStop.map((v,m)=> m>=li ? v : null), borderColor:C.grey, borderWidth:1.6, pointRadius:0, borderDash:[5,4], tension:.3 },
     { label:'Target ARR', data: M.map(()=>L.targetARR), borderColor:C.warn, borderWidth:1.2, pointRadius:0, borderDash:[2,3] }
-  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney({ beginAtZero:false, min: floorMillion(R.arr.concat(R.arrStop)) }) } }}, true);
+  ]}, options:{ ...lineOpts(), scales:{ x:xScale, y:yMoney({ beginAtZero:false, min: floorMillion(R.arr.concat(R.arrStop)) }) } }});
   const scen = SCENARIOS.map(s => { const set = typeof s.set === 'function' ? s.set(D.defaults) : s.set; const lv = Object.assign({}, D.defaults, { targetARR: L.targetARR }, set); return { s, lv, r: engine(lv) }; });
   const hits = scen.filter(x => x.r.yeARR >= L.targetARR).length;
   const banner = document.getElementById('scen-banner');
@@ -1519,7 +1483,7 @@ const tierOf = v => v>=4500?5 : v>=3600?4 : v>=2700?3 : v>=1800?2 : 1;
 
 function renderLadder(){
   if (!LADDER || !LADDER.src) return;
-  const built = buildLadder(LADDER.src.recvRows, LADDER.src.trackerRows, state.manualDropped);
+  const built = buildLadder(LADDER.src.recvRows, LADDER.src.trackerRows);
   LADDER.built = built;
   const rows = built.rows.slice();
   if (state.ladderSort === 'level') rows.sort((a,b)=> (b.level-a.level) || (b.arpa-a.arpa)); else rows.sort((a,b)=> b.arpa-a.arpa);
@@ -1529,7 +1493,7 @@ function renderLadder(){
   document.getElementById('k-brands-note').textContent = 'with ≥1 paid ROAS invoice (or on the include list)';
   document.getElementById('k-l3').textContent = built.rows.filter(r=>r.level>=3 && !r.dropped).length;
   document.getElementById('k-dropped').textContent = built.counts.dropped;
-  document.getElementById('k-dropped-note').textContent = built.rows.filter(r=>r.droppedBy==='tracker').length + ' from ROAS tracker · ' + built.rows.filter(r=>r.droppedBy==='manual').length + ' marked here';
+  document.getElementById('k-dropped-note').textContent = 'marked Churned in the ROAS tracker';
   const warn = document.getElementById('ladder-warn');
   const warns = [];
   if (LADDER.src.trackerError) warns.push(LADDER.src.trackerError);
@@ -1540,26 +1504,19 @@ function renderLadder(){
   document.getElementById('roas-chips').innerHTML = order.filter(k=>counts[k]).map(k => '<span class="st '+ST_CLASS[k]+'" style="font-size:12px; padding:5px 12px 5px 10px"><span class="dot"></span>'+k+' · '+counts[k]+'</span>').join('');
   const mCols = built.months;
   LADDER.sorted = rows;
-  let t = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th><th>1→2</th><th>2→3</th><th>3→4</th>' + mCols.map(m=>'<th>'+m.label+'</th>').join('') + '<th>Total</th><th>ARPA</th><th class="txt">Status</th><th class="txt">Churn month</th><th></th></tr></thead><tbody>';
+  let t = '<table class="ladder"><thead><tr><th class="txt">Client</th><th>Mo.</th><th>Level</th><th>1→2</th><th>2→3</th><th>3→4</th>' + mCols.map(m=>'<th>'+m.label+'</th>').join('') + '<th>Total</th><th>ARPA</th><th class="txt">Status</th><th class="txt">Churn month</th></tr></thead><tbody>';
   const step = v => v==null ? '<span class="step none">–</span>' : '<span class="step">'+v+'mo</span>';
   rows.forEach(r => {
     t += '<tr' + (r.dropped ? ' class="dropped-row"' : '') + '>' +
       '<td class="txt"><div class="cwrap">'+avatar(r.brand)+'<div><div class="cname">'+r.brand+(r.onHold?' <span class="tag">on hold</span>':'')+'</div><div class="cstart">since '+r.since+'</div></div></div></td>' +
       '<td class="num">'+r.moActive+'</td><td><span class="lvl lvl'+r.level+'">'+(r.level?'L'+r.level:'CPL')+'</span></td>' +
       '<td>'+step(r.ramp[0])+'</td><td>'+step(r.ramp[1])+'</td><td>'+step(r.ramp[2])+'</td>' +
-      r.grid.map(v => v==null ? '<td class="spend-cell"></td>' : '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(cx(v))+'</span></td>').join('') +
+      r.grid.map(v => v==null ? '<td class="spend-cell"></td>' : '<td class="spend-cell"><span class="schip t'+tierOf(v)+'">'+fNum(v)+'</span></td>').join('') +
       '<td class="num tot">'+fmtMoney(r.total)+'</td><td class="num arpa-big" title="'+r.basis+'">'+fmtMoney(r.arpa)+'</td>' +
       '<td class="txt keep"><span class="st '+ST_CLASS[r.status]+'"><span class="dot"></span>'+r.status+'</span></td>' +
-      '<td class="txt keep churn-month">' + (r.droppedBy==='tracker' ? (r.churnMonth ? '<b>'+r.churnMonth+'</b>' : '<span class="muted" title="Churned in the tracker but its Churn Date cell is blank">not set</span>') : (r.droppedBy==='manual' ? '<span class="muted">marked here</span>' : '')) + '</td>' +
-      '<td class="keep"><button class="drop-btn" data-brand="'+r.brand.replace(/"/g,'&quot;')+'"' + (r.droppedBy==='tracker' ? ' disabled title="Churned in the ROAS tracker — change it there"' : '') + '>' + (r.droppedBy==='manual' ? 'Unmark' : (r.droppedBy==='tracker' ? 'Churned' : 'Mark churned')) + '</button></td></tr>';
+      '<td class="txt keep churn-month">' + (r.dropped ? (r.churnMonth ? '<b>'+r.churnMonth+'</b>' : '<span class="muted" title="Churned in the tracker but its Churn Date cell is blank">not set</span>') : '') + '</td></tr>';
   });
   document.getElementById('tbl-roas').innerHTML = t + '</tbody></table>';
-  document.querySelectorAll('#tbl-roas .drop-btn').forEach(b => b.addEventListener('click', () => {
-    const name = b.dataset.brand, k = name.toLowerCase().replace(/[^a-z0-9]/g,'');
-    const i = state.manualDropped.findIndex(x => x.toLowerCase().replace(/[^a-z0-9]/g,'') === k);
-    if (i >= 0) state.manualDropped.splice(i,1); else state.manualDropped.push(name);
-    saveManualDropped(state.manualDropped); renderLadder();
-  }));
   document.querySelectorAll('#sort-toggle button').forEach(b => b.classList.toggle('on', b.dataset.sort === state.ladderSort));
   updateFooter();
 }
@@ -1572,54 +1529,32 @@ function bindLadderControls(){
 function ladderCSV(){
   const built = LADDER.built, rows = LADDER.sorted || built.rows;
   const q = v => { const s = (v == null ? '' : String(v)); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
-  const money = v => v == null ? '' : (Math.round(cx(v) * 100) / 100).toFixed(2);
-  const c = CUR.code;
+  const money = v => v == null ? '' : (Math.round(v * 100) / 100).toFixed(2);
+  const c = 'USD';
   const head = ['Client','Since','Months active','Level','Ramp 1-2 (mo)','Ramp 2-3 (mo)','Ramp 3-4 (mo)']
     .concat(built.months.map(m => m.label + ' (' + c + ')'))
-    .concat(['Total (' + c + ')','ARPA (' + c + ')','ARPA basis','Status','Churn month','Churn source','On hold']);
+    .concat(['Total (' + c + ')','ARPA (' + c + ')','ARPA basis','Status','Churn month','On hold']);
   const lines = [head.map(q).join(',')];
   rows.forEach(r => {
     lines.push([r.brand, r.since, r.moActive, r.level ? 'L' + r.level : 'CPL', r.ramp[0], r.ramp[1], r.ramp[2]]
       .concat(r.grid.map(money))
-      .concat([money(r.total), money(r.arpa), r.basis, r.status, r.churnMonth || '', r.droppedBy === 'tracker' ? 'ROAS tracker' : (r.droppedBy === 'manual' ? 'Marked on this device' : ''), r.onHold ? 'Yes' : ''])
+      .concat([money(r.total), money(r.arpa), r.basis, r.status, r.churnMonth || '', r.onHold ? 'Yes' : ''])
       .map(q).join(','));
   });
   lines.push('');
   lines.push(q('Fleet ARPA (' + c + ')') + ',' + money(built.fleetARPA));
   lines.push(q('As of') + ',' + built.today.toISOString().slice(0,10));
-  if (c === 'AED') lines.push(q('Rate') + ',' + q('1 USD = ' + FX_AED + ' AED'));
   return lines.join('\r\n');
 }
 function exportLadderCSV(){
   if (!LADDER || !LADDER.built) return;
   const blob = new Blob(['\ufeff' + ladderCSV()], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob), a = document.createElement('a');
-  a.href = url; a.download = 'moontech-roas-ladder-' + LADDER.built.today.toISOString().slice(0,10) + '-' + CUR.code + '.csv';
+  a.href = url; a.download = 'moontech-roas-ladder-' + LADDER.built.today.toISOString().slice(0,10) + '.csv';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* ---------- currency toggle ---------- */
-function applyCurrencyChrome(){
-  document.querySelectorAll('.cur-code').forEach(e => { e.textContent = CUR.code; });
-  document.querySelectorAll('#cur-toggle button').forEach(b => b.classList.toggle('on', b.dataset.cur === CUR.code));
-  const n = document.getElementById('planner-cur-note'); if (n) n.style.display = CUR.code === 'AED' ? 'block' : 'none';
-}
-function setCurrency(code, persist){
-  CUR.code = code === 'AED' ? 'AED' : 'USD';
-  CUR.rate = CUR.code === 'AED' ? FX_AED : 1;
-  if (persist !== false){ try { localStorage.setItem(CUR_KEY, CUR.code); } catch(e){} }
-  applyCurrencyChrome();
-  if (DATA){ try { renderModel(); renderPlanner(); } catch(e){ console.error(e); } }
-  if (LADDER && LADDER.src){ try { renderLadder(); } catch(e){ console.error(e); } }
-  updateFooter();
-}
-function bindCurrency(){
-  document.querySelectorAll('#cur-toggle button').forEach(b => b.addEventListener('click', () => setCurrency(b.dataset.cur)));
-  let saved = 'USD'; try { saved = localStorage.getItem(CUR_KEY) || 'USD'; } catch(e){}
-  CUR.code = saved === 'AED' ? 'AED' : 'USD'; CUR.rate = CUR.code === 'AED' ? FX_AED : 1;
-  applyCurrencyChrome();
-}
 
 /* ============================================================
    METHOD
@@ -1646,18 +1581,16 @@ function renderMethod(){
     <ul>
       <li>Only invoices with status exactly <b>Paid</b> count. Unconfirmed and cancelled never do. Level = highest paid milestone; brands with no ROAS milestone are excluded unless on the include list (Jetour, a CPL client).</li>
       <li>Net value per invoice = $ amount (or AED ÷ 3.6725), less 5% VAT where the invoice is VAT-included, less any refund.</li>
-      <li><b>ARPA:</b> M1–M2 = ROAS spend to date. M3+ = latest <b>paid</b> invoice × 12. Churned (in the tracker, or marked here) = total paid to date at any level. Fleet ARPA = simple average across qualifying brands.</li>
+      <li><b>ARPA:</b> M1–M2 = ROAS spend to date. M3+ = latest <b>paid</b> invoice × 12. Churned (in the ROAS tracker) = total paid to date at any level. Fleet ARPA = simple average across qualifying brands.</li>
       <li><b>Grid and timing</b> use payment date: a May invoice paid in July sits in July. "Since" = first payment month. Months active counts the start month (a brand first paid in Dec is 1 month active in Dec).</li>
       <li><b>Status</b> replicates the tracking sheet's formula. Idle months = months since the last month with paid spend (the current month counts as 1). In order: ≤1 month active → Too early · idle ≥6 → Inactive · idle ≥ level and active >2 → At risk · idle ≥ level−1 → Watch · stepped up recently (months at level ≤ level−2, below L5) → Scaling · ARPA ≥ $24,000 → Active · else Low spend. A churned brand always shows <b>Churned</b>, with its churn month taken live from the tracker's Churn Date column.</li>
       <li>The tracker's <b>On Hold</b> is not churn — those brands stay in ARPA and are tagged "on hold". A brand churned in the tracker cannot be un-dropped here; change it in the tracker.</li>
-      <li>Manual Drop/Undrop marks are saved in this browser only (they are not shared and don't write to any sheet).</li>
     </ul>
     <h2>Basis notes</h2>
     <ul>
       <li><b>CAC basis:</b> monthly CAC = that month's USD cost ÷ acquisitions (matches the CAC sheet's own per-month row); a month with spend but no acquisitions shows "n/a". Headline CAC = blended 2026 YTD (cost ÷ acquisitions, January to the latest closed month). Variance = model target − actual, so a positive (green) figure means under target. Category cells are converted from AED at 3.6725. The CAC sheet also carries Oct–Dec 2025, which sit outside the 2026 model year and are not shown. Its "Total/Avg" summary cells do not reconcile to its monthly figures under any basis, so they are not displayed.</li>
-      <li><b>Currency:</b> every amount is held in USD; the sidebar toggle switches display to AED at a fixed 1 USD = 3.6725 AED. CAC-sheet categories are recorded in AED, so AED view shows their original values. Planner lever inputs stay in USD.</li>
       <li><b>CAC trend lines</b> are a least-squares straight line through the months that have a CAC (months with no acquisitions are skipped); the slope is shown per month above each chart.</li>
-      <li><b>Ladder export</b> downloads the ladder exactly as shown — current sort order and display currency — as a CSV that opens in Excel.</li>
+      <li><b>Ladder export</b> downloads the ladder exactly as shown — current sort order, in USD — as a CSV that opens in Excel.</li>
       <li>The model sheet's own CAC section differs from the CAC sheet for Jan–Apr merchant costs and for creator counts; the CAC sheet is the designated source of actuals.</li>
       <li>Existing-book share can exceed 100% in months where the existing/total split is computed independently in the sheet; it is shown as recorded.</li>
       <li><b>Scenario Planner precision:</b> a published CSV carries cell values only as displayed. The sheet's seasonality row is formatted to two decimals, which is its full precision, so the planner reads it exactly and reproduces the sheet's plan (the source and calibration are shown on the planner; if that row's format were ever reduced, the planner falls back to back-solving seasonality from the new-client revenue row).</li>
@@ -1685,8 +1618,7 @@ function bindNav(){ document.querySelectorAll('#nav a').forEach(a => a.addEventL
    BOOT — fetch everything, then render
    ============================================================ */
 async function boot(){
-  setChartDefaults(); buildPages(); bindNav(); bindLadderControls(); bindCurrency();
-  state.manualDropped = loadManualDropped();
+  setChartDefaults(); buildPages(); bindNav(); bindLadderControls();
   const banner = document.getElementById('load-banner');
   const [modelRes, ladderRes, cacRes] = await Promise.allSettled([ loadLiveData(), fetchLadderSources(), fetchCacSheet(2026) ]);
 
