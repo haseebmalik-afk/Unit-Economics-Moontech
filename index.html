@@ -237,6 +237,7 @@ tr.var-row td.txt{color:var(--text-3); font-weight:600; text-transform:uppercase
 .ladder thead th:first-child{z-index:4; background:#FBFBFA}
 .ladder tbody tr:hover td:first-child{background:var(--accent-wash)}
 .ladder tbody tr.dropped-row td:not(.keep) > *{opacity:.5}
+tr.recon-row td{color:var(--text-3); font-style:italic; border-top:1px dashed var(--border)}
 </style>
 </head>
 <body>
@@ -757,7 +758,7 @@ async function fetchLadderSources(){
    ============================================================ */
 "use strict";
 
-const CAC_SOURCE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbBasF2SSMyuhYTfUswU3fh1szd4L0lnUGhD1BGhdNJ-06lFp-MFwcdQeL2ZS5LQ/pub?gid=1652171622&single=true&output=csv";
+const CAC_SOURCE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTbBasF2SSMyuhYTfUswU3fh1szd4L0lnUGhD1BGhdNJ-06lFp-MFwcdQeL2ZS5LQ/pub?gid=1662814783&single=true&output=csv";
 const CAC_AED_PER_USD = 3.6725;
 const MON = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
 
@@ -1037,10 +1038,12 @@ function buildPages(){
       <div class="card span-6"><h2>Creator CAC — detail</h2><div class="table-wrap" id="tbl-ccac"></div></div>
       <div class="card span-6" id="card-mcat"><h2>Merchant cost by category <span class="tag">USD</span></h2>
         <div class="card-sub">Where merchant acquisition spend goes each month — from the CAC sheet, converted at 3.6725 AED/USD.</div>
+        <div class="callout" id="mcat-warn" style="display:none"></div>
         <div class="chart-box" style="height:260px"><canvas id="ch-mcat"></canvas></div>
         <div class="table-wrap" style="margin-top:12px" id="tbl-mcat"></div></div>
       <div class="card span-6" id="card-ccat"><h2>Creator cost by category <span class="tag">USD</span></h2>
         <div class="card-sub">Where creator acquisition spend goes each month.</div>
+        <div class="callout" id="ccat-warn" style="display:none"></div>
         <div class="chart-box" style="height:260px"><canvas id="ch-ccat"></canvas></div>
         <div class="table-wrap" style="margin-top:12px" id="tbl-ccat"></div></div>
     </div>
@@ -1357,21 +1360,46 @@ function renderModel(){
 
   // category breakdown (CAC sheet only)
   const CAT_COLORS = [C.accent, '#8B83EC', '#2A2740', C.accentTint, '#C77A0F', '#0E9F6E', '#98A2B3'];
-  const catBlock = (side, chartId, tblId, cardId) => {
-    const card = document.getElementById(cardId);
-    if (!liveCac || !side.cats || !side.cats.length){ card.style.display = 'none'; return; }
+  // The sheet's "Total … Cost" row is what CAC uses. Where it leaves a category out (e.g. Marketing Events Jan–Apr,
+  // intended by Finance), the category view follows the total row so chart and table add up to what CAC counts,
+  // and a neutral note says what was excluded.
+  const catBlock = (side, chartId, tblId, cardId, warnId, label) => {
+    const card = document.getElementById(cardId), warn = document.getElementById(warnId);
+    if (!liveCac || !side.cats || !side.cats.length){ card.style.display = 'none'; warn.style.display = 'none'; return; }
     card.style.display = '';
-    const cats = side.cats.filter(k => k.usd.some(v => v));
-    mkChart(chartId, { type:'bar', data:{ labels:cacMonths, datasets: cats.map((k,i)=>({ label:k.name, data:cacMonths.map((_,m)=>k.usd[m]||0), backgroundColor:CAT_COLORS[i%CAT_COLORS.length], stack:'c', borderRadius:2, barPercentage:.62 })) },
-      options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
+    const shown = side.cats.filter(k => cacMonths.some((_,m) => k.usd[m]));
+    const gap = cacMonths.map((_,m) => sum(shown.map(k => k.usd[m])) - (side.cost[m] || 0));   // > 0: categories exceed the total
+    const gapMonths = cacMonths.map((mn,m) => Math.abs(gap[m]) > 1 ? m : -1).filter(m => m >= 0);
+    // if the gap equals one category's value in every affected month, that category is the one left out
+    const match = gapMonths.length ? shown.find(k => gapMonths.every(m => Math.abs((k.usd[m]||0) - gap[m]) <= 1)) : null;
+    const counted = shown.map(k => ({ name:k.name, usd: cacMonths.map((_,m) => (k === match && gapMonths.includes(m)) ? null : k.usd[m]) }))
+                         .filter(k => k.usd.some(v => v));
+    const resid = cacMonths.map((_,m) => match ? 0 : gap[m]);           // only when no single category explains it
+    const hasResid = resid.some(v => Math.abs(v) > 1);
+    const ds = counted.map((k,i)=>({ label:k.name, data:k.usd.map(v=>v||0), backgroundColor:CAT_COLORS[i%CAT_COLORS.length], stack:'c', borderRadius:2, barPercentage:.62, order:1 }));
+    if (hasResid) ds.push({ label:'Total used for CAC', data:cacMonths.map((_,m)=>side.cost[m]), type:'line', borderColor:C.dark, borderWidth:2, borderDash:[4,3], pointRadius:2.5, pointBackgroundColor:C.dark, tension:0, order:0 });
+    mkChart(chartId, { type:'bar', data:{ labels:cacMonths, datasets: ds }, options:{ ...lineOpts(), scales:{ x:{...xScale, stacked:true}, y:yMoney({stacked:true}) } }});
     let t = '<table><tr><th class="txt">Category</th>' + cacMonths.map(m=>'<th>'+m+'</th>').join('') + '<th>YTD</th><th>Share</th></tr>';
     const ytdTotal = sum(cacMonths.map((_,m)=>side.cost[m]));
-    cats.forEach(k => { const y = sum(cacMonths.map((_,m)=>k.usd[m])); t += '<tr><td class="txt">'+k.name+'</td>' + cacMonths.map((_,m)=>'<td class="num">'+(k.usd[m]?fK(k.usd[m]):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(y)+'</b></td><td class="num">'+fPct(y/ytdTotal,1)+'</td></tr>'; });
-    t += '<tr class="total"><td class="txt">Total</td>' + cacMonths.map((_,m)=>'<td class="num">'+fK(side.cost[m])+'</td>').join('') + '<td class="num">'+fK(ytdTotal)+'</td><td class="num">100%</td></tr></table>';
+    counted.forEach(k => { const y = sum(k.usd); t += '<tr><td class="txt">'+k.name+'</td>' + k.usd.map(v=>'<td class="num">'+(v?fK(v):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(y)+'</b></td><td class="num">'+fPct(y/ytdTotal,1)+'</td></tr>'; });
+    if (hasResid){
+      const yR = sum(resid);
+      t += '<tr class="recon-row"><td class="txt">Excluded from CAC</td>' + resid.map(v=>'<td class="num">'+(Math.abs(v)>1?fK(-v):'<span class="muted">—</span>')+'</td>').join('') + '<td class="num"><b>'+fK(-yR)+'</b></td><td class="num">'+fPct(-yR/ytdTotal,1)+'</td></tr>';
+    }
+    t += '<tr class="total"><td class="txt">Total <span class="tag">used for CAC</span></td>' + cacMonths.map((_,m)=>'<td class="num">'+fK(side.cost[m])+'</td>').join('') + '<td class="num">'+fK(ytdTotal)+'</td><td class="num">100%</td></tr></table>';
     document.getElementById(tblId).innerHTML = t;
+    if (gapMonths.length){
+      const span = gapMonths.length === 1 ? cacMonths[gapMonths[0]] : cacMonths[gapMonths[0]] + '–' + cacMonths[gapMonths[gapMonths.length-1]];
+      const amt = fmtMoney(Math.abs(sum(gapMonths.map(m=>gap[m]))));
+      warn.style.display = 'block';
+      warn.innerHTML = match
+        ? '<b>Excluded from CAC:</b> ' + match.name + ' for ' + span + ' (' + amt + '), as set in the CAC sheet\'s Total ' + label + ' Cost row.'
+        : '<b>Note:</b> for ' + span + ' the CAC sheet\'s Total ' + label + ' Cost row differs from its category rows by ' + amt + '; CAC follows the total row.';
+    } else { warn.style.display = 'none'; warn.innerHTML = ''; }
+    state.catRecon = state.catRecon || {}; state.catRecon[cardId] = { gapMonths: gapMonths.map(m => cacMonths[m]), gapTotal: sum(gap), excluded: match ? match.name : null };
   };
-  catBlock(mc, 'ch-mcat', 'tbl-mcat', 'card-mcat');
-  catBlock(cc, 'ch-ccat', 'tbl-ccat', 'card-ccat');
+  catBlock(mc, 'ch-mcat', 'tbl-mcat', 'card-mcat', 'mcat-warn', 'Merchant');
+  catBlock(cc, 'ch-ccat', 'tbl-ccat', 'card-ccat', 'ccat-warn', 'Creator');
 
   /* ---------- LEVERS (read-only) ---------- */
   const L = D.defaults;
@@ -1588,10 +1616,10 @@ function renderMethod(){
     </ul>
     <h2>Basis notes</h2>
     <ul>
-      <li><b>CAC basis:</b> monthly CAC = that month's USD cost ÷ acquisitions (matches the CAC sheet's own per-month row); a month with spend but no acquisitions shows "n/a". Headline CAC = blended 2026 YTD (cost ÷ acquisitions, January to the latest closed month). Variance = model target − actual, so a positive (green) figure means under target. Category cells are converted from AED at 3.6725. The CAC sheet also carries Oct–Dec 2025, which sit outside the 2026 model year and are not shown. Its "Total/Avg" summary cells do not reconcile to its monthly figures under any basis, so they are not displayed.</li>
+      <li><b>CAC basis:</b> monthly CAC = that month's USD cost ÷ acquisitions (matches the CAC sheet's own per-month row); a month with spend but no acquisitions shows "n/a". Headline CAC = blended 2026 YTD (cost ÷ acquisitions, January to the latest closed month). Variance = model target − actual, so a positive (green) figure means under target. Category cells are converted from AED at 3.6725. The CAC sheet also carries Oct–Dec 2025, which sit outside the 2026 model year and are not shown. CAC follows the sheet's monthly total row. Where that row leaves a category out (Marketing Events, Jan–Apr 2026), the category view leaves it out too and a note above the chart says so.</li>
       <li><b>CAC trend lines</b> are a least-squares straight line through the months that have a CAC (months with no acquisitions are skipped); the slope is shown per month above each chart.</li>
       <li><b>Ladder export</b> downloads the ladder exactly as shown — current sort order, in USD — as a CSV that opens in Excel.</li>
-      <li>The model sheet's own CAC section differs from the CAC sheet for Jan–Apr merchant costs and for creator counts; the CAC sheet is the designated source of actuals.</li>
+      <li>The CAC sheet is the designated source of CAC actuals; the model sheet's own CAC section is used only as a fallback if the CAC sheet can't be reached.</li>
       <li>Existing-book share can exceed 100% in months where the existing/total split is computed independently in the sheet; it is shown as recorded.</li>
       <li><b>Scenario Planner precision:</b> a published CSV carries cell values only as displayed. The sheet's seasonality row is formatted to two decimals, which is its full precision, so the planner reads it exactly and reproduces the sheet's plan (the source and calibration are shown on the planner; if that row's format were ever reduced, the planner falls back to back-solving seasonality from the new-client revenue row).</li>
     </ul>
