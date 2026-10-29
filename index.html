@@ -615,11 +615,23 @@ function parseChurnMonth(s){
   if (!y || !m || m < 1 || m > 12) return { label: s, key: null };
   return { label: MONTH_NAMES[m-1] + ' ' + y, key: y * 12 + (m - 1) };
 }
+/* The tracker now carries banner/preamble rows above the column headers
+   ("CSM PULSE:", a blank row, then a merged BRAND/STATUS/… section row).
+   Find the real header row by content (a cell "Brand Name" AND a cell "Status")
+   rather than assuming row 0, so churn keeps resolving if it shifts again. */
+function trackerHeaderRow(rows){
+  for (let i = 0; i < rows.length; i++){
+    const set = new Set(rows[i].map(lNorm));
+    if (set.has('brandname') && set.has('status')) return i;
+  }
+  return 0;
+}
 function parseTracker(rows){
   if (!rows.length) return { churned: new Map(), onHold: new Set() };
-  const get = colGetter(rows[0]);
+  const h = trackerHeaderRow(rows);
+  const get = colGetter(rows[h]);
   const churned = new Map(), onHold = new Set();
-  for (const r of rows.slice(1)){
+  for (const r of rows.slice(h + 1)){
     const b = String(get(r, 'Brand Name') || '').trim();
     if (!b || brandKey(b) === 'average') continue;
     const st = String(get(r, 'Status') || '');
